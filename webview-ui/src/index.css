@@ -119,6 +119,21 @@ https://github.com/microsoft/vscode-webview-ui-toolkit/tree/main/src/dropdown#wi
 	margin-bottom: 2px;
 }
 
+/* Add these new styles for the dropdown options */
+.dropdown-container vscode-dropdown vscode-option[aria-checked="true"] {
+    background-color: var(--vscode-quickInputList-focusBackground) !important;
+}
+
+/* Fallback for selected state */
+.dropdown-container vscode-dropdown vscode-option.selected {
+    background-color: var(--vscode-quickInputList-focusBackground) !important;
+}
+
+/* Additional style for hover state if needed */
+.dropdown-container vscode-dropdown vscode-option:hover {
+    background-color: var(--vscode-list-hoverBackground);
+}
+
 /* Fix scrollbar in dropdown */
 
 vscode-dropdown::part(listbox) {

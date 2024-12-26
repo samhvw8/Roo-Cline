@@ -257,7 +257,7 @@ const ApiOptions = ({ showModelOptions, apiErrorMessage, modelIdErrorMessage }: 
 						}}>
 						Compress prompts and message chains to the context size (<a href="https://openrouter.ai/docs/transforms">OpenRouter Transforms</a>)
 					</VSCodeCheckbox>
-					<br/>
+					<br />
 				</div>
 			)}
 

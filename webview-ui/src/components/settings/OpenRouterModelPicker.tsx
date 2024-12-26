@@ -244,7 +244,7 @@ const DropdownList = styled.div`
 	max-height: 200px;
 	overflow-y: auto;
 	background-color: var(--vscode-dropdown-background);
-	border: 1px solid var(--vscode-list-activeSelectionBackground);
+	border: 1px solid var(--vscode-quickInputList-focusBackground);
 	z-index: ${OPENROUTER_MODEL_PICKER_Z_INDEX - 1};
 	border-bottom-left-radius: 3px;
 	border-bottom-right-radius: 3px;
@@ -256,10 +256,10 @@ const DropdownItem = styled.div<{ isSelected: boolean }>`
 	word-break: break-all;
 	white-space: normal;
 
-	background-color: ${({ isSelected }) => (isSelected ? "var(--vscode-list-activeSelectionBackground)" : "inherit")};
+	background-color: ${({ isSelected }) => (isSelected ? "var(--vscode-quickInputList-focusBackground)" : "")};
 
 	&:hover {
-		background-color: var(--vscode-list-activeSelectionBackground);
+		background-color: var(--vscode-quickInputList-focusBackground);
 	}
 `
 
