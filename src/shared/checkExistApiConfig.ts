@@ -12,6 +12,7 @@ export function checkExistKey(config: ApiConfiguration | undefined) {
 			config.lmStudioModelId,
 			config.geminiApiKey,
 			config.openAiNativeApiKey,
+			config.deepSeekApiKey
 		].some((key) => key !== undefined)
 		: false;
 }
