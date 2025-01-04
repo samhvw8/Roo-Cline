@@ -5,6 +5,7 @@ import { validateApiConfiguration, validateModelId } from "../../utils/validate"
 import { vscode } from "../../utils/vscode"
 import ApiOptions from "./ApiOptions"
 import McpEnabledToggle from "../mcp/McpEnabledToggle"
+import ApiConfigManager from "./ApiConfigManager"
 
 const IS_DEV = false // FIXME: use flags when packaging
 
@@ -50,10 +51,15 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 		terminalOutputLineLimit,
 		setTerminalOutputLineLimit,
 		mcpEnabled,
+		currentApiConfigName,
+		listApiConfigMeta,
 	} = useExtensionState()
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [modelIdErrorMessage, setModelIdErrorMessage] = useState<string | undefined>(undefined)
 	const [commandInput, setCommandInput] = useState("")
+	// const [draftNewMode, setDraftNewMode] = useState(false) 
+
+
 	const handleSubmit = () => {
 		const apiValidationResult = validateApiConfiguration(apiConfiguration)
 		const modelIdValidationResult = validateModelId(apiConfiguration, openRouterModels)
@@ -82,6 +88,13 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 			vscode.postMessage({ type: "screenshotQuality", value: screenshotQuality ?? 75 })
 			vscode.postMessage({ type: "terminalOutputLineLimit", value: terminalOutputLineLimit ?? 500 })
 			vscode.postMessage({ type: "mcpEnabled", bool: mcpEnabled })
+			vscode.postMessage({ type: "currentApiConfigName", text: currentApiConfigName })
+			vscode.postMessage({
+				type: "upsertApiConfiguration",
+				text: currentApiConfigName,
+				apiConfiguration
+			})
+
 			onDone()
 		}
 	}
@@ -143,6 +156,42 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 			</div>
 			<div
 				style={{ flexGrow: 1, overflowY: "scroll", paddingRight: 8, display: "flex", flexDirection: "column" }}>
+				<div style={{ marginBottom: 5 }}>
+					<ApiConfigManager
+						currentApiConfigName={currentApiConfigName}
+						listApiConfigMeta={listApiConfigMeta}
+						onSelectConfig={(configName: string) => {
+							vscode.postMessage({
+								type: "loadApiConfiguration",
+								text: configName
+							})
+						}}
+						onDeleteConfig={(configName: string) => {
+							vscode.postMessage({
+								type: "deleteApiConfiguration",
+								text: configName
+							})
+						}}
+						onRenameConfig={(oldName: string, newName: string) => {
+							vscode.postMessage({
+								type: "renameApiConfiguration",
+								text: `${oldName}!#!#!${newName}`,
+								apiConfiguration
+							})
+						}}
+						onUpsertConfig={(configName: string) => {
+							vscode.postMessage({
+								type: "upsertApiConfiguration",
+								text: configName,
+								apiConfiguration
+							})
+						}}
+						// setDraftNewConfig={(mode: boolean) => {
+						// 	setDraftNewMode(mode)
+						// }}
+					/>
+				</div>
+
 				<div style={{ marginBottom: 5 }}>
 					<h3 style={{ color: "var(--vscode-foreground)", margin: 0, marginBottom: 15 }}>Provider Settings</h3>
 					<ApiOptions

@@ -5,6 +5,12 @@ export type AudioType = "notification" | "celebration" | "progress_loop"
 export interface WebviewMessage {
 	type:
 		| "apiConfiguration"
+		| "currentApiConfigName"
+		| "upsertApiConfiguration"
+		| "deleteApiConfiguration"
+		| "loadApiConfiguration"
+		| "renameApiConfiguration"
+		| "getListApiConfiguration"
 		| "customInstructions"
 		| "allowedCommands"
 		| "alwaysAllowReadOnly"
@@ -50,6 +56,7 @@ export interface WebviewMessage {
 		| "deleteMessage"
 		| "terminalOutputLineLimit"
 		| "mcpEnabled"
+		| "setApiConfigPassword"
 	text?: string
 	disabled?: boolean
 	askResponse?: ClineAskResponse
