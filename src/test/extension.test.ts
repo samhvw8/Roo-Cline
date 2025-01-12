@@ -124,11 +124,14 @@ suite('Roo Cline Extension Test Suite', () => {
 		// Test core commands are registered
 		const expectedCommands = [
 			'roo-cline.plusButtonClicked',
-			'roo-cline.mcpButtonClicked', 
+			'roo-cline.mcpButtonClicked',
 			'roo-cline.historyButtonClicked',
 			'roo-cline.popoutButtonClicked',
 			'roo-cline.settingsButtonClicked',
-			'roo-cline.openInNewTab'
+			'roo-cline.openInNewTab',
+			'roo-cline.explainCode',
+			'roo-cline.fixCode',
+			'roo-cline.improveCode'
 		];
 
 		for (const cmd of expectedCommands) {
