@@ -61,6 +61,7 @@ export interface WebviewMessage {
 		| "alwaysApproveResubmit"
 		| "requestDelaySeconds"
 		| "setApiConfigPassword"
+		| "setOpenAiCusModelInfo"
 	text?: string
 	disabled?: boolean
 	askResponse?: ClineAskResponse
