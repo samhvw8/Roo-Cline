@@ -83,6 +83,7 @@ export interface ExtensionState {
 	mcpEnabled: boolean
 	mode: Mode
 	modeApiConfigs?: Record<Mode, string>;
+	utilPrompt?: Record<string, string>;
 }
 
 export interface ClineMessage {

@@ -62,6 +62,8 @@ export interface WebviewMessage {
 		| "requestDelaySeconds"
 		| "setApiConfigPassword"
 		| "mode"
+		| "updateUtilPrompt"
+		| "resetUtilPrompt"
 	text?: string
 	disabled?: boolean
 	askResponse?: ClineAskResponse

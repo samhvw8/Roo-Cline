@@ -29,6 +29,12 @@ import { getCommitInfo, searchCommits, getWorkingState } from "../../utils/git"
 import { ConfigManager } from "../config/ConfigManager"
 import { Mode } from "../prompts/types"
 import { codeMode } from "../prompts/system"
+import {
+	defaultTemplates,
+	createPrompt
+} from "../prompts/code-actions"
+
+import { ACTION_NAMES } from "../CodeActionProvider"
 
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
@@ -93,6 +99,7 @@ type GlobalStateKey =
 	| "listApiConfigMeta"
 	| "mode"
 	| "modeApiConfigs"
+	| "utilPrompt" // Record of code action templates
 
 export const GlobalFileNames = {
 	apiConversationHistory: "api_conversation_history.json",
@@ -157,7 +164,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 	}
 
 	public static async handleCodeAction(
-		promptGenerator: (params: Record<string, string | any[]>) => string,
+		promptType: keyof typeof ACTION_NAMES,
 		params: Record<string, string | any[]>
 	): Promise<void> {
 		const visibleProvider = ClineProvider.getVisibleInstance()
@@ -165,8 +172,10 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			return
 		}
 
-		const prompt = promptGenerator(params)
+		const { utilPrompt } = await visibleProvider.getState()
 
+		const template = utilPrompt?.[promptType] ?? defaultTemplates[promptType]
+		const prompt = createPrompt(template, params)
 		await visibleProvider.initClineWithTask(prompt)
 	}
 
@@ -963,6 +972,48 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							vscode.window.showErrorMessage("Failed to get list api configuration")
 						}
 						break
+					case "updateUtilPrompt":
+						try {
+							if (!message.values) {
+								return
+							}
+
+							let utilPrompt = message.values['utilPrompt']
+
+							await this.updateGlobalState("utilPrompt", utilPrompt)
+
+							await this.postStateToWebview();
+						} catch (error) {
+							console.error("Error update util prompt:", error)
+							vscode.window.showErrorMessage("Failed to update utility prompt")
+						}
+						break
+					case "resetUtilPrompt":
+						try {
+							if (!message.text) {
+								return
+							}
+
+							let {utilPrompt} = await this.getState()
+
+							const key = message.text as keyof typeof defaultTemplates;
+							if (!(key in defaultTemplates)) {
+								return
+							}
+
+							utilPrompt = {
+								...utilPrompt,
+								[key]: defaultTemplates[key]
+							}
+
+							await this.updateGlobalState("utilPrompt", utilPrompt)
+
+							await this.postStateToWebview();
+						} catch (error) {
+							console.error("Error reset util prompt:", error)
+							vscode.window.showErrorMessage("Failed to reset utility prompt")
+						}
+						break
 				}
 			},
 			null,
@@ -1496,6 +1547,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			currentApiConfigName,
 			listApiConfigMeta,
 			mode,
+			utilPrompt
 		} = await this.getState()
 
 		const allowedCommands = vscode.workspace
@@ -1533,6 +1585,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			currentApiConfigName: currentApiConfigName ?? "default",
 			listApiConfigMeta: listApiConfigMeta ?? [],
 			mode: mode ?? codeMode,
+			utilPrompt: utilPrompt ?? defaultTemplates
 		}
 	}
 
@@ -1644,6 +1697,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			listApiConfigMeta,
 			mode,
 			modeApiConfigs,
+			utilPrompt
 		] = await Promise.all([
 			this.getGlobalState("apiProvider") as Promise<ApiProvider | undefined>,
 			this.getGlobalState("apiModelId") as Promise<string | undefined>,
@@ -1700,6 +1754,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("listApiConfigMeta") as Promise<ApiConfigMeta[] | undefined>,
 			this.getGlobalState("mode") as Promise<Mode | undefined>,
 			this.getGlobalState("modeApiConfigs") as Promise<Record<Mode, string> | undefined>,
+			this.getGlobalState("utilPrompt") as Promise<Record<string, string> | undefined>
 		])
 
 		let apiProvider: ApiProvider
@@ -1767,6 +1822,8 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			writeDelayMs: writeDelayMs ?? 1000,
 			terminalOutputLineLimit: terminalOutputLineLimit ?? 500,
 			mode: mode ?? codeMode,
+			utilPrompt: utilPrompt ?? defaultTemplates,
+
 			preferredLanguage: preferredLanguage ?? (() => {
 				// Get VSCode's locale setting
 				const vscodeLang = vscode.env.language;
