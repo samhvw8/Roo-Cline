@@ -261,6 +261,22 @@ export const ChatRowContent = ({
 						/>
 					</>
 				)
+			case "insertedBlock":
+				return (
+					<>
+						<div style={headerStyle}>
+							{toolIcon(tool.tool === "insertedBlock" ? "insert" : "edit")}
+							<span style={{ fontWeight: "bold" }}>Cline wants to edit this file:</span>
+						</div>
+						<CodeAccordian
+							isLoading={message.partial}
+							diff={tool.diff!}
+							path={tool.path!}
+							isExpanded={isExpanded}
+							onToggleExpand={onToggleExpand}
+						/>
+					</>
+				)
 			case "newFileCreated":
 				return (
 					<>

@@ -985,6 +985,8 @@ export class Cline {
 							return `[${block.name} for '${block.params.path}']`
 						case "apply_diff":
 							return `[${block.name} for '${block.params.path}']`
+						case "insert_code_block":
+							return `[${block.name} for '${block.params.path}' at ${block.params.start_line}]`
 						case "search_files":
 							return `[${block.name} for '${block.params.regex}'${
 								block.params.file_pattern ? ` in '${block.params.file_pattern}'` : ""
@@ -1421,6 +1423,128 @@ export class Cline {
 							break
 						}
 					}
+
+					case "insert_code_block": {
+						const relPath: string | undefined = block.params.path
+						const start_line: string | undefined = block.params.start_line
+						const content: string | undefined = block.params.content
+
+						const sharedMessageProps: ClineSayTool = {
+							tool: "insertedBlock",
+							path: getReadablePath(cwd, removeClosingTag("path", relPath)),
+						}
+
+						try {
+							if (block.partial) {
+								const partialMessage = JSON.stringify(sharedMessageProps)
+								await this.ask("tool", partialMessage, block.partial).catch(() => { })
+								break
+							}
+
+							// Validate required parameters
+							if (!relPath) {
+								this.consecutiveMistakeCount++
+								pushToolResult(await this.sayAndCreateMissingParamError("insert_code_block", "path"))
+								break
+							}
+							if (!start_line) {
+								this.consecutiveMistakeCount++
+								pushToolResult(await this.sayAndCreateMissingParamError("insert_code_block", "start_line"))
+								break
+							}
+							if (!content) {
+								this.consecutiveMistakeCount++
+								pushToolResult(await this.sayAndCreateMissingParamError("insert_code_block", "content"))
+								break
+							}
+
+							this.consecutiveMistakeCount = 0
+
+							// Read the file
+							const absolutePath = path.resolve(cwd, relPath)
+							const fileContent = await fs.readFile(absolutePath, "utf8")
+							this.diffViewProvider.editType = "modify"
+							this.diffViewProvider.originalContent = fileContent
+							const lines = fileContent.split("\n")
+
+							// Convert position to number and validate
+							const lineNumber = parseInt(start_line)
+							if (isNaN(lineNumber) || lineNumber < 0) {
+								throw new Error(`Invalid position: ${start_line}. Must be a number between 0 and ${lines.length}`)
+							}
+
+							// Insert the code block at the specified position
+							const contentLines = content.split("\n")
+							const targetLine = lineNumber - 1
+
+							lines.splice(targetLine, 0, ...contentLines)
+							const updatedContent = lines.join("\n")
+
+							// Show changes in diff view
+							if (!this.diffViewProvider.isEditing) {
+								await this.ask("tool", JSON.stringify(sharedMessageProps), true).catch(() => {
+								})
+								// First open with original content
+								await this.diffViewProvider.open(relPath)
+								await this.diffViewProvider.update(fileContent, false, true, true)
+								this.diffViewProvider.scrollEditorToLine(targetLine)
+								await delay(200)
+							}
+
+							await this.diffViewProvider.update(updatedContent, true, true, true)
+
+							const completeMessage = JSON.stringify({
+								...sharedMessageProps,
+								diff: content // FIXME: this need to more beautiful
+							} satisfies ClineSayTool)
+
+							const didApprove = await this
+								.ask("tool", completeMessage, false)
+								.then((response) => response.response === "yesButtonClicked")
+
+							if (!didApprove) {
+								await this.diffViewProvider.revertChanges()
+								pushToolResult("Changes were rejected by the user.")
+								break
+							}
+
+							const { newProblemsMessage, userEdits, finalContent } = await this.diffViewProvider.saveChanges()
+							this.didEditFile = true
+
+							if (!userEdits) {
+								pushToolResult(
+									`The code block was successfully inserted at line ${start_line} in ${relPath.toPosix()}.${newProblemsMessage}`
+								)
+								await this.diffViewProvider.reset()
+								break
+							}
+
+							const userFeedbackDiff = JSON.stringify({
+								tool: "insertedBlock",
+								path: getReadablePath(cwd, relPath),
+								diff: userEdits,
+							} satisfies ClineSayTool)
+
+							console.debug("[DEBUG] User made edits, sending feedback diff:", userFeedbackDiff)
+							await this.say("user_feedback_diff", userFeedbackDiff)
+							pushToolResult(
+								`The user made the following updates to your content:\n\n${userEdits}\n\n` +
+								`The updated content, which includes both your original modifications and the user's edits, has been successfully saved to ${relPath.toPosix()}. Here is the full, updated content of the file:\n\n` +
+								`<final_file_content path="${relPath.toPosix()}">\n${finalContent}\n</final_file_content>\n\n` +
+								`Please note:\n` +
+								`1. You do not need to re-write the file with these changes, as they have already been applied.\n` +
+								`2. Proceed with the task using this updated file content as the new baseline.\n` +
+								`3. If the user's edits have addressed part of the task or changed the requirements, adjust your approach accordingly.` +
+								`${newProblemsMessage}`
+							)
+							await this.diffViewProvider.reset()
+						} catch (error) {
+							handleError("insert block", error)
+							await this.diffViewProvider.reset()
+						}
+						break;
+					}
+
 					case "read_file": {
 						const relPath: string | undefined = block.params.path
 						const sharedMessageProps: ClineSayTool = {

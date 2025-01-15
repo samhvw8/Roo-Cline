@@ -3,6 +3,7 @@ import { getReadFileDescription } from './read-file'
 import { getWriteToFileDescription } from './write-to-file'
 import { getSearchFilesDescription } from './search-files'
 import { getListFilesDescription } from './list-files'
+import { getInsertCodeBlockDescription } from './insert-code-block'
 import { getListCodeDefinitionNamesDescription } from './list-code-definition-names'
 import { getBrowserActionDescription } from './browser-action'
 import { getAskFollowupQuestionDescription } from './ask-followup-question'
@@ -42,6 +43,9 @@ export function getToolDescriptionsForMode(
     }
     if (hasAllowedTool(allowedTools, 'write_to_file')) {
         descriptions.push(getWriteToFileDescription(cwd));
+    }
+    if (hasAllowedTool(allowedTools, 'insert_code_block')) {
+        descriptions.push(getInsertCodeBlockDescription(cwd));
     }
 
     // Optional diff strategy
@@ -97,5 +101,6 @@ export {
     getAskFollowupQuestionDescription,
     getAttemptCompletionDescription,
     getUseMcpToolDescription,
-    getAccessMcpResourceDescription
+    getAccessMcpResourceDescription,
+    getInsertCodeBlockDescription
 }

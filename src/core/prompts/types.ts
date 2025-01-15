@@ -7,6 +7,7 @@ export type ToolName =
   | 'read_file'
   | 'write_to_file'
   | 'apply_diff'
+  | 'insert_code_block'
   | 'search_files'
   | 'list_files'
   | 'list_code_definition_names'
@@ -21,6 +22,7 @@ export const CODE_TOOLS: ToolName[] = [
   'read_file',
   'write_to_file',
   'apply_diff',
+  'insert_code_block',
   'search_files',
   'list_files',
   'list_code_definition_names',

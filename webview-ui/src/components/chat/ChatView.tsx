@@ -120,6 +120,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 								case "editedExistingFile":
 								case "appliedDiff":
 								case "newFileCreated":
+								case "insertedBlock":
 									setPrimaryButtonText("Save")
 									setSecondaryButtonText("Reject")
 									break
@@ -501,7 +502,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 				return true
 			}
 			const tool = JSON.parse(message.text)
-			return ["editedExistingFile", "appliedDiff", "newFileCreated"].includes(tool.tool)
+			return ["editedExistingFile", "appliedDiff", "newFileCreated", "insertedBlock"].includes(tool.tool)
 		}
 		return false
 	}, [])

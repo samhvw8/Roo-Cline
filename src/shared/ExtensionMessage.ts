@@ -145,6 +145,7 @@ export interface ClineSayTool {
 	tool:
 		| "editedExistingFile"
 		| "appliedDiff"
+		| "insertedBlock"
 		| "newFileCreated"
 		| "readFile"
 		| "listFilesTopLevel"
