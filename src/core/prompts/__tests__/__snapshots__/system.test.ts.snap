@@ -145,6 +145,58 @@ Example: Requesting to list all top level source code definitions in the current
 <path>.</path>
 </list_code_definition_names>
 
+## search_and_replace
+Description: Request to perform search and replace operations on a file. Each operation can specify a search pattern (string or regex) and replacement text, with optional line range restrictions and regex flags. Shows a diff preview before applying changes.
+Parameters:
+- path: (required) The path of the file to modify (relative to the current working directory /test/path)
+- operations: (required) A JSON array of search/replace operations. Each operation is an object with:
+    * search: (required) The text or pattern to search for
+    * replace: (required) The text to replace matches with
+    * start_line: (optional) Starting line number for restricted replacement
+    * end_line: (optional) Ending line number for restricted replacement
+    * use_regex: (optional) Whether to treat search as a regex pattern
+    * ignore_case: (optional) Whether to ignore case when matching
+    * regex_flags: (optional) Additional regex flags when use_regex is true
+
+Usage:
+<search_and_replace>
+<path>File path here</path>
+<operations>[
+  {
+    "search": "text to find",
+    "replace": "replacement text",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace "foo" with "bar" in lines 1-10 of example.ts
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "foo",
+    "replace": "bar",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace all occurrences of "old" with "new" using regex
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "old\\w+",
+    "replace": "new$&",
+    "use_regex": true,
+    "ignore_case": true
+  }
+]</operations>
+</search_and_replace>
+
 ## ask_followup_question
 Description: Ask the user a question to gather additional information needed to complete the task. This tool should be used when you encounter ambiguities, need clarification, or require more details to proceed effectively. It allows for interactive problem-solving by enabling direct communication with the user. Use this tool judiciously to maintain a balance between gathering necessary information and avoiding excessive back-and-forth.
 Parameters:
@@ -225,6 +277,7 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
+- You should use search_and_replace when suggesting edits that involve either small individual changes or pattern-based modifications that need to be applied consistently across a file.
 - When you want to modify a file, use the write_to_file tool directly with the desired content. You do not need to display the content before using the tool.
 - Be sure to consider the type of project (e.g. Python, JavaScript, web application) when determining the appropriate structure and files to include. Also consider what files may be most relevant to accomplishing the task, for example looking at a project's manifest file would help you understand the project's dependencies, which you could incorporate into any code you write.
 - When making changes to code, always consider the context in which the code is being used. Ensure that your changes are compatible with the existing codebase and that they follow the project's coding standards and best practices.
@@ -411,6 +464,58 @@ Example: Requesting to list all top level source code definitions in the current
 <path>.</path>
 </list_code_definition_names>
 
+## search_and_replace
+Description: Request to perform search and replace operations on a file. Each operation can specify a search pattern (string or regex) and replacement text, with optional line range restrictions and regex flags. Shows a diff preview before applying changes.
+Parameters:
+- path: (required) The path of the file to modify (relative to the current working directory /test/path)
+- operations: (required) A JSON array of search/replace operations. Each operation is an object with:
+    * search: (required) The text or pattern to search for
+    * replace: (required) The text to replace matches with
+    * start_line: (optional) Starting line number for restricted replacement
+    * end_line: (optional) Ending line number for restricted replacement
+    * use_regex: (optional) Whether to treat search as a regex pattern
+    * ignore_case: (optional) Whether to ignore case when matching
+    * regex_flags: (optional) Additional regex flags when use_regex is true
+
+Usage:
+<search_and_replace>
+<path>File path here</path>
+<operations>[
+  {
+    "search": "text to find",
+    "replace": "replacement text",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace "foo" with "bar" in lines 1-10 of example.ts
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "foo",
+    "replace": "bar",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace all occurrences of "old" with "new" using regex
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "old\\w+",
+    "replace": "new$&",
+    "use_regex": true,
+    "ignore_case": true
+  }
+]</operations>
+</search_and_replace>
+
 ## browser_action
 Description: Request to interact with a Puppeteer-controlled browser. Every action, except \`close\`, will be responded to with a screenshot of the browser's current state, along with any new console logs. You may only perform one browser action per message, and wait for the user's response including a screenshot and logs to determine the next action.
 - The sequence of actions **must always start with** launching the browser at a URL, and **must always end with** closing the browser. If you need to visit a new URL that is not possible to navigate to from the current webpage, you must first close the browser, then launch again at the new URL.
@@ -539,6 +644,7 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
+- You should use search_and_replace when suggesting edits that involve either small individual changes or pattern-based modifications that need to be applied consistently across a file.
 - When you want to modify a file, use the write_to_file tool directly with the desired content. You do not need to display the content before using the tool.
 - Be sure to consider the type of project (e.g. Python, JavaScript, web application) when determining the appropriate structure and files to include. Also consider what files may be most relevant to accomplishing the task, for example looking at a project's manifest file would help you understand the project's dependencies, which you could incorporate into any code you write.
 - When making changes to code, always consider the context in which the code is being used. Ensure that your changes are compatible with the existing codebase and that they follow the project's coding standards and best practices.
@@ -725,6 +831,58 @@ Example: Requesting to list all top level source code definitions in the current
 <list_code_definition_names>
 <path>.</path>
 </list_code_definition_names>
+
+## search_and_replace
+Description: Request to perform search and replace operations on a file. Each operation can specify a search pattern (string or regex) and replacement text, with optional line range restrictions and regex flags. Shows a diff preview before applying changes.
+Parameters:
+- path: (required) The path of the file to modify (relative to the current working directory /test/path)
+- operations: (required) A JSON array of search/replace operations. Each operation is an object with:
+    * search: (required) The text or pattern to search for
+    * replace: (required) The text to replace matches with
+    * start_line: (optional) Starting line number for restricted replacement
+    * end_line: (optional) Ending line number for restricted replacement
+    * use_regex: (optional) Whether to treat search as a regex pattern
+    * ignore_case: (optional) Whether to ignore case when matching
+    * regex_flags: (optional) Additional regex flags when use_regex is true
+
+Usage:
+<search_and_replace>
+<path>File path here</path>
+<operations>[
+  {
+    "search": "text to find",
+    "replace": "replacement text",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace "foo" with "bar" in lines 1-10 of example.ts
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "foo",
+    "replace": "bar",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace all occurrences of "old" with "new" using regex
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "old\\w+",
+    "replace": "new$&",
+    "use_regex": true,
+    "ignore_case": true
+  }
+]</operations>
+</search_and_replace>
 
 ## ask_followup_question
 Description: Ask the user a question to gather additional information needed to complete the task. This tool should be used when you encounter ambiguities, need clarification, or require more details to proceed effectively. It allows for interactive problem-solving by enabling direct communication with the user. Use this tool judiciously to maintain a balance between gathering necessary information and avoiding excessive back-and-forth.
@@ -1219,6 +1377,7 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
+- You should use search_and_replace when suggesting edits that involve either small individual changes or pattern-based modifications that need to be applied consistently across a file.
 - When you want to modify a file, use the write_to_file tool directly with the desired content. You do not need to display the content before using the tool.
 - Be sure to consider the type of project (e.g. Python, JavaScript, web application) when determining the appropriate structure and files to include. Also consider what files may be most relevant to accomplishing the task, for example looking at a project's manifest file would help you understand the project's dependencies, which you could incorporate into any code you write.
 - When making changes to code, always consider the context in which the code is being used. Ensure that your changes are compatible with the existing codebase and that they follow the project's coding standards and best practices.
@@ -1405,6 +1564,58 @@ Example: Requesting to list all top level source code definitions in the current
 <path>.</path>
 </list_code_definition_names>
 
+## search_and_replace
+Description: Request to perform search and replace operations on a file. Each operation can specify a search pattern (string or regex) and replacement text, with optional line range restrictions and regex flags. Shows a diff preview before applying changes.
+Parameters:
+- path: (required) The path of the file to modify (relative to the current working directory /test/path)
+- operations: (required) A JSON array of search/replace operations. Each operation is an object with:
+    * search: (required) The text or pattern to search for
+    * replace: (required) The text to replace matches with
+    * start_line: (optional) Starting line number for restricted replacement
+    * end_line: (optional) Ending line number for restricted replacement
+    * use_regex: (optional) Whether to treat search as a regex pattern
+    * ignore_case: (optional) Whether to ignore case when matching
+    * regex_flags: (optional) Additional regex flags when use_regex is true
+
+Usage:
+<search_and_replace>
+<path>File path here</path>
+<operations>[
+  {
+    "search": "text to find",
+    "replace": "replacement text",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace "foo" with "bar" in lines 1-10 of example.ts
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "foo",
+    "replace": "bar",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace all occurrences of "old" with "new" using regex
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "old\\w+",
+    "replace": "new$&",
+    "use_regex": true,
+    "ignore_case": true
+  }
+]</operations>
+</search_and_replace>
+
 ## browser_action
 Description: Request to interact with a Puppeteer-controlled browser. Every action, except \`close\`, will be responded to with a screenshot of the browser's current state, along with any new console logs. You may only perform one browser action per message, and wait for the user's response including a screenshot and logs to determine the next action.
 - The sequence of actions **must always start with** launching the browser at a URL, and **must always end with** closing the browser. If you need to visit a new URL that is not possible to navigate to from the current webpage, you must first close the browser, then launch again at the new URL.
@@ -1533,6 +1744,7 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
+- You should use search_and_replace when suggesting edits that involve either small individual changes or pattern-based modifications that need to be applied consistently across a file.
 - When you want to modify a file, use the write_to_file tool directly with the desired content. You do not need to display the content before using the tool.
 - Be sure to consider the type of project (e.g. Python, JavaScript, web application) when determining the appropriate structure and files to include. Also consider what files may be most relevant to accomplishing the task, for example looking at a project's manifest file would help you understand the project's dependencies, which you could incorporate into any code you write.
 - When making changes to code, always consider the context in which the code is being used. Ensure that your changes are compatible with the existing codebase and that they follow the project's coding standards and best practices.
@@ -1780,6 +1992,58 @@ Example: Requesting to list all top level source code definitions in the current
 <path>.</path>
 </list_code_definition_names>
 
+## search_and_replace
+Description: Request to perform search and replace operations on a file. Each operation can specify a search pattern (string or regex) and replacement text, with optional line range restrictions and regex flags. Shows a diff preview before applying changes.
+Parameters:
+- path: (required) The path of the file to modify (relative to the current working directory /test/path)
+- operations: (required) A JSON array of search/replace operations. Each operation is an object with:
+    * search: (required) The text or pattern to search for
+    * replace: (required) The text to replace matches with
+    * start_line: (optional) Starting line number for restricted replacement
+    * end_line: (optional) Ending line number for restricted replacement
+    * use_regex: (optional) Whether to treat search as a regex pattern
+    * ignore_case: (optional) Whether to ignore case when matching
+    * regex_flags: (optional) Additional regex flags when use_regex is true
+
+Usage:
+<search_and_replace>
+<path>File path here</path>
+<operations>[
+  {
+    "search": "text to find",
+    "replace": "replacement text",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace "foo" with "bar" in lines 1-10 of example.ts
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "foo",
+    "replace": "bar",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace all occurrences of "old" with "new" using regex
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "old\\w+",
+    "replace": "new$&",
+    "use_regex": true,
+    "ignore_case": true
+  }
+]</operations>
+</search_and_replace>
+
 ## ask_followup_question
 Description: Ask the user a question to gather additional information needed to complete the task. This tool should be used when you encounter ambiguities, need clarification, or require more details to proceed effectively. It allows for interactive problem-solving by enabling direct communication with the user. Use this tool judiciously to maintain a balance between gathering necessary information and avoiding excessive back-and-forth.
 Parameters:
@@ -1860,6 +2124,7 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
+- You should use search_and_replace when suggesting edits that involve either small individual changes or pattern-based modifications that need to be applied consistently across a file.
 - You should use apply_diff instead of write_to_file when making changes to existing files since it is much faster and easier to apply a diff than to write the entire file again. Only use write_to_file to edit files when apply_diff has failed repeatedly to apply the diff.
 - Be sure to consider the type of project (e.g. Python, JavaScript, web application) when determining the appropriate structure and files to include. Also consider what files may be most relevant to accomplishing the task, for example looking at a project's manifest file would help you understand the project's dependencies, which you could incorporate into any code you write.
 - When making changes to code, always consider the context in which the code is being used. Ensure that your changes are compatible with the existing codebase and that they follow the project's coding standards and best practices.
@@ -2046,6 +2311,58 @@ Example: Requesting to list all top level source code definitions in the current
 <path>.</path>
 </list_code_definition_names>
 
+## search_and_replace
+Description: Request to perform search and replace operations on a file. Each operation can specify a search pattern (string or regex) and replacement text, with optional line range restrictions and regex flags. Shows a diff preview before applying changes.
+Parameters:
+- path: (required) The path of the file to modify (relative to the current working directory /test/path)
+- operations: (required) A JSON array of search/replace operations. Each operation is an object with:
+    * search: (required) The text or pattern to search for
+    * replace: (required) The text to replace matches with
+    * start_line: (optional) Starting line number for restricted replacement
+    * end_line: (optional) Ending line number for restricted replacement
+    * use_regex: (optional) Whether to treat search as a regex pattern
+    * ignore_case: (optional) Whether to ignore case when matching
+    * regex_flags: (optional) Additional regex flags when use_regex is true
+
+Usage:
+<search_and_replace>
+<path>File path here</path>
+<operations>[
+  {
+    "search": "text to find",
+    "replace": "replacement text",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace "foo" with "bar" in lines 1-10 of example.ts
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "foo",
+    "replace": "bar",
+    "start_line": 1,
+    "end_line": 10
+  }
+]</operations>
+</search_and_replace>
+
+Example: Replace all occurrences of "old" with "new" using regex
+<search_and_replace>
+<path>example.ts</path>
+<operations>[
+  {
+    "search": "old\\w+",
+    "replace": "new$&",
+    "use_regex": true,
+    "ignore_case": true
+  }
+]</operations>
+</search_and_replace>
+
 ## ask_followup_question
 Description: Ask the user a question to gather additional information needed to complete the task. This tool should be used when you encounter ambiguities, need clarification, or require more details to proceed effectively. It allows for interactive problem-solving by enabling direct communication with the user. Use this tool judiciously to maintain a balance between gathering necessary information and avoiding excessive back-and-forth.
 Parameters:
@@ -2126,6 +2443,7 @@ RULES
 - Before using the execute_command tool, you must first think about the SYSTEM INFORMATION context provided to understand the user's environment and tailor your commands to ensure they are compatible with their system. You must also consider if the command you need to run should be executed in a specific directory outside of the current working directory '/test/path', and if so prepend with \`cd\`'ing into that directory && then executing the command (as one command since you are stuck operating from '/test/path'). For example, if you needed to run \`npm install\` in a project outside of '/test/path', you would need to prepend with a \`cd\` i.e. pseudocode for this would be \`cd (path to project) && (command, in this case npm install)\`.
 - When using the search_files tool, craft your regex patterns carefully to balance specificity and flexibility. Based on the user's task you may use it to find code patterns, TODO comments, function definitions, or any text-based information across the project. The results include context, so analyze the surrounding code to better understand the matches. Leverage the search_files tool in combination with other tools for more comprehensive analysis. For example, use it to find specific code patterns, then use read_file to examine the full context of interesting matches before using write_to_file to make informed changes.
 - When creating a new project (such as an app, website, or any software project), organize all new files within a dedicated project directory unless the user specifies otherwise. Use appropriate file paths when writing files, as the write_to_file tool will automatically create any necessary directories. Structure the project logically, adhering to best practices for the specific type of project being created. Unless otherwise specified, new projects should be easily run without additional setup, for example most projects can be built in HTML, CSS, and JavaScript - which you can open in a browser.
+- You should use search_and_replace when suggesting edits that involve either small individual changes or pattern-based modifications that need to be applied consistently across a file.
 - When you want to modify a file, use the write_to_file tool directly with the desired content. You do not need to display the content before using the tool.
 - Be sure to consider the type of project (e.g. Python, JavaScript, web application) when determining the appropriate structure and files to include. Also consider what files may be most relevant to accomplishing the task, for example looking at a project's manifest file would help you understand the project's dependencies, which you could incorporate into any code you write.
 - When making changes to code, always consider the context in which the code is being used. Ensure that your changes are compatible with the existing codebase and that they follow the project's coding standards and best practices.
