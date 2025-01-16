@@ -21,6 +21,7 @@ export const toolUseNames = [
 	"access_mcp_resource",
 	"ask_followup_question",
 	"attempt_completion",
+	"search_and_replace"
 ] as const
 
 // Converts array of tool call names into a union type ("execute_command" | "read_file" | ...)
@@ -47,6 +48,7 @@ export const toolParamNames = [
 	"diff",
 	"start_line",
 	"end_line",
+	"operations"
 ] as const
 
 export type ToolParamName = (typeof toolParamNames)[number]

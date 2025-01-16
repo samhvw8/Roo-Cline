@@ -24,7 +24,8 @@ export const CODE_ALLOWED_TOOLS = [
     'use_mcp_tool',
     'access_mcp_resource',
     'ask_followup_question',
-    'attempt_completion'
+    'attempt_completion',
+    'search_and_replace'
 ] as const;
 
 // Tool name types for type safety

@@ -9,6 +9,7 @@ import { getAskFollowupQuestionDescription } from './ask-followup-question'
 import { getAttemptCompletionDescription } from './attempt-completion'
 import { getUseMcpToolDescription } from './use-mcp-tool'
 import { getAccessMcpResourceDescription } from './access-mcp-resource'
+import { getSearchAndReplaceDescription } from './search-and-replace'
 import { DiffStrategy } from '../../diff/DiffStrategy'
 import { McpHub } from '../../../services/mcp/McpHub'
 import { Mode, codeMode, askMode } from '../modes'
@@ -59,6 +60,9 @@ export function getToolDescriptionsForMode(
     if (hasAllowedTool(allowedTools, 'list_code_definition_names')) {
         descriptions.push(getListCodeDefinitionNamesDescription(cwd));
     }
+    if (hasAllowedTool(allowedTools, 'search_and_replace')) {
+        descriptions.push(getSearchAndReplaceDescription(cwd));
+    }
 
     // Browser actions
     if (supportsComputerUse && hasAllowedTool(allowedTools, 'browser_action')) {
@@ -97,5 +101,6 @@ export {
     getAskFollowupQuestionDescription,
     getAttemptCompletionDescription,
     getUseMcpToolDescription,
-    getAccessMcpResourceDescription
+    getAccessMcpResourceDescription,
+    getSearchAndReplaceDescription
 }
