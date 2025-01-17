@@ -1507,7 +1507,7 @@ export class Cline {
 								})
 								// First open with original content
 								await this.diffViewProvider.open(relPath)
-								await this.diffViewProvider.update(fileContent, false, true, true)
+								await this.diffViewProvider.update(fileContent, false)
 								this.diffViewProvider.scrollToFirstDiff()
 								await delay(200)
 							}
@@ -1523,7 +1523,7 @@ export class Cline {
 								break
 							}
 
-							await this.diffViewProvider.update(updatedContent, true, true, true)
+							await this.diffViewProvider.update(updatedContent, true)
 
 							const completeMessage = JSON.stringify({
 								...sharedMessageProps,
