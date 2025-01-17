@@ -48,6 +48,7 @@ export const toolParamNames = [
 	"diff",
 	"start_line",
 	"end_line",
+	"operations"
 ] as const
 
 export type ToolParamName = (typeof toolParamNames)[number]
@@ -78,7 +79,7 @@ export interface WriteToFileToolUse extends ToolUse {
 
 export interface InsertCodeBlockToolUse extends ToolUse {
 	name: "insert_code_block"
-	params: Partial<Pick<Record<ToolParamName, string>, "path" | "content" | "start_line">>
+	params: Partial<Pick<Record<ToolParamName, string>, "path" | "operations">>
 }
 
 export interface SearchFilesToolUse extends ToolUse {

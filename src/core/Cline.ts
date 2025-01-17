@@ -5,6 +5,7 @@ import { validateToolUse, isToolAllowedForMode } from "./mode-validator"
 import delay from "delay"
 import fs from "fs/promises"
 import os from "os"
+import { insertGroups, InsertGroup } from "./diff/insert-groups"
 import pWaitFor from "p-wait-for"
 import * as path from "path"
 import { serializeError } from "serialize-error"
@@ -1426,8 +1427,7 @@ export class Cline {
 
 					case "insert_code_block": {
 						const relPath: string | undefined = block.params.path
-						const start_line: string | undefined = block.params.start_line
-						const content: string | undefined = block.params.content
+						const operations: string | undefined = block.params.operations
 
 						const sharedMessageProps: ClineSayTool = {
 							tool: "insertedBlock",
@@ -1441,44 +1441,69 @@ export class Cline {
 								break
 							}
 
+							console.debug("[insert_code_block] 1");
+
 							// Validate required parameters
 							if (!relPath) {
 								this.consecutiveMistakeCount++
 								pushToolResult(await this.sayAndCreateMissingParamError("insert_code_block", "path"))
 								break
 							}
-							if (!start_line) {
+
+							if (!operations) {
 								this.consecutiveMistakeCount++
-								pushToolResult(await this.sayAndCreateMissingParamError("insert_code_block", "start_line"))
+								pushToolResult(await this.sayAndCreateMissingParamError("insert_code_block", "operations"))
 								break
 							}
-							if (!content) {
+							console.debug("[insert_code_block] 2");
+
+							const absolutePath = path.resolve(cwd, relPath)
+							const fileExists = await fileExistsAtPath(absolutePath)
+
+							if (!fileExists) {
 								this.consecutiveMistakeCount++
-								pushToolResult(await this.sayAndCreateMissingParamError("insert_code_block", "content"))
+								const formattedError = `File does not exist at path: ${absolutePath}\n\n<error_details>\nThe specified file could not be found. Please verify the file path and try again.\n</error_details>`
+								await this.say("error", formattedError)
+								pushToolResult(formattedError)
 								break
 							}
+
+							let parsedOperations: Array<{
+								start_line: number
+								content: string
+							}>
+
+							try {
+								parsedOperations = JSON.parse(operations)
+								if (!Array.isArray(parsedOperations)) {
+									throw new Error("Operations must be an array")
+								}
+							} catch (error) {
+								this.consecutiveMistakeCount++
+								await this.say(
+									"error",
+									`Failed to parse operations JSON: ${error.message}`
+								)
+								pushToolResult(formatResponse.toolError("Invalid operations JSON format"))
+								break
+							}
+
+							console.debug("[insert_code_block] 3", operations);
 
 							this.consecutiveMistakeCount = 0
 
 							// Read the file
-							const absolutePath = path.resolve(cwd, relPath)
 							const fileContent = await fs.readFile(absolutePath, "utf8")
 							this.diffViewProvider.editType = "modify"
 							this.diffViewProvider.originalContent = fileContent
 							const lines = fileContent.split("\n")
 
-							// Convert position to number and validate
-							const lineNumber = parseInt(start_line)
-							if (isNaN(lineNumber) || lineNumber < 0) {
-								throw new Error(`Invalid position: ${start_line}. Must be a number between 0 and ${lines.length}`)
-							}
-
-							// Insert the code block at the specified position
-							const contentLines = content.split("\n")
-							const targetLine = lineNumber - 1
-
-							lines.splice(targetLine, 0, ...contentLines)
-							const updatedContent = lines.join("\n")
+							const updatedContent = insertGroups(lines, parsedOperations.map((elem) => {
+								return {
+									index: elem.start_line - 1,
+									elements: elem.content.split("\n")
+								}
+							})).join("\n")
 
 							// Show changes in diff view
 							if (!this.diffViewProvider.isEditing) {
@@ -1487,15 +1512,26 @@ export class Cline {
 								// First open with original content
 								await this.diffViewProvider.open(relPath)
 								await this.diffViewProvider.update(fileContent, false, true, true)
-								this.diffViewProvider.scrollEditorToLine(targetLine)
+								this.diffViewProvider.scrollToFirstDiff()
 								await delay(200)
+							}
+
+							const diff = formatResponse.createPrettyPatch(
+								relPath,
+								this.diffViewProvider.originalContent,
+								updatedContent,
+							)
+
+							if (!diff) {
+								pushToolResult(`No changes needed for '${relPath}'`)
+								break
 							}
 
 							await this.diffViewProvider.update(updatedContent, true, true, true)
 
 							const completeMessage = JSON.stringify({
 								...sharedMessageProps,
-								diff: content // FIXME: this need to more beautiful
+								diff
 							} satisfies ClineSayTool)
 
 							const didApprove = await this
@@ -1513,7 +1549,7 @@ export class Cline {
 
 							if (!userEdits) {
 								pushToolResult(
-									`The code block was successfully inserted at line ${start_line} in ${relPath.toPosix()}.${newProblemsMessage}`
+									`The code block was successfully inserted in ${relPath.toPosix()}.${newProblemsMessage}`
 								)
 								await this.diffViewProvider.reset()
 								break
