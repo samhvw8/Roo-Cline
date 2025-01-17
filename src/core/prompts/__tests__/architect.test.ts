@@ -133,6 +133,41 @@ describe('ARCHITECT_PROMPT', () => {
     expect(prompt).toMatchSnapshot()
   })
 
+  it('should include custom prompts when provided', async () => {
+    const customPrompts = {
+      customInstructions: 'Architect mode custom instructions'
+    }
+
+    const prompt = await ARCHITECT_PROMPT(
+      '/test/path',
+      false,
+      undefined,
+      undefined,
+      undefined,
+      customPrompts
+    )
+    
+    expect(prompt).toMatchSnapshot()
+  })
+
+  it('should handle experimental tool usage flags', async () => {
+    const expToolUse = {
+      'insert_code_block': true
+    }
+
+    const prompt = await ARCHITECT_PROMPT(
+      '/test/path',
+      false,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      expToolUse
+    )
+    
+    expect(prompt).toMatchSnapshot()
+  })
+
   afterAll(() => {
     jest.restoreAllMocks()
   })

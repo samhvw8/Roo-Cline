@@ -31,6 +31,7 @@ import { getCommitInfo, searchCommits, getWorkingState } from "../../utils/git"
 import { ConfigManager } from "../config/ConfigManager"
 import { Mode } from "../prompts/types"
 import { codeMode, CustomPrompts } from "../../shared/modes"
+import { ExpToolName } from "../tool-lists"
 
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
@@ -99,8 +100,9 @@ type GlobalStateKey =
 	| "modeApiConfigs"
 	| "customPrompts"
 	| "enhancementApiConfigId"
-  	| "experimentalDiffStrategy"
+	| "experimentalDiffStrategy"
 	| "autoApprovalEnabled"
+	| "expToolUse"
 
 export const GlobalFileNames = {
 	apiConversationHistory: "api_conversation_history.json",
@@ -255,7 +257,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			fuzzyMatchThreshold,
 			mode,
 			customInstructions: globalInstructions,
-      experimentalDiffStrategy
+			experimentalDiffStrategy
 		} = await this.getState()
 
 		const modeInstructions = customPrompts?.[mode]?.customInstructions
@@ -285,7 +287,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			fuzzyMatchThreshold,
 			mode,
 			customInstructions: globalInstructions,
-      experimentalDiffStrategy
+			experimentalDiffStrategy
 		} = await this.getState()
 
 		const modeInstructions = customPrompts?.[mode]?.customInstructions
@@ -1076,13 +1078,37 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							vscode.window.showErrorMessage("Failed to get list api configuration")
 						}
 						break
-          case "experimentalDiffStrategy":
+					case "experimentalDiffStrategy":
 						await this.updateGlobalState("experimentalDiffStrategy", message.bool ?? false)
 						// Update diffStrategy in current Cline instance if it exists
 						if (this.cline) {
 							await this.cline.updateDiffStrategy(message.bool ?? false)
 						}
 						await this.postStateToWebview()
+						break
+
+					case "setExpToolUse":
+						if (!message.values) {
+							break;
+						}
+
+						if (Object.keys(message.values).length === 0) {
+							break;
+						}
+
+						try {
+							let expToolUse = (await this.getGlobalState("expToolUse")) as Record<ExpToolName, boolean>
+							expToolUse = {
+								...expToolUse,
+								...message.values
+							}
+							await this.updateGlobalState("expToolUse", expToolUse)
+							await this.postStateToWebview()
+						} catch (error) {
+							console.error("Error set exp tool use:", error)
+							vscode.window.showErrorMessage("Failed to set exp tool use")
+						}
+						break
 				}
 			},
 			null,
@@ -1660,7 +1686,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			mode,
 			customPrompts,
 			enhancementApiConfigId,
-      		experimentalDiffStrategy,
+			experimentalDiffStrategy,
 			autoApprovalEnabled,
 		} = await this.getState()
 
@@ -1701,7 +1727,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			mode: mode ?? codeMode,
 			customPrompts: customPrompts ?? {},
 			enhancementApiConfigId,
-      		experimentalDiffStrategy: experimentalDiffStrategy ?? false,
+			experimentalDiffStrategy: experimentalDiffStrategy ?? false,
 			autoApprovalEnabled: autoApprovalEnabled ?? false,
 		}
 	}
@@ -1818,8 +1844,9 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			modeApiConfigs,
 			customPrompts,
 			enhancementApiConfigId,
-      		experimentalDiffStrategy,
+			experimentalDiffStrategy,
 			autoApprovalEnabled,
+			expToolUse,
 		] = await Promise.all([
 			this.getGlobalState("apiProvider") as Promise<ApiProvider | undefined>,
 			this.getGlobalState("apiModelId") as Promise<string | undefined>,
@@ -1880,8 +1907,9 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			this.getGlobalState("modeApiConfigs") as Promise<Record<Mode, string> | undefined>,
 			this.getGlobalState("customPrompts") as Promise<CustomPrompts | undefined>,
 			this.getGlobalState("enhancementApiConfigId") as Promise<string | undefined>,
-      		this.getGlobalState("experimentalDiffStrategy") as Promise<boolean | undefined>,
+			this.getGlobalState("experimentalDiffStrategy") as Promise<boolean | undefined>,
 			this.getGlobalState("autoApprovalEnabled") as Promise<boolean | undefined>,
+			this.getGlobalState('expToolUse') as Promise<Record<ExpToolName, boolean> | undefined>
 		])
 
 		let apiProvider: ApiProvider
@@ -1986,8 +2014,9 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 			modeApiConfigs: modeApiConfigs ?? {} as Record<Mode, string>,
 			customPrompts: customPrompts ?? {},
 			enhancementApiConfigId,
-      		experimentalDiffStrategy: experimentalDiffStrategy ?? false,
+			experimentalDiffStrategy: experimentalDiffStrategy ?? false,
 			autoApprovalEnabled: autoApprovalEnabled ?? false,
+			expToolUse: expToolUse ?? {}
 		}
 	}
 

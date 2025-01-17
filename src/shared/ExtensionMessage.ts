@@ -5,6 +5,7 @@ import { HistoryItem } from "./HistoryItem"
 import { McpServer } from "./mcp"
 import { GitCommit } from "../utils/git"
 import { Mode, CustomPrompts } from "./modes"
+import { ExpToolName } from "../core/tool-lists"
 
 // webview will hold state
 export interface ExtensionMessage {
@@ -93,7 +94,8 @@ export interface ExtensionState {
 	mcpEnabled: boolean
 	mode: Mode
 	modeApiConfigs?: Record<Mode, string>
-	enhancementApiConfigId?: string
+	enhancementApiConfigId?: string,
+	expToolUse?: Record<ExpToolName, boolean>
   	experimentalDiffStrategy?: boolean
 	autoApprovalEnabled?: boolean
 }

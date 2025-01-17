@@ -801,7 +801,7 @@ export class Cline {
 			})
 		}
 
-		const { browserViewportSize, preferredLanguage, mode, customPrompts } = await this.providerRef.deref()?.getState() ?? {}
+		const { browserViewportSize, preferredLanguage, mode, customPrompts, expToolUse } = await this.providerRef.deref()?.getState() ?? {}
 		const systemPrompt = await SYSTEM_PROMPT(
 			cwd,
 			this.api.getModel().info.supportsComputerUse ?? false,
@@ -809,7 +809,8 @@ export class Cline {
 			this.diffStrategy,
 			browserViewportSize,
 			mode,
-			customPrompts
+			customPrompts,
+			expToolUse
 		) + await addCustomInstructions(
 			{
 				customInstructions: this.customInstructions,

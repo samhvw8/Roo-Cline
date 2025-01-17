@@ -61,8 +61,10 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 		listApiConfigMeta,
 		mode,
 		setMode,
-    experimentalDiffStrategy,
+		experimentalDiffStrategy,
 		setExperimentalDiffStrategy,
+		expToolUse,
+		setExpToolUse
 	} = useExtensionState()
 	const [apiErrorMessage, setApiErrorMessage] = useState<string | undefined>(undefined)
 	const [modelIdErrorMessage, setModelIdErrorMessage] = useState<string | undefined>(undefined)
@@ -701,6 +703,26 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 							</div>
 						)}
 					</div>
+				</div>
+
+				<div style={{ marginBottom: 15, border: "2px solid var(--vscode-errorForeground)", borderRadius: "4px", padding: "10px" }}>
+					<h4 style={{ fontWeight: 500, margin: "0 0 10px 0", color: "var(--vscode-errorForeground)" }}>⚠️ High-Risk Experiment Tool Settings</h4>
+					<p style={{ fontSize: "12px", marginBottom: 15, color: "var(--vscode-descriptionForeground)" }}>
+						The following settings allow Cline to use experiment tools
+						Enable these settings only if you fully trust the AI and understand the associated UX risk
+					</p>
+
+					<div style={{ marginBottom: 5 }}>
+						<VSCodeCheckbox
+							checked={expToolUse?.['insert_code_block'] ?? false}
+							onChange={(e: any) => setExpToolUse({"insert_code_block": e.target.checked})}>
+							<span style={{ fontWeight: "500" }}>Enable use insert_code_block tool</span>
+						</VSCodeCheckbox>
+						<p style={{ fontSize: "12px", marginTop: "5px", color: "var(--vscode-descriptionForeground)" }}>
+							This will allow cline to use experiment tools: insert_code_block, which can be insert multiple location at once
+						</p>
+					</div>
+
 				</div>
 
 				{IS_DEV && (

@@ -28,6 +28,11 @@ export const CODE_ALLOWED_TOOLS = [
     'attempt_completion'
 ] as const;
 
+export const EXPERIENTIAL_TOOL = [
+    "insert_code_block"
+]
+
 // Tool name types for type safety
 export type ReadOnlyToolName = typeof READONLY_ALLOWED_TOOLS[number];
 export type ToolName = typeof CODE_ALLOWED_TOOLS[number];
+export type ExpToolName = typeof EXPERIENTIAL_TOOL[number];

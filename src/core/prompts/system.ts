@@ -7,6 +7,7 @@ import { Mode, codeMode, architectMode, askMode } from "./modes"
 import { CustomPrompts } from "../../shared/modes"
 import fs from 'fs/promises'
 import path from 'path'
+import { ExpToolName } from "../tool-lists"
 
 async function loadRuleFiles(cwd: string, mode: Mode): Promise<string> {
     let combinedRules = ''
@@ -95,14 +96,15 @@ export const SYSTEM_PROMPT = async (
     browserViewportSize?: string,
     mode: Mode = codeMode,
     customPrompts?: CustomPrompts,
+    expToolUse?: Record<ExpToolName, boolean>
 ) => {
     switch (mode) {
         case architectMode:
-            return ARCHITECT_PROMPT(cwd, supportsComputerUse, mcpHub, diffStrategy, browserViewportSize, customPrompts?.architect)
+            return ARCHITECT_PROMPT(cwd, supportsComputerUse, mcpHub, diffStrategy, browserViewportSize, customPrompts?.architect, expToolUse)
         case askMode:
-            return ASK_PROMPT(cwd, supportsComputerUse, mcpHub, diffStrategy, browserViewportSize, customPrompts?.ask)
+            return ASK_PROMPT(cwd, supportsComputerUse, mcpHub, diffStrategy, browserViewportSize, customPrompts?.ask, expToolUse)
         default:
-            return CODE_PROMPT(cwd, supportsComputerUse, mcpHub, diffStrategy, browserViewportSize, customPrompts?.code)
+            return CODE_PROMPT(cwd, supportsComputerUse, mcpHub, diffStrategy, browserViewportSize, customPrompts?.code, expToolUse)
     }
 }
 

@@ -159,6 +159,25 @@ describe('SYSTEM_PROMPT', () => {
     expect(prompt).toMatchSnapshot()
   })
 
+  it('should handle experimental tool usage flags', async () => {
+    const expToolUse = {
+      'insert_code_block': true
+    }
+
+    const prompt = await SYSTEM_PROMPT(
+      '/test/path',
+      false,
+      undefined,
+      undefined,
+      undefined,
+      codeMode,
+      undefined,
+      expToolUse
+    )
+    
+    expect(prompt).toMatchSnapshot()
+  })
+
   afterAll(() => {
     jest.restoreAllMocks()
   })

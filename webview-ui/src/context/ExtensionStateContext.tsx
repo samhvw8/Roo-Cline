@@ -18,6 +18,7 @@ import {
 } from "../../../src/shared/checkExistApiConfig"
 import { Mode } from "../../../src/core/prompts/types"
 import { codeMode, CustomPrompts, defaultPrompts } from "../../../src/shared/modes"
+import { ExpToolName } from "../../../src/core/tool-lists"
 
 export interface ExtensionStateContextType extends ExtensionState {
 	didHydrateState: boolean
@@ -67,6 +68,8 @@ export interface ExtensionStateContextType extends ExtensionState {
 	setExperimentalDiffStrategy: (value: boolean) => void
 	autoApprovalEnabled?: boolean
 	setAutoApprovalEnabled: (value: boolean) => void
+	expToolUse?: Record<ExpToolName, boolean>
+	setExpToolUse: (value: Record<ExpToolName, boolean>) => void
 }
 
 export const ExtensionStateContext = createContext<ExtensionStateContextType | undefined>(undefined)
@@ -97,6 +100,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		enhancementApiConfigId: '',
 		experimentalDiffStrategy: false,
 		autoApprovalEnabled: false,
+		expToolUse: {}
 	})
 	const [didHydrateState, setDidHydrateState] = useState(false)
 	const [showWelcome, setShowWelcome] = useState(false)
@@ -114,6 +118,18 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 
 
 	const setListApiConfigMeta = useCallback((value: ApiConfigMeta[]) => setState((prevState) => ({ ...prevState, listApiConfigMeta: value })), [setState])
+
+	const setExpToolUse = useCallback((value: Record<ExpToolName, boolean>) => { 
+		setState((prevState) => ({ ...prevState, expToolUse: {
+			...prevState.expToolUse,
+			...value,
+		}})) 
+
+		vscode.postMessage({
+			type: "setExpToolUse",
+			values: value
+		})
+	}, [])
 
 	const onUpdateApiConfig = useCallback((apiConfig: ApiConfiguration) => {
 		vscode.postMessage({
@@ -247,6 +263,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		setEnhancementApiConfigId: (value) => setState((prevState) => ({ ...prevState, enhancementApiConfigId: value })),
 		setExperimentalDiffStrategy: (value) => setState((prevState) => ({ ...prevState, experimentalDiffStrategy: value })),
 		setAutoApprovalEnabled: (value) => setState((prevState) => ({ ...prevState, autoApprovalEnabled: value })),
+		setExpToolUse,
 	}
 
 	return <ExtensionStateContext.Provider value={contextValue}>{children}</ExtensionStateContext.Provider>

@@ -74,6 +74,7 @@ export interface WebviewMessage {
 		| "enhancementApiConfigId"
     	| "experimentalDiffStrategy"
 		| "autoApprovalEnabled"
+		| "setExpToolUse"
 	text?: string
 	disabled?: boolean
 	askResponse?: ClineAskResponse
