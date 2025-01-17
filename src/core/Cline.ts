@@ -1441,8 +1441,6 @@ export class Cline {
 								break
 							}
 
-							console.debug("[insert_code_block] 1");
-
 							// Validate required parameters
 							if (!relPath) {
 								this.consecutiveMistakeCount++
@@ -1455,7 +1453,6 @@ export class Cline {
 								pushToolResult(await this.sayAndCreateMissingParamError("insert_code_block", "operations"))
 								break
 							}
-							console.debug("[insert_code_block] 2");
 
 							const absolutePath = path.resolve(cwd, relPath)
 							const fileExists = await fileExistsAtPath(absolutePath)
@@ -1487,8 +1484,6 @@ export class Cline {
 								pushToolResult(formatResponse.toolError("Invalid operations JSON format"))
 								break
 							}
-
-							console.debug("[insert_code_block] 3", operations);
 
 							this.consecutiveMistakeCount = 0
 
