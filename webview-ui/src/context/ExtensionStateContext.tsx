@@ -26,6 +26,8 @@ export interface ExtensionStateContextType extends ExtensionState {
 	mcpServers: McpServer[]
 	filePaths: string[]
 	setApiConfiguration: (config: ApiConfiguration) => void
+	renameApiConfiguration: (oldName: string, newName: string) => void
+	duplicateApiConfig: (configName: string) => void
 	setCustomInstructions: (value?: string) => void
 	setAlwaysAllowReadOnly: (value: boolean) => void
 	setAlwaysAllowWrite: (value: boolean) => void
@@ -114,8 +116,26 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 	const [openAiModels, setOpenAiModels] = useState<string[]>([])
 	const [mcpServers, setMcpServers] = useState<McpServer[]>([])
 
+	const renameApiConfiguration = useCallback(
+		(oldName: string, newName: string) =>
+			setState((currentState) => {
+				vscode.postMessage({
+					type: "renameApiConfiguration",
+					values: { oldName, newName },
+					apiConfiguration: currentState.apiConfiguration,
+				})
+
+				return currentState
+			}),
+		[],
+	)
+
 	const setListApiConfigMeta = useCallback(
-		(value: ApiConfigMeta[]) => setState((prevState) => ({ ...prevState, listApiConfigMeta: value })),
+		(value: ApiConfigMeta[]) =>
+			setState((prevState) => ({
+				...prevState,
+				listApiConfigMeta: value,
+			})),
 		[],
 	)
 
@@ -126,7 +146,18 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 				text: currentState.currentApiConfigName,
 				apiConfiguration: apiConfig,
 			})
-			return currentState // No state update needed
+			return currentState
+		})
+	}, [])
+
+	const duplicateApiConfig = useCallback((configName: string) => {
+		setState((currentState) => {
+			vscode.postMessage({
+				type: "upsertApiConfiguration",
+				text: configName,
+				apiConfiguration: currentState.apiConfiguration,
+			})
+			return currentState
 		})
 	}, [])
 
@@ -138,7 +169,8 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 					text: currentState.currentApiConfigName,
 					apiConfiguration: { ...currentState.apiConfiguration, [field]: event.target.value },
 				})
-				return currentState // No state update needed
+
+				return currentState
 			})
 		},
 		[],
@@ -278,6 +310,8 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		setAutoApprovalEnabled: (value) => setState((prevState) => ({ ...prevState, autoApprovalEnabled: value })),
 		handleInputChange,
 		setCustomModes: (value) => setState((prevState) => ({ ...prevState, customModes: value })),
+		renameApiConfiguration,
+		duplicateApiConfig,
 	}
 
 	return <ExtensionStateContext.Provider value={contextValue}>{children}</ExtensionStateContext.Provider>
