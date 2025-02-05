@@ -28,6 +28,7 @@ import { getNonce } from "./getNonce"
 import { getUri } from "./getUri"
 import { playSound, setSoundEnabled, setSoundVolume } from "../../utils/sound"
 import { checkExistKey } from "../../shared/checkExistApiConfig"
+import { initializeApiKeys } from "../../shared/initializeApiKeys"
 import { singleCompletionHandler } from "../../utils/single-completion-handler"
 import { searchCommits } from "../../utils/git"
 import { ConfigManager } from "../config/ConfigManager"
@@ -1523,18 +1524,7 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		await this.storeSecret("unboundApiKey", unboundApiKey)
 		await this.updateGlobalState("unboundModelId", unboundModelId)
 
-		type ApiKeyProperty = keyof ApiConfiguration & `${string}ApiKey`
-
-		// this is to ensure that all api key before goto buildApiHandler are not undefined
-		for (const key in apiConfiguration) {
-			if (
-				key.endsWith("Key") &&
-				(key as ApiKeyProperty) in apiConfiguration &&
-				apiConfiguration[key as ApiKeyProperty] === undefined
-			) {
-				apiConfiguration[key as ApiKeyProperty] = ""
-			}
-		}
+		apiConfiguration = initializeApiKeys(apiConfiguration)
 
 		if (this.cline) {
 			this.cline.api = buildApiHandler(apiConfiguration)
