@@ -1522,6 +1522,20 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 		await this.storeSecret("mistralApiKey", mistralApiKey)
 		await this.storeSecret("unboundApiKey", unboundApiKey)
 		await this.updateGlobalState("unboundModelId", unboundModelId)
+
+		type ApiKeyProperty = keyof ApiConfiguration & `${string}ApiKey`
+
+		// this is to ensure that all api key before goto buildApiHandler are not undefined
+		for (const key in apiConfiguration) {
+			if (
+				key.endsWith("Key") &&
+				(key as ApiKeyProperty) in apiConfiguration &&
+				apiConfiguration[key as ApiKeyProperty] === undefined
+			) {
+				apiConfiguration[key as ApiKeyProperty] = ""
+			}
+		}
+
 		if (this.cline) {
 			this.cline.api = buildApiHandler(apiConfiguration)
 		}
