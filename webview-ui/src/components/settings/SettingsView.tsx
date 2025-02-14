@@ -106,7 +106,12 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 			vscode.postMessage({ type: "rateLimitSeconds", value: rateLimitSeconds })
 			vscode.postMessage({ type: "currentApiConfigName", text: currentApiConfigName })
 			vscode.postMessage({
-				type: "upsertApiConfiguration",
+				type: "saveApiConfiguration",
+				text: currentApiConfigName,
+				apiConfiguration,
+			})
+			vscode.postMessage({
+				type: "loadApiConfiguration",
 				text: currentApiConfigName,
 				apiConfiguration,
 			})
@@ -216,9 +221,17 @@ const SettingsView = ({ onDone }: SettingsViewProps) => {
 									apiConfiguration,
 								})
 							}}
-							onUpsertConfig={(configName: string) => {
+							onUpsertConfig={async (configName: string) => {
 								vscode.postMessage({
-									type: "upsertApiConfiguration",
+									type: "saveApiConfiguration",
+									text: configName,
+									apiConfiguration,
+								})
+
+								await new Promise((res) => setTimeout(res, 50))
+
+								vscode.postMessage({
+									type: "loadApiConfiguration",
 									text: configName,
 									apiConfiguration,
 								})

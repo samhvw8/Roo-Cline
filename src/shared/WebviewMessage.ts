@@ -13,7 +13,6 @@ export interface WebviewMessage {
 		| "apiConfiguration"
 		| "currentApiConfigName"
 		| "saveApiConfiguration"
-		| "upsertApiConfiguration"
 		| "deleteApiConfiguration"
 		| "loadApiConfiguration"
 		| "renameApiConfiguration"

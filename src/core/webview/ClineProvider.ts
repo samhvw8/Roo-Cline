@@ -1324,27 +1324,6 @@ export class ClineProvider implements vscode.WebviewViewProvider {
 							}
 						}
 						break
-					case "upsertApiConfiguration":
-						if (message.text && message.apiConfiguration) {
-							try {
-								await this.configManager.saveConfig(message.text, message.apiConfiguration)
-								const listApiConfig = await this.configManager.listConfig()
-
-								await Promise.all([
-									this.updateGlobalState("listApiConfigMeta", listApiConfig),
-									this.updateApiConfiguration(message.apiConfiguration),
-									this.updateGlobalState("currentApiConfigName", message.text),
-								])
-
-								await this.postStateToWebview()
-							} catch (error) {
-								this.outputChannel.appendLine(
-									`Error create new api configuration: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
-								)
-								vscode.window.showErrorMessage("Failed to create api configuration")
-							}
-						}
-						break
 					case "renameApiConfiguration":
 						if (message.values && message.apiConfiguration) {
 							try {

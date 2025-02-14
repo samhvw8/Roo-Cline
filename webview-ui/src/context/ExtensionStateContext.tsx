@@ -149,7 +149,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 	const onUpdateApiConfig = useCallback((apiConfig: ApiConfiguration) => {
 		setState((currentState) => {
 			vscode.postMessage({
-				type: "upsertApiConfiguration",
+				type: "saveApiConfiguration",
 				text: currentState.currentApiConfigName,
 				apiConfiguration: { ...currentState.apiConfiguration, ...apiConfig },
 			})

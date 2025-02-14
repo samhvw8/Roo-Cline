@@ -82,7 +82,14 @@ jest.mock("fs/promises", () => ({
 			return Promise.resolve(JSON.stringify(mockMessages))
 		}
 		if (filePath.includes("api_conversation_history.json")) {
-			return Promise.resolve("[]")
+			return Promise.resolve(JSON.stringify([{
+				role: "user",
+				content: [{ 
+					type: "text",
+					text: "historical task"
+				}],
+				ts: Date.now()
+			}]))
 		}
 		return Promise.resolve("[]")
 	}),
