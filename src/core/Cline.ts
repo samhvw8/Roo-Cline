@@ -64,6 +64,7 @@ import { McpHub } from "../services/mcp/McpHub"
 import crypto from "crypto"
 import { insertGroups } from "./diff/insert-groups"
 import { EXPERIMENT_IDS, experiments as Experiments } from "../shared/experiments"
+import { parseXml } from "../utils/xml"
 
 const cwd =
 	vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0) ?? path.join(os.homedir(), "Desktop") // may or may not exist but fs checking existence would immediately ask for permission which would be bad UX, need to come up with a better solution
@@ -1135,6 +1136,9 @@ export class Cline {
 							const message = block.params.message ?? "(no message)"
 							const modeName = getModeBySlug(mode, customModes)?.name ?? mode
 							return `[${block.name} in ${modeName} mode: '${message}']`
+						}
+						case "prompt_suggest": {
+							return `[${block.name}`
 						}
 					}
 				}
@@ -2431,6 +2435,64 @@ export class Cline {
 							}
 						} catch (error) {
 							await handleError("asking question", error)
+							break
+						}
+					}
+					case "prompt_suggest": {
+						const result: string | undefined = block.params.result
+						try {
+							if (block.partial) {
+								await this.ask(
+									"prompt_suggest",
+									removeClosingTag("result", result),
+									block.partial,
+								).catch(() => {})
+								break
+							} else {
+								if (!result) {
+									this.consecutiveMistakeCount++
+									pushToolResult(await this.sayAndCreateMissingParamError("prompt_suggest", "result"))
+									break
+								}
+
+								type Suggest = {
+									suggest: string
+								}
+
+								let parsedSuggest: {
+									suggest: Suggest[] | Suggest
+								}
+
+								try {
+									parsedSuggest = parseXml(result, ["result.suggest"]) as {
+										suggest: Suggest[] | Suggest
+									}
+								} catch (error) {
+									this.consecutiveMistakeCount++
+									await this.say("error", `Failed to parse operations: ${error.message}`)
+									pushToolResult(formatResponse.toolError("Invalid operations xml format"))
+									break
+								}
+
+								this.consecutiveMistakeCount = 0
+
+								const normalizedSuggest = Array.isArray(parsedSuggest?.suggest)
+									? parsedSuggest.suggest
+									: [parsedSuggest?.suggest].filter((sug): sug is Suggest => sug !== undefined)
+
+								const { text, images } = await this.ask(
+									"prompt_suggest",
+									JSON.stringify(normalizedSuggest),
+									false,
+								)
+								await this.say("user_feedback", text ?? "", images)
+								pushToolResult(
+									formatResponse.toolResult(`<user_feedback>\n${text}\n</user_feedback>`, images),
+								)
+								break
+							}
+						} catch (error) {
+							await handleError("prompt suggest", error)
 							break
 						}
 					}

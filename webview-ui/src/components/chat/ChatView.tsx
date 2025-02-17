@@ -26,6 +26,7 @@ import ChatRow from "./ChatRow"
 import ChatTextArea from "./ChatTextArea"
 import TaskHeader from "./TaskHeader"
 import AutoApproveMenu from "./AutoApproveMenu"
+import PromptSuggest from "./PromptSuggest"
 import { AudioType } from "../../../../src/shared/WebviewMessage"
 import { validateCommand } from "../../utils/command-validation"
 
@@ -83,6 +84,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 	const [isAtBottom, setIsAtBottom] = useState(false)
 
 	const [wasStreaming, setWasStreaming] = useState<boolean>(false)
+	const [promptSuggest, setPromptSuggest] = useState<string[]>([])
 
 	// UI layout depends on the last 2 messages
 	// (since it relies on the content of these messages, we are deep comparing. i.e. the button state after hitting button sets enableButtons to false, and this effect otherwise would have to true again even if messages didn't change
@@ -124,6 +126,20 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 							setEnableButtons(isPartial)
 							// setPrimaryButtonText(undefined)
 							// setSecondaryButtonText(undefined)
+							break
+						case "prompt_suggest":
+							setTextAreaDisabled(isPartial)
+							setClineAsk("prompt_suggest")
+							setEnableButtons(isPartial)
+							if (!isPartial) {
+								try {
+									let temp_suggest = JSON.parse(lastMessage.text ?? "[]")
+									console.log("temp_suggest", temp_suggest)
+									setPromptSuggest(temp_suggest || [])
+								} catch (error) {
+									console.error(error)
+								}
+							}
 							break
 						case "tool":
 							if (!isAutoApproved(lastMessage)) {
@@ -310,6 +326,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 						case "resume_task":
 						case "resume_completed_task":
 						case "mistake_limit_reached":
+						case "prompt_suggest":
 							vscode.postMessage({
 								type: "askResponse",
 								askResponse: "messageResponse",
@@ -664,6 +681,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 						case "mistake_limit_reached":
 							playSound("progress_loop")
 							break
+						case "prompt_suggest":
 						case "followup":
 							if (!lastMessage.partial) {
 								playSound("notification")
@@ -1068,6 +1086,10 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 						/>
 					</div>
 					<AutoApproveMenu />
+					<PromptSuggest
+						suggestions={promptSuggest}
+						onSuggestionClick={(text: string) => setInputValue(text)}
+					/>
 					{showScrollToBottom ? (
 						<div
 							style={{
