@@ -78,4 +78,5 @@ export const GROUP_DISPLAY_NAMES: Record<ToolGroup, string> = {
 	browser: "Use Browser",
 	command: "Run Commands",
 	mcp: "Use MCP",
+	help_tool: "Helper Tool",
 }
