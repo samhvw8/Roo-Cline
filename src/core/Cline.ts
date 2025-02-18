@@ -2439,19 +2439,19 @@ export class Cline {
 						}
 					}
 					case "prompt_suggest": {
-						const result: string | undefined = block.params.result
+						const values: string | undefined = block.params.values
 						try {
 							if (block.partial) {
 								await this.ask(
 									"prompt_suggest",
-									removeClosingTag("result", result),
+									removeClosingTag("result", values),
 									block.partial,
 								).catch(() => {})
 								break
 							} else {
-								if (!result) {
+								if (!values) {
 									this.consecutiveMistakeCount++
-									pushToolResult(await this.sayAndCreateMissingParamError("prompt_suggest", "result"))
+									pushToolResult(await this.sayAndCreateMissingParamError("prompt_suggest", "values"))
 									break
 								}
 
@@ -2464,7 +2464,7 @@ export class Cline {
 								}
 
 								try {
-									parsedSuggest = parseXml(result, ["result.suggest"]) as {
+									parsedSuggest = parseXml(values, ["suggest"]) as {
 										suggest: Suggest[] | Suggest
 									}
 								} catch (error) {
@@ -2655,6 +2655,7 @@ export class Cline {
 						*/
 						const result: string | undefined = block.params.result
 						const command: string | undefined = block.params.command
+						const values: string | undefined = block.params.values
 						try {
 							const lastMessage = this.clineMessages.at(-1)
 							if (block.partial) {
@@ -2703,7 +2704,41 @@ export class Cline {
 									)
 									break
 								}
-								this.consecutiveMistakeCount = 0
+
+								let normalizedSuggest = null
+
+								if (values) {
+									console.log("values", values)
+									type Suggest = {
+										suggest: string
+									}
+
+									let parsedSuggest: {
+										suggest: Suggest[] | Suggest
+									}
+
+									try {
+										parsedSuggest = parseXml(values, ["values.suggest"]) as {
+											suggest: Suggest[] | Suggest
+										}
+										console.log("parsedSuggest", parsedSuggest)
+									} catch (error) {
+										this.consecutiveMistakeCount++
+										await this.say("error", `Failed to parse operations: ${error.message}`)
+										pushToolResult(formatResponse.toolError("Invalid operations xml format"))
+										break
+									}
+
+									this.consecutiveMistakeCount = 0
+
+									normalizedSuggest = Array.isArray(parsedSuggest?.suggest)
+										? parsedSuggest.suggest
+										: [parsedSuggest?.suggest].filter((sug): sug is Suggest => sug !== undefined)
+
+									console.log("normalizedSuggest", normalizedSuggest)
+								} else {
+									this.consecutiveMistakeCount = 0
+								}
 
 								let commandResult: ToolResponse | undefined
 								if (command) {
@@ -2729,32 +2764,45 @@ export class Cline {
 									await this.say("completion_result", result, undefined, false)
 								}
 
-								// we already sent completion_result says, an empty string asks relinquishes control over button and field
-								const { response, text, images } = await this.ask("completion_result", "", false)
-								if (response === "yesButtonClicked") {
-									pushToolResult("") // signals to recursive loop to stop (for now this never happens since yesButtonClicked will trigger a new task)
-									break
-								}
-								await this.say("user_feedback", text ?? "", images)
-
 								const toolResults: (Anthropic.TextBlockParam | Anthropic.ImageBlockParam)[] = []
-								if (commandResult) {
-									if (typeof commandResult === "string") {
-										toolResults.push({ type: "text", text: commandResult })
-									} else if (Array.isArray(commandResult)) {
-										toolResults.push(...commandResult)
+								if (normalizedSuggest) {
+									console.log("normalizedSuggest", normalizedSuggest)
+									const { text, images } = await this.ask(
+										"prompt_suggest",
+										JSON.stringify(normalizedSuggest),
+										false,
+									)
+									await this.say("user_feedback", text ?? "", images)
+									pushToolResult(
+										formatResponse.toolResult(`<user_feedback>\n${text}\n</user_feedback>`, images),
+									)
+								} else {
+									// we already sent completion_result says, an empty string asks relinquishes control over button and field
+									const { response, text, images } = await this.ask("completion_result", "", false)
+									if (response === "yesButtonClicked") {
+										pushToolResult("") // signals to recursive loop to stop (for now this never happens since yesButtonClicked will trigger a new task)
+										break
 									}
+									await this.say("user_feedback", text ?? "", images)
+
+									if (commandResult) {
+										if (typeof commandResult === "string") {
+											toolResults.push({ type: "text", text: commandResult })
+										} else if (Array.isArray(commandResult)) {
+											toolResults.push(...commandResult)
+										}
+									}
+									toolResults.push({
+										type: "text",
+										text: `The user has provided feedback on the results. Consider their input to continue the task, and then attempt completion again.\n<feedback>\n${text}\n</feedback>`,
+									})
+									toolResults.push(...formatResponse.imageBlocks(images))
+									this.userMessageContent.push({
+										type: "text",
+										text: `${toolDescription()} Result:`,
+									})
+									this.userMessageContent.push(...toolResults)
 								}
-								toolResults.push({
-									type: "text",
-									text: `The user has provided feedback on the results. Consider their input to continue the task, and then attempt completion again.\n<feedback>\n${text}\n</feedback>`,
-								})
-								toolResults.push(...formatResponse.imageBlocks(images))
-								this.userMessageContent.push({
-									type: "text",
-									text: `${toolDescription()} Result:`,
-								})
-								this.userMessageContent.push(...toolResults)
 
 								break
 							}

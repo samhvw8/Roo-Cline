@@ -4,24 +4,24 @@ export function getPromptSuggestDescription(args: ToolArgs): string {
 	return `## prompt_suggest
 Description: Provide a list of suggested next prompts or tasks to the user based on the current context. This tool helps Roo guide users by offering relevant next steps or suggesting task splits (using the new_task tool) when the context becomes too large.
 Parameters:
-- result: (required) A list of suggested prompt/task/question for user as XML elements. The order of suggestion is important, the order of suggestion is the same with the order that show to user.. Each suggested can have these elements:
+- values: (required) A list of suggested prompt/task/question for user as XML elements. The order of suggestion is important, the order of suggestion is the same with the order that show to user.. Each suggested can have these elements:
 	* suggest (required): A suggestion to display to the user. Each suggestion must be provided in its own <suggest> tag. Each suggestion can be multiple line.
 
 Usage:
 <prompt_suggest>
-<result>
+<values>
 <suggest>
 - Suggested prompt or task 1
 </suggest>
 <suggest>
 - Suggested prompt or task 2
 </suggest>
-</result>
+</values>
 </prompt_suggest>
 
 Example: After completing a feature implementation (Code mode)
 <prompt_suggest>
-<result>
+<values>
 <suggest>
 - Add unit tests for the new feature
 </suggest>
@@ -34,12 +34,12 @@ Example: After completing a feature implementation (Code mode)
 <suggest>
 - Review code for potential optimizations
 </suggest>
-</result>
+</values>
 </prompt_suggest>
 
 Example: When debugging an issue (Code mode)
 <prompt_suggest>
-<result>
+<values>
 <suggest>
 - Check logs for error messages
 </suggest>
@@ -52,12 +52,12 @@ Example: When debugging an issue (Code mode)
 <suggest>
 - Profile the application for performance bottlenecks
 </suggest>
-</result>
+</values>
 </prompt_suggest>
 
 Example: System architecture planning (Architect mode)
 <prompt_suggest>
-<result>
+<values>
 <suggest>
 - Document system dependencies and interactions
 </suggest>
@@ -73,12 +73,12 @@ Example: System architecture planning (Architect mode)
 <suggest>
 - Document design decisions and tradeoffs
 </suggest>
-</result>
+</values>
 </prompt_suggest>
 
 Example: Documentation planning (Architect mode)
 <prompt_suggest>
-<result>
+<values>
 <suggest>
 - Create API documentation structure
 </suggest>
@@ -94,12 +94,12 @@ Example: Documentation planning (Architect mode)
 <suggest>
 - Split into new task using new_task: Write developer onboarding guide
 </suggest>
-</result>
+</values>
 </prompt_suggest>
 
 Example: Technical questions (Ask mode)
 <prompt_suggest>
-<result>
+<values>
 <suggest>
 - What are the performance implications of this approach?
 </suggest>
@@ -112,12 +112,12 @@ Example: Technical questions (Ask mode)
 <suggest>
 - Can you explain the security considerations?
 </suggest>
-</result>
+</values>
 </prompt_suggest>
 
 Example: Documentation questions (Ask mode)
 <prompt_suggest>
-<result>
+<values>
 <suggest>
 - What are the key components that need documentation?
 </suggest>
@@ -130,12 +130,12 @@ Example: Documentation questions (Ask mode)
 <suggest>
 - What edge cases should be documented?
 </suggest>
-</result>
+</values>
 </prompt_suggest>
 
 Example: When context window is large (>70%)
 <prompt_suggest>
-<result>
+<values>
 <suggest>
 - Split into new task using new_task: Write end-to-end tests for user authentication
 </suggest>
@@ -145,6 +145,6 @@ Example: When context window is large (>70%)
 <suggest>
 - Continue current task: Complete the login flow implementation
 </suggest>
-</result>
+</values>
 </prompt_suggest>`
 }
