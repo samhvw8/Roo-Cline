@@ -9,8 +9,7 @@ Parameters:
 - command: (optional) A CLI command to execute to show a live demo of the result to the user. For example, use \`open index.html\` to display a created html website, or \`open localhost:3000\` to display a locally running development server. But DO NOT use commands like \`echo\` or \`cat\` that merely print text. This command should be valid for the current operating system. Ensure the command is properly formatted and does not contain any harmful instructions.${
 		experiments?.["prompt_suggest"]
 			? `
-- values: (optional) A list of suggested prompt/task/question for user as XML elements. The order of suggestion is important, the order of suggestion is the same with the order that show to user.. Each suggested can have these elements:
-	* suggest: A suggestion to display to the user. Each suggestion must be provided in its own <suggest> tag. Each suggestion can be multiple line.`
+- values: (optional) A list of suggested tasks in the format "create new task for [task description] by using new_task tool". Each suggestion must be provided in its own <suggest> tag. The order of suggestions is important as they will be shown to the user in the same order.`
 			: ``
 	}
 Usage:
@@ -22,10 +21,10 @@ Your final result description here
 			? `
 <values>
 <suggest>
-- Suggested prompt or task 1
+- Suggested new task 1
 </suggest>
 <suggest>
-- Suggested prompt or task 2
+- Suggested new task 2
 </suggest>
 </values>`
 			: ``
@@ -43,50 +42,44 @@ I've updated the CSS
 		experiments?.["prompt_suggest"]
 			? `
 
-Example: Completion with suggestions after implementing a feature
+Example: Completion with new task suggestions
 <attempt_completion>
 <result>
-I've implemented the user authentication feature with email and password login
+I've implemented the user authentication feature
 </result>
 <values>
 <suggest>
-- Add unit tests for the authentication service
+- create new task for authentication service tests by using new_task tool
 </suggest>
 <suggest>
-- Implement password reset functionality
+- create new task for password reset functionality by using new_task tool
 </suggest>
 <suggest>
-- Add social login providers (Google, GitHub)
-</suggest>
-<suggest>
-- Update API documentation with auth endpoints
+- create new task for social login integration by using new_task tool
 </suggest>
 </values>
 <command>npm run dev</command>
 </attempt_completion>
 
-Example: Completion with suggestions after fixing a bug
+Example: Completion with new task suggestions
 <attempt_completion>
 <result>
-I've fixed the memory leak in the WebSocket connection handling
+I've fixed the memory leak
 </result>
 <values>
 <suggest>
-- Add monitoring for WebSocket connection counts
+- create new task for performance monitoring system by using new_task tool
 </suggest>
 <suggest>
-- Write regression tests to prevent future leaks
+- create new task for regression test suite by using new_task tool
 </suggest>
 <suggest>
-- Review other WebSocket usage for similar issues
-</suggest>
-<suggest>
-- Document the fix in CHANGELOG.md
+- create new task for error tracking by using new_task tool
 </suggest>
 </values>
 </attempt_completion>
 
-Example: Completion with task split suggestions
+Example: Completion with new task suggestions
 <attempt_completion>
 <result>
 I've completed the initial database schema design
@@ -107,26 +100,23 @@ I've completed the initial database schema design
 </values>
 </attempt_completion>
 
-Example: Completion with documentation suggestions
+Example: Completion with new task suggestions
 <attempt_completion>
 <result>
-I've created the API endpoints for the user management system
+I've created the API endpoints
 </result>
 <values>
 <suggest>
-- Create OpenAPI/Swagger documentation
+- create new task for API documentation by using new_task tool
 </suggest>
 <suggest>
-- Write integration tests for all endpoints
+- create new task for integration test suite by using new_task tool
 </suggest>
 <suggest>
-- Add rate limiting and security headers
-</suggest>
-<suggest>
-- Split into new task using new_task: Create user management API guide
+- create new task for security features by using new_task tool
 </suggest>
 </values>
-<command>npm run docs</command>
+<command>npm run dev</command>
 </attempt_completion>`
 			: ``
 	}`
