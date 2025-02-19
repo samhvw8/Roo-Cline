@@ -2708,7 +2708,6 @@ export class Cline {
 								let normalizedSuggest = null
 
 								if (values) {
-									console.log("values", values)
 									type Suggest = {
 										suggest: string
 									}
@@ -2721,7 +2720,6 @@ export class Cline {
 										parsedSuggest = parseXml(values, ["values.suggest"]) as {
 											suggest: Suggest[] | Suggest
 										}
-										console.log("parsedSuggest", parsedSuggest)
 									} catch (error) {
 										this.consecutiveMistakeCount++
 										await this.say("error", `Failed to parse operations: ${error.message}`)
@@ -2734,8 +2732,6 @@ export class Cline {
 									normalizedSuggest = Array.isArray(parsedSuggest?.suggest)
 										? parsedSuggest.suggest
 										: [parsedSuggest?.suggest].filter((sug): sug is Suggest => sug !== undefined)
-
-									console.log("normalizedSuggest", normalizedSuggest)
 								} else {
 									this.consecutiveMistakeCount = 0
 								}
@@ -2765,44 +2761,38 @@ export class Cline {
 								}
 
 								const toolResults: (Anthropic.TextBlockParam | Anthropic.ImageBlockParam)[] = []
+
 								if (normalizedSuggest) {
 									console.log("normalizedSuggest", normalizedSuggest)
-									const { text, images } = await this.ask(
-										"prompt_suggest",
-										JSON.stringify(normalizedSuggest),
-										false,
-									)
-									await this.say("user_feedback", text ?? "", images)
-									pushToolResult(
-										formatResponse.toolResult(`<user_feedback>\n${text}\n</user_feedback>`, images),
-									)
-								} else {
-									// we already sent completion_result says, an empty string asks relinquishes control over button and field
-									const { response, text, images } = await this.ask("completion_result", "", false)
-									if (response === "yesButtonClicked") {
-										pushToolResult("") // signals to recursive loop to stop (for now this never happens since yesButtonClicked will trigger a new task)
-										break
-									}
-									await this.say("user_feedback", text ?? "", images)
-
-									if (commandResult) {
-										if (typeof commandResult === "string") {
-											toolResults.push({ type: "text", text: commandResult })
-										} else if (Array.isArray(commandResult)) {
-											toolResults.push(...commandResult)
-										}
-									}
-									toolResults.push({
-										type: "text",
-										text: `The user has provided feedback on the results. Consider their input to continue the task, and then attempt completion again.\n<feedback>\n${text}\n</feedback>`,
-									})
-									toolResults.push(...formatResponse.imageBlocks(images))
-									this.userMessageContent.push({
-										type: "text",
-										text: `${toolDescription()} Result:`,
-									})
-									this.userMessageContent.push(...toolResults)
+									await this.say("prompt_suggest", JSON.stringify(normalizedSuggest))
 								}
+
+								// we already sent completion_result says, an empty string asks relinquishes control over button and field
+								const { response, text, images } = await this.ask("completion_result", "", false)
+								if (response === "yesButtonClicked") {
+									pushToolResult("") // signals to recursive loop to stop (for now this never happens since yesButtonClicked will trigger a new task)
+									break
+								}
+								await this.say("user_feedback", text ?? "", images)
+
+								if (commandResult) {
+									if (typeof commandResult === "string") {
+										toolResults.push({ type: "text", text: commandResult })
+									} else if (Array.isArray(commandResult)) {
+										toolResults.push(...commandResult)
+									}
+								}
+
+								toolResults.push({
+									type: "text",
+									text: `The user has provided feedback on the results. Consider their input to continue the task, and then attempt completion again.\n<feedback>\n${text}\n</feedback>`,
+								})
+								toolResults.push(...formatResponse.imageBlocks(images))
+								this.userMessageContent.push({
+									type: "text",
+									text: `${toolDescription()} Result:`,
+								})
+								this.userMessageContent.push(...toolResults)
 
 								break
 							}

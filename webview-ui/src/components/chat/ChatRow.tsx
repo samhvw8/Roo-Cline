@@ -773,6 +773,8 @@ export const ChatRowContent = ({
 							checkpoint={message.checkpoint}
 						/>
 					)
+				case "prompt_suggest":
+					return null
 				default:
 					return (
 						<>

@@ -236,9 +236,22 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 								setTextAreaDisabled(true)
 								setSelectedImages([])
 								setClineAsk(undefined)
+								setPromptSuggest([])
 								setEnableButtons(false)
 							}
 							break
+						case "prompt_suggest": {
+							const isPartial = lastMessage.partial === true
+							if (!isPartial) {
+								try {
+									let temp_suggest = JSON.parse(lastMessage.text ?? "[]")
+									setPromptSuggest(temp_suggest || [])
+								} catch (error) {
+									console.error(error)
+								}
+							}
+							break
+						}
 						case "api_req_finished":
 						case "task":
 						case "error":
@@ -268,6 +281,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 		if (messages.length === 0) {
 			setTextAreaDisabled(false)
 			setClineAsk(undefined)
+			setPromptSuggest([])
 			setEnableButtons(false)
 			setPrimaryButtonText(undefined)
 			setSecondaryButtonText(undefined)
@@ -343,6 +357,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 				setSelectedImages([])
 				setClineAsk(undefined)
 				setEnableButtons(false)
+				setPromptSuggest([])
 				// Do not reset mode here as it should persist
 				// setPrimaryButtonText(undefined)
 				// setSecondaryButtonText(undefined)
@@ -413,6 +428,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 			setClineAsk(undefined)
 			setEnableButtons(false)
 			disableAutoScrollRef.current = false
+			setPromptSuggest([])
 		},
 		[clineAsk, startNewTask],
 	)
@@ -459,6 +475,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 			setTextAreaDisabled(true)
 			setClineAsk(undefined)
 			setEnableButtons(false)
+			setPromptSuggest([])
 			disableAutoScrollRef.current = false
 		},
 		[clineAsk, startNewTask, isStreaming],

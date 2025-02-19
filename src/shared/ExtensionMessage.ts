@@ -182,6 +182,7 @@ export type ClineSay =
 	| "new_task_started"
 	| "new_task"
 	| "checkpoint_saved"
+	| "prompt_suggest"
 
 export interface ClineSayTool {
 	tool:
