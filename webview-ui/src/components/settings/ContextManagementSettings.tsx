@@ -94,12 +94,12 @@ export const ContextManagementSettings = ({
 
 				<div>
 					<div className="flex flex-col gap-2">
-						<span className="font-medium">File read line limit</span>
+						<span className="font-medium">{t("settings:contextManagement.maxReadFile.label")}</span>
 						<div className="flex items-center gap-2">
 							<Slider
 								min={0}
-								max={500}
-								step={1}
+								max={2000}
+								step={10}
 								value={[maxReadFileLine ?? 450]}
 								onValueChange={([value]) => setCachedStateField("maxReadFileLine", value)}
 								data-testid="max-read-file-line-slider"
@@ -107,10 +107,9 @@ export const ContextManagementSettings = ({
 							<span className="w-10">{maxReadFileLine ?? 450}</span>
 						</div>
 					</div>
-					<p className="text-vscode-descriptionForeground text-sm mt-0">
-						Maximum number of lines to read from a file before truncating. Lower values reduce memory usage
-						but may truncate large files.
-					</p>
+					<div className="text-vscode-descriptionForeground text-sm mt-0">
+						{t("settings:contextManagement.maxReadFile.description")}
+					</div>
 				</div>
 			</Section>
 		</div>
