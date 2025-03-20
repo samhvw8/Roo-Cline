@@ -225,14 +225,6 @@ export const ChatRowContent = ({
 						style={{ color: normalColor, marginBottom: "-1.5px" }}></span>,
 					<span style={{ color: normalColor, fontWeight: "bold" }}>{t("chat:questions.hasQuestion")}</span>,
 				]
-			case "follow_up_suggest": {
-				return [
-					<span
-						className="codicon codicon-question" // TODO: change icon
-						style={{ color: normalColor, marginBottom: "-1.5px" }}></span>,
-					<span style={{ color: normalColor, fontWeight: "bold" }}>Roo has suggest prompt:</span>,
-				]
-			}
 			default:
 				return [null, null]
 		}
@@ -1014,9 +1006,13 @@ export const ChatRowContent = ({
 								</div>
 							)}
 							<div style={{ paddingTop: 10, paddingBottom: 15 }}>
-								<Markdown markdown={message.partial === true ? message?.text : followUpData?.question} />
+								<Markdown markdown={followUpData?.question} />
 							</div>
-							<FollowUpSuggest suggestions={followUpData?.suggest} onSuggestionClick={onSuggestionClick} ts={message?.ts} />
+							<FollowUpSuggest
+								suggestions={followUpData?.suggest}
+								onSuggestionClick={onSuggestionClick}
+								ts={message?.ts}
+							/>
 						</>
 					)
 				default:

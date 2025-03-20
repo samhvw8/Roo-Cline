@@ -244,7 +244,6 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 								setEnableButtons(false)
 							}
 							break
-						case "follow_up_suggest":
 						case "api_req_finished":
 						case "task":
 						case "error":
@@ -350,19 +349,10 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 						// There is no other case that a textfield should be enabled.
 					}
 				}
-				// Only reset message-specific state, preserving mode
-				setInputValue("")
-				setTextAreaDisabled(true)
-				setSelectedImages([])
-				setClineAsk(undefined)
-				setEnableButtons(false)
-				// Do not reset mode here as it should persist
-				// setPrimaryButtonText(undefined)
-				// setSecondaryButtonText(undefined)
-				disableAutoScrollRef.current = false
+				handleChatReset()
 			}
 		},
-		[messages.length, clineAsk],
+		[messages.length, clineAsk, handleChatReset],
 	)
 
 	const handleSetChatBoxMessage = useCallback(
@@ -1024,7 +1014,7 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 					onHeightChange={handleRowHeightChange}
 					isStreaming={isStreaming}
 					onSuggestionClick={(answer: string) => {
-						setInputValue(answer)
+						handleSendMessage(answer, [])
 					}}
 				/>
 			)
@@ -1035,7 +1025,6 @@ const ChatView = ({ isHidden, showAnnouncement, hideAnnouncement, showHistoryVie
 			groupedMessages.length,
 			handleRowHeightChange,
 			isStreaming,
-
 			toggleRowExpansion,
 			handleSendMessage,
 		],

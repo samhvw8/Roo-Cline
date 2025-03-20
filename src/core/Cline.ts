@@ -2325,8 +2325,6 @@ export class Cline extends EventEmitter<ClineEvents> {
 								let sourceCodeDef = ""
 
 								if (isRangeRead) {
-									// Read specific lines (startLine is guaranteed to be defined if isRangeRead is true)
-									console.log("Reading specific lines", startLine, endLine, startLineStr, endLineStr)
 									if (startLine === undefined) {
 										content = addLineNumbers(await readLines(absolutePath, endLine, startLine))
 									} else {
@@ -2904,11 +2902,9 @@ export class Cline extends EventEmitter<ClineEvents> {
 								}
 
 								try {
-									parsedSuggest = parseXml(follow_up, ["suggest.answer"]) as {
+									parsedSuggest = parseXml(follow_up, ["suggest"]) as {
 										suggest: Suggest[] | Suggest
 									}
-									console.log("follow_up", follow_up)
-									console.log("parsedSuggest", parsedSuggest)
 								} catch (error) {
 									this.consecutiveMistakeCount++
 									await this.say("error", `Failed to parse operations: ${error.message}`)
@@ -2922,7 +2918,6 @@ export class Cline extends EventEmitter<ClineEvents> {
 									? parsedSuggest.suggest
 									: [parsedSuggest?.suggest].filter((sug): sug is Suggest => sug !== undefined)
 
-								console.log("normalizedSuggest", normalizedSuggest)
 								const follow_up_json = {
 									question,
 									suggest: normalizedSuggest,
