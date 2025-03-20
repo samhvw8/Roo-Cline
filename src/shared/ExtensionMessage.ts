@@ -57,6 +57,7 @@ export interface ExtensionMessage {
 		| "ttsStart"
 		| "ttsStop"
 		| "maxReadFileLine"
+		| "fileSearchResults"
 	text?: string
 	action?:
 		| "chatButtonClicked"
@@ -93,6 +94,12 @@ export interface ExtensionMessage {
 	values?: Record<string, any>
 	requestId?: string
 	promptText?: string
+	results?: Array<{
+		path: string
+		type: "file" | "folder"
+		label?: string
+	}>
+	error?: string
 }
 
 export interface ApiConfigMeta {

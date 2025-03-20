@@ -255,6 +255,7 @@ export type GlobalStateKey =
 	| "remoteBrowserEnabled"
 	| "language"
 	| "maxReadFileLine"
+	| "fakeAi"
 
 export type ConfigurationKey = GlobalStateKey | SecretKey
 

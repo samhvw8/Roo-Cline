@@ -123,6 +123,7 @@ export const GLOBAL_STATE_KEYS = [
 	"language",
 	"maxWorkspaceFiles",
 	"maxReadFileLine",
+	"fakeAi",
 ] as const
 
 export const PASS_THROUGH_STATE_KEYS = ["taskHistory"] as const
