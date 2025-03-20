@@ -10,15 +10,14 @@ const buttonVariants = cva(
 		variants: {
 			variant: {
 				default:
-					"border border-vscode-input-border bg-primary text-primary-foreground shadow hover:bg-primary/90 cursor-pointer",
-				destructive:
-					"bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 cursor-pointer",
+					"border border-vscode-input-border bg-primary text-primary-foreground shadow hover:bg-primary/90",
+				destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
 				outline:
-					"border border-vscode-input-border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground cursor-pointer",
+					"border border-vscode-input-border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
 				secondary:
-					"border border-vscode-input-border bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 cursor-pointer",
-				ghost: "hover:bg-accent hover:text-accent-foreground cursor-pointer",
-				link: "text-primary underline-offset-4 hover:underline cursor-pointer",
+					"border border-vscode-input-border bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+				ghost: "hover:bg-accent hover:text-accent-foreground",
+				link: "text-primary underline-offset-4 hover:underline",
 				combobox:
 					"text-vscode-font-size font-normal text-popover-foreground bg-vscode-input-background border border-vscode-dropdown-border hover:bg-vscode-input-background/80 cursor-pointer",
 				"ui-toolkit-primary":
