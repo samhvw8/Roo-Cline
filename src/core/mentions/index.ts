@@ -23,7 +23,7 @@ export async function openMention(mention?: string, osInfo?: string): Promise<vo
 	}
 
 	if (
-		((osInfo === "unix" || osInfo === undefined) && mention.startsWith("/")) ||
+		(osInfo !== "win32" && mention.startsWith("/")) ||
 		(osInfo === "win32" && mention.startsWith("\\"))
 	) {
 		const relPath = mention.slice(1)
@@ -164,7 +164,7 @@ const fileHandler: HandlerConfig = {
 	test: (mention: string, { osInfo }) => (osInfo !== "win32" ? mention.startsWith("/") : mention.startsWith("\\")),
 	handler: async (mention, { cwd, osInfo }) => {
 		let mentionPath = mention.slice(1)
-		const isFolder = mention.endsWith("/")
+		const isFolder = osInfo === "win32" ? mention.endsWith("\\") : mention.endsWith("/")
 		const tag = createXmlTag(isFolder ? "folder_content" : "file_content", { path: mentionPath })
 
 		if (mentionPath.includes(" ")) {
