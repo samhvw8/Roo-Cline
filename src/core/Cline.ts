@@ -392,6 +392,9 @@ export class Cline extends EventEmitter<ClineEvents> {
 				cacheReads: apiMetrics.totalCacheReads,
 				totalCost: apiMetrics.totalCost,
 				size: taskDirSize,
+				// Add parent-child relationship data
+				parentId: this.parentTask?.taskId,
+				rootId: this.rootTask?.taskId || (this.parentTask ? this.parentTask.rootTask?.taskId : undefined),
 			})
 		} catch (error) {
 			console.error("Failed to save cline messages:", error)

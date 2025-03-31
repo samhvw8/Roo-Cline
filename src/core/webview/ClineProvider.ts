@@ -148,6 +148,31 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 		// Add this cline instance into the stack that represents the order of all the called tasks.
 		this.clineStack.push(cline)
 
+		// Update history item with parent-child relationship data
+		if (cline.taskId) {
+			const history = (this.getGlobalState("taskHistory") as HistoryItem[] | undefined) || []
+			const historyItem = history.find((item) => item.id === cline.taskId)
+
+			if (historyItem) {
+				// Set parent and root IDs if this is a child task
+				if (cline.parentTask?.taskId) {
+					historyItem.parentId = cline.parentTask.taskId
+				}
+
+				if (cline.rootTask?.taskId) {
+					historyItem.rootId = cline.rootTask.taskId
+				}
+
+				// Initialize childIds array if not already present
+				if (!historyItem.childIds) {
+					historyItem.childIds = []
+				}
+
+				// Update the history
+				await this.updateTaskHistory(historyItem)
+			}
+		}
+
 		// Ensure getState() resolves correctly.
 		const state = await this.getState()
 
@@ -484,6 +509,9 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 		const modePrompt = customModePrompts?.[mode] as PromptComponent
 		const effectiveInstructions = [globalInstructions, modePrompt?.customInstructions].filter(Boolean).join("\n\n")
 
+		// Determine root task - either the first task in the stack or the parent's root task
+		const rootTask = parentTask?.rootTask || (this.clineStack.length > 0 ? this.clineStack[0] : undefined)
+
 		const cline = new Cline({
 			provider: this,
 			apiConfiguration,
@@ -495,7 +523,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			task,
 			images,
 			experiments,
-			rootTask: this.clineStack.length > 0 ? this.clineStack[0] : undefined,
+			rootTask,
 			parentTask,
 			taskNumber: this.clineStack.length + 1,
 			onCreated: (cline) => this.emit("clineCreated", cline),
@@ -522,6 +550,46 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			customInstructions: globalInstructions,
 			experiments,
 		} = await this.getState()
+
+		// If this history item has a parentId but no parentTask object, try to find the parent task
+		if (historyItem.parentId && !historyItem.parentTask) {
+			const history = (this.getGlobalState("taskHistory") as HistoryItem[] | undefined) || []
+			const parentHistoryItem = history.find((item) => item.id === historyItem.parentId)
+
+			if (parentHistoryItem) {
+				// Create a temporary Cline object to represent the parent
+				const parentCline = new Cline({
+					provider: this,
+					apiConfiguration,
+					historyItem: parentHistoryItem,
+					enableDiff,
+					fuzzyMatchThreshold,
+					experiments,
+					onCreated: () => {},
+				})
+				historyItem.parentTask = parentCline
+			}
+		}
+
+		// If this history item has a rootId but no rootTask object, try to find the root task
+		if (historyItem.rootId && !historyItem.rootTask && historyItem.rootId !== historyItem.parentId) {
+			const history = (this.getGlobalState("taskHistory") as HistoryItem[] | undefined) || []
+			const rootHistoryItem = history.find((item) => item.id === historyItem.rootId)
+
+			if (rootHistoryItem) {
+				// Create a temporary Cline object to represent the root
+				const rootCline = new Cline({
+					provider: this,
+					apiConfiguration,
+					historyItem: rootHistoryItem,
+					enableDiff,
+					fuzzyMatchThreshold,
+					experiments,
+					onCreated: () => {},
+				})
+				historyItem.rootTask = rootCline
+			}
+		}
 
 		const modePrompt = customModePrompts?.[mode] as PromptComponent
 		const effectiveInstructions = [globalInstructions, modePrompt?.customInstructions].filter(Boolean).join("\n\n")
@@ -2522,6 +2590,48 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 
 	async deleteTaskFromState(id: string) {
 		const taskHistory = this.getGlobalState("taskHistory") ?? []
+		const taskToDelete = taskHistory.find((task) => task.id === id)
+
+		if (taskToDelete) {
+			// If this task has a parent, remove this task from the parent's childIds
+			if (taskToDelete.parentId) {
+				const parentTask = taskHistory.find((task) => task.id === taskToDelete.parentId)
+				if (parentTask && parentTask.childIds) {
+					parentTask.childIds = parentTask.childIds.filter((childId) => childId !== id)
+				}
+			}
+
+			// If this task has children, update their parentId and rootId references
+			if (taskToDelete.childIds && taskToDelete.childIds.length > 0) {
+				for (const childId of taskToDelete.childIds) {
+					const childTask = taskHistory.find((task) => task.id === childId)
+					if (childTask) {
+						// If the deleted task was a child itself, make its children point to its parent
+						if (taskToDelete.parentId) {
+							childTask.parentId = taskToDelete.parentId
+							childTask.rootId = taskToDelete.rootId
+
+							// Add this child to the parent's childIds
+							const parentTask = taskHistory.find((task) => task.id === taskToDelete.parentId)
+							if (parentTask) {
+								if (!parentTask.childIds) {
+									parentTask.childIds = []
+								}
+								if (!parentTask.childIds.includes(childId)) {
+									parentTask.childIds.push(childId)
+								}
+							}
+						} else {
+							// If the deleted task was a root, make its children roots
+							childTask.parentId = undefined
+							childTask.rootId = undefined
+						}
+					}
+				}
+			}
+		}
+
+		// Filter out the task to delete
 		const updatedTaskHistory = taskHistory.filter((task) => task.id !== id)
 		await this.updateGlobalState("taskHistory", updatedTaskHistory)
 		await this.postStateToWebview()
@@ -2751,9 +2861,30 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 		const existingItemIndex = history.findIndex((h) => h.id === item.id)
 
 		if (existingItemIndex !== -1) {
+			// Preserve childIds if they exist in the current history item
+			if (history[existingItemIndex].childIds && !item.childIds) {
+				item.childIds = history[existingItemIndex].childIds
+			}
 			history[existingItemIndex] = item
 		} else {
+			// New item being added
 			history.push(item)
+
+			// If this is a child task, update the parent's childIds array
+			if (item.parentId) {
+				const parentIndex = history.findIndex((h) => h.id === item.parentId)
+				if (parentIndex !== -1) {
+					// Initialize childIds array if it doesn't exist
+					if (!history[parentIndex].childIds) {
+						history[parentIndex].childIds = []
+					}
+
+					// Add this task's ID to parent's childIds if not already there
+					if (!history[parentIndex].childIds!.includes(item.id)) {
+						history[parentIndex].childIds!.push(item.id)
+					}
+				}
+			}
 		}
 
 		await this.updateGlobalState("taskHistory", history)

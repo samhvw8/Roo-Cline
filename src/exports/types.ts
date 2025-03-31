@@ -216,6 +216,9 @@ type GlobalSettings = {
 				cacheReads?: number | undefined
 				totalCost: number
 				size?: number | undefined
+				parentId?: string | undefined
+				rootId?: string | undefined
+				childIds?: string[] | undefined
 		  }[]
 		| undefined
 	autoApprovalEnabled?: boolean | undefined

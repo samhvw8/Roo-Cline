@@ -143,6 +143,9 @@ export const historyItemSchema = z.object({
 	cacheReads: z.number().optional(),
 	totalCost: z.number(),
 	size: z.number().optional(),
+	parentId: z.string().optional(),
+	rootId: z.string().optional(),
+	childIds: z.array(z.string()).optional(),
 })
 
 export type HistoryItem = z.infer<typeof historyItemSchema>
