@@ -169,8 +169,7 @@
 
 	/* Search result highlighting */
 	.history-item-highlight {
-		@apply font-bold rounded-sm;
-		background-color: color-mix(in srgb, var(--vscode-badge-background) 50%, transparent);
+		@apply underline;
 	}
 }
 
