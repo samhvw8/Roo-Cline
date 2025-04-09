@@ -1,8 +1,8 @@
 import * as vscode from "vscode"
 import delay from "delay"
 
-import { getRepo, getStagedDiff, getStagedStatus } from "../utils/vsCodeGit"
 import { ClineProvider } from "../core/webview/ClineProvider"
+import { generateCommitSuggestion } from "../utils/commitSuggestion"
 
 /**
  * Helper to get the visible ClineProvider instance or log if not found.
@@ -46,10 +46,6 @@ export function setPanel(
 		sidebarPanel = undefined
 	}
 }
-import { supportPrompt } from "../shared/support-prompt"
-import { singleCompletionHandler } from "../utils/single-completion-handler"
-import { ApiConfiguration } from "../shared/api"
-import { truncateOutput } from "../integrations/misc/extract-text"
 
 export type RegisterCommandOptions = {
 	context: vscode.ExtensionContext
@@ -139,7 +135,10 @@ const getCommandsMap = ({ context, outputChannel, provider }: RegisterCommandOpt
 							cancellable: false,
 						},
 						async () => {
-							await generateCommitSuggestion(provider)
+							// Get the current workspace folder path
+							const workspaceFolders = vscode.workspace.workspaceFolders
+							const cwd = workspaceFolders?.[0]?.uri.fsPath || process.cwd()
+							await generateCommitSuggestion(provider, cwd)
 						},
 					)
 				} catch (error) {
@@ -198,57 +197,4 @@ export const openClineInNewTab = async ({ context, outputChannel }: Omit<Registe
 	await vscode.commands.executeCommand("workbench.action.lockEditorGroup")
 
 	return tabProvider
-}
-
-async function generateCommitSuggestion(provider: ClineProvider): Promise<void> {
-	const repo = getRepo()
-	if (!repo) {
-		vscode.window.showErrorMessage("No Git repository found")
-		return
-	}
-
-	if (repo.state.indexChanges.length === 0) {
-		vscode.window.showErrorMessage("No staged changes to generate commit message")
-		return
-	}
-
-	try {
-		const [status, diffs] = await Promise.all([getStagedStatus(repo), getStagedDiff(repo)])
-
-		try {
-			const { apiConfiguration, customSupportPrompts, listApiConfigMeta, enhancementApiConfigId } =
-				await provider.getState()
-
-			// Try to get enhancement config first, fall back to current config
-			let configToUse: ApiConfiguration = apiConfiguration
-			if (enhancementApiConfigId) {
-				const config = listApiConfigMeta?.find((c) => c.id === enhancementApiConfigId)
-				if (config?.name) {
-					const loadedConfig = await provider.providerSettingsManager.loadConfig(config.name)
-					if (loadedConfig.apiProvider) {
-						configToUse = loadedConfig
-					}
-				}
-			}
-
-			const commit = await singleCompletionHandler(
-				configToUse,
-				supportPrompt.create(
-					"COMMIT",
-					{
-						stagedDiffs: truncateOutput(diffs, 300),
-						stagedFilesStatus: status,
-						inputUser: repo.inputBox.value,
-					},
-					customSupportPrompts,
-				),
-			)
-
-			repo.inputBox.value = commit.replace(/<think>[\s\S]*?<\/think>/g, "").replace("```", "")
-		} catch (error) {
-			vscode.window.showErrorMessage("Failed to generate Commit ")
-		}
-	} catch (error) {
-		vscode.window.showErrorMessage("Failed to staged changes")
-	}
 }
