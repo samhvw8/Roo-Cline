@@ -79,9 +79,6 @@ Please suggest improvements for:
 Provide the improved code along with explanations for each enhancement.`,
 	},
 	COMMIT: {
-		label: "Generate Commit Message",
-		description:
-			"Generate a semantic commit message based on staged changes using git status and diffs. Available when staging changes in source control.",
 		template: `Create a conventional commit message following this format:
 	  <type>[optional scope]: <subject> (50 characters max)
 		
