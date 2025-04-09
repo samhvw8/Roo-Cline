@@ -1,8 +1,14 @@
 import { jest } from "@jest/globals"
-import { generateCommitSuggestion } from "../commitSuggestion"
+import { generateCommitSuggestion, getRepo } from "../commitSuggestion"
 import * as vscode from "vscode"
 
-// Mock vscode module
+// Mock repository object
+const mockInputBox = { value: "" }
+const mockRepository = {
+	rootUri: { fsPath: "/test/path" },
+	inputBox: mockInputBox,
+}
+
 // Mock vscode module
 jest.mock("vscode", () => ({
 	window: {
@@ -17,17 +23,20 @@ jest.mock("vscode", () => ({
 	workspace: {
 		workspaceFolders: [{ uri: { fsPath: "/test/path" } }],
 	},
-	scm: {
-		inputBox: {
-			value: "",
-		},
+	extensions: {
+		getExtension: jest.fn().mockImplementation(() => ({
+			exports: {
+				getAPI: jest.fn().mockImplementation(() => ({
+					repositories: [mockRepository],
+				})),
+			},
+		})),
 	},
 }))
 
 // Mock git.ts
 jest.mock("../git", () => ({
-	getStagedDiff: jest.fn(),
-	getStagedStatus: jest.fn(),
+	getWorkingState: jest.fn(),
 }))
 
 // Mock single-completion-handler.ts
@@ -88,37 +97,39 @@ describe("commitSuggestion", () => {
 	describe("generateCommitSuggestion", () => {
 		it("should show error when no staged changes", async () => {
 			// Setup mocks
-			const { getStagedStatus } = require("../git")
-			getStagedStatus.mockResolvedValue("")
+			const { getWorkingState } = require("../git")
+			getWorkingState.mockResolvedValue("No changes in working directory")
 
 			// Call function
 			await generateCommitSuggestion(mockProvider, "/test/path")
 
 			// Verify error message
-			expect(vscode.window.showErrorMessage).toHaveBeenCalledWith("No staged changes to generate commit message")
+			expect(vscode.window.showErrorMessage).toHaveBeenCalledWith("No changes to generate commit message")
 		})
 
 		it("should generate commit message and set it in the SCM input box", async () => {
 			// Setup mocks
-			const { getStagedStatus, getStagedDiff } = require("../git")
-			getStagedStatus.mockResolvedValue("M - file1.txt")
-			getStagedDiff.mockResolvedValue("diff content")
+			const { getWorkingState } = require("../git")
+			getWorkingState.mockResolvedValue("Working directory changes:\n\nM - file1.txt\n\ndiff content")
 
 			const { singleCompletionHandler } = require("../single-completion-handler")
 			singleCompletionHandler.mockResolvedValue("feat(test): add new feature")
+
+			// Reset input box value
+			mockInputBox.value = ""
 
 			// Call function
 			await generateCommitSuggestion(mockProvider, "/test/path")
 
 			// Verify SCM input box was updated
-			expect(vscode.scm.inputBox.value).toBe("feat(test): add new feature")
-			expect(vscode.window.showInformationMessage).toHaveBeenCalledWith("Commit suggestion applied to input box")
+			expect(mockRepository.inputBox.value).toBe("feat(test): add new feature")
+			expect(vscode.window.showInformationMessage).toHaveBeenCalledWith("Commit message set in editor")
 		})
 
 		it("should handle error when getting staged changes fails", async () => {
 			// Setup mocks
-			const { getStagedStatus } = require("../git")
-			getStagedStatus.mockRejectedValue(new Error("Git error"))
+			const { getWorkingState } = require("../git")
+			getWorkingState.mockRejectedValue(new Error("Git error"))
 
 			// Call function
 			await generateCommitSuggestion(mockProvider, "/test/path")
@@ -129,9 +140,8 @@ describe("commitSuggestion", () => {
 
 		it("should handle error when generating commit message fails", async () => {
 			// Setup mocks
-			const { getStagedStatus, getStagedDiff } = require("../git")
-			getStagedStatus.mockResolvedValue("M - file1.txt")
-			getStagedDiff.mockResolvedValue("diff content")
+			const { getWorkingState } = require("../git")
+			getWorkingState.mockResolvedValue("Working directory changes:\n\nM - file1.txt\n\ndiff content")
 
 			const { singleCompletionHandler } = require("../single-completion-handler")
 			singleCompletionHandler.mockRejectedValue(new Error("API error"))
@@ -145,9 +155,8 @@ describe("commitSuggestion", () => {
 
 		it("should use enhancement API config when available", async () => {
 			// Setup mocks
-			const { getStagedStatus, getStagedDiff } = require("../git")
-			getStagedStatus.mockResolvedValue("M - file1.txt")
-			getStagedDiff.mockResolvedValue("diff content")
+			const { getWorkingState } = require("../git")
+			getWorkingState.mockResolvedValue("Working directory changes:\n\nM - file1.txt\n\ndiff content")
 
 			const { singleCompletionHandler } = require("../single-completion-handler")
 			singleCompletionHandler.mockResolvedValue("feat(test): add new feature")
@@ -175,6 +184,26 @@ describe("commitSuggestion", () => {
 				"Enhanced Config",
 			)
 			expect(singleCompletionHandler).toHaveBeenCalledWith({ apiProvider: "enhanced" }, expect.any(String))
+		})
+
+		it("should fall back to clipboard if setting SCM input box fails", async () => {
+			// Setup mocks
+			const { getWorkingState } = require("../git")
+			getWorkingState.mockResolvedValue("Working directory changes:\n\nM - file1.txt\n\ndiff content")
+
+			const { singleCompletionHandler } = require("../single-completion-handler")
+			singleCompletionHandler.mockResolvedValue("feat(test): add new feature")
+
+			// Mock extensions to throw an error
+			const mockedVscode = require("vscode")
+			mockedVscode.extensions.getExtension.mockImplementation(() => null)
+
+			// Call function
+			await generateCommitSuggestion(mockProvider, "/test/path")
+
+			// Verify fallback to clipboard
+			expect(vscode.env.clipboard.writeText).toHaveBeenCalledWith("feat(test): add new feature")
+			expect(vscode.window.showInformationMessage).toHaveBeenCalledWith("Commit message copied to clipboard")
 		})
 	})
 })

@@ -5,6 +5,7 @@ import { singleCompletionHandler } from "./single-completion-handler"
 import { ApiConfiguration } from "../shared/api"
 import { truncateOutput } from "../integrations/misc/extract-text"
 import { ClineProvider } from "../core/webview/ClineProvider"
+import fs from "fs"
 
 /**
  * Generates a commit suggestion based on staged changes
@@ -74,6 +75,30 @@ export async function generateCommitSuggestion(provider: ClineProvider, cwd: str
 }
 
 /**
+ * Retrieves the repository associated with the provided directory.
+ *
+ * @param {string} cwd - The current working directory.
+ * @returns {Promise<vscode.SourceControl>} - A promise that resolves to the repository object.
+ */
+export async function getRepo(cwd: string): Promise<any> {
+	const gitApi = vscode.extensions.getExtension("vscode.git")?.exports.getAPI(1)
+	if (!gitApi) {
+		throw new Error("Git extension not found")
+	}
+
+	// Find the repository for the given working directory
+	for (let i = 0; i < gitApi.repositories.length; i++) {
+		const repo = gitApi.repositories[i]
+		if (cwd.startsWith(repo.rootUri.fsPath)) {
+			return repo
+		}
+	}
+
+	// Fall back to the first repository if no match found
+	return gitApi.repositories[0]
+}
+
+/**
  * Gets the current value from the git commit message editor
  * @param cwd The current working directory
  * @returns The current commit message
@@ -114,6 +139,20 @@ async function getCommitInputValue(cwd: string): Promise<string> {
  */
 async function setCommitInputValue(cwd: string, message: string): Promise<void> {
 	try {
+		// First attempt to set the message directly in the SCM input box
+		try {
+			const repo = await getRepo(cwd)
+			if (repo && repo.inputBox) {
+				repo.inputBox.value = message
+				vscode.window.showInformationMessage("Commit message set in editor")
+				return
+			}
+		} catch (scmError) {
+			console.error("Error accessing SCM input box:", scmError)
+			// Fall back to clipboard if SCM input box is not accessible
+		}
+
+		// Fall back to clipboard if direct setting fails
 		await vscode.env.clipboard.writeText(message)
 		vscode.window.showInformationMessage("Commit message copied to clipboard")
 	} catch (error) {
