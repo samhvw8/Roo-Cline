@@ -12,6 +12,36 @@ import { insertGroups } from "../diff/insert-groups"
 import delay from "delay"
 import fs from "fs/promises"
 
+type Operation = {
+	start_line: number
+	content: string
+}
+
+function parseOperation(operationContent: string): Operation {
+	// Split into metadata and content sections
+	const [metadata, ...contentParts] = operationContent.split("-------")
+
+	// Extract start_line from metadata
+	const startLineMatch = metadata.match(/:start_line:(-?\d+)/)
+	if (!startLineMatch) {
+		throw new Error("Missing or invalid :start_line: in operation metadata")
+	}
+
+	const startLine = parseInt(startLineMatch[1], 10)
+
+	// Join content parts in case content contains ------- sequences
+	const content = contentParts.join("-------").trim()
+
+	if (!content) {
+		throw new Error("Missing content after ------- separator")
+	}
+
+	return {
+		start_line: startLine,
+		content: content,
+	}
+}
+
 export async function insertContentTool(
 	cline: Cline,
 	block: ToolUse,
@@ -59,17 +89,19 @@ export async function insertContentTool(
 			return
 		}
 
-		type Operation = {
-			start_line: number
-			content: string
-		}
-		let parsedOperations: {
-			operation: Operation[] | Operation
-		}
+		let parsedOperations: Operation[] = []
 
 		try {
-			parsedOperations = parseXml(operations) as {
-				operation: Operation[] | Operation
+			const xmlResult = parseXml(operations) as {
+				operation: string | string[]
+			}
+
+			if (typeof xmlResult.operation === "string") {
+				parsedOperations = [parseOperation(xmlResult.operation)]
+			} else if (Array.isArray(xmlResult.operation)) {
+				parsedOperations = xmlResult.operation.map(parseOperation)
+			} else {
+				throw new Error("Invalid operation format")
 			}
 		} catch (error) {
 			cline.consecutiveMistakeCount++
@@ -77,10 +109,6 @@ export async function insertContentTool(
 			pushToolResult(formatResponse.toolError("Invalid operations XML format"))
 			return
 		}
-
-		const normalizedOperations = Array.isArray(parsedOperations?.operation)
-			? parsedOperations.operation
-			: [parsedOperations?.operation].filter((op): op is Operation => op !== undefined)
 
 		cline.consecutiveMistakeCount = 0
 
@@ -92,10 +120,10 @@ export async function insertContentTool(
 
 		const updatedContent = insertGroups(
 			lines,
-			normalizedOperations.map((elem) => {
+			parsedOperations.map((operation) => {
 				return {
-					index: elem.start_line - 1,
-					elements: elem.content.split("\n"),
+					index: operation.start_line - 1,
+					elements: operation.content.split("\n"),
 				}
 			}),
 		).join("\n")
