@@ -4,12 +4,12 @@ import { BatchDeleteTaskDialog } from "./BatchDeleteTaskDialog"
 import prettyBytes from "pretty-bytes"
 import { Virtuoso } from "react-virtuoso"
 
-import { VSCodeTextField, VSCodeRadioGroup, VSCodeRadio, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
+import { VSCodeTextField, VSCodeRadioGroup, VSCodeRadio } from "@vscode/webview-ui-toolkit/react"
 
 import { vscode } from "@/utils/vscode"
 import { formatLargeNumber, formatDate } from "@/utils/format"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui"
+import { Button, Checkbox } from "@/components/ui"
 import { useAppTranslation } from "@/i18n/TranslationContext"
 
 import { Tab, TabContent, TabHeader } from "../common/Tab"
@@ -157,9 +157,10 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 					</VSCodeRadioGroup>
 
 					<div className="flex items-center gap-2" onClick={() => setShowAllWorkspaces(!showAllWorkspaces)}>
-						<VSCodeCheckbox
+						<Checkbox
 							checked={showAllWorkspaces}
-							onChange={(e) => setShowAllWorkspaces((e.target as HTMLInputElement).checked)}
+							onCheckedChange={(checked) => setShowAllWorkspaces(checked === true)}
+							variant="description"
 						/>
 						<span className="text-vscode-foreground">{t("history:showAllWorkspaces")}</span>
 					</div>
@@ -168,9 +169,10 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 					{isSelectionMode && tasks.length > 0 && (
 						<div className="flex items-center py-1 px-2 bg-vscode-editor-background rounded">
 							<div className="flex items-center gap-2">
-								<VSCodeCheckbox
+								<Checkbox
 									checked={tasks.length > 0 && selectedTaskIds.length === tasks.length}
-									onChange={(e) => toggleSelectAll((e.target as HTMLInputElement).checked)}
+									onCheckedChange={(checked) => toggleSelectAll(checked === true)}
+									variant="description"
 								/>
 								<span className="text-vscode-foreground">
 									{selectedTaskIds.length === tasks.length
@@ -225,11 +227,12 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 										onClick={(e) => {
 											e.stopPropagation()
 										}}>
-										<VSCodeCheckbox
+										<Checkbox
 											checked={selectedTaskIds.includes(item.id)}
-											onChange={(e) =>
-												toggleTaskSelection(item.id, (e.target as HTMLInputElement).checked)
+											onCheckedChange={(checked) =>
+												toggleTaskSelection(item.id, checked === true)
 											}
+											variant="description"
 										/>
 									</div>
 								)}

@@ -2,8 +2,7 @@ import { memo } from "react"
 
 import { vscode } from "@/utils/vscode"
 import { formatLargeNumber, formatDate } from "@/utils/format"
-import { Button } from "@/components/ui"
-import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
+import { Button, Checkbox } from "@/components/ui"
 
 import { useAppTranslation } from "../../i18n/TranslationContext"
 import { CopyButton } from "./CopyButton"
@@ -24,17 +23,27 @@ const HistoryPreview = ({ showHistoryView }: HistoryPreviewProps) => {
 						<span className="codicon codicon-comment-discussion scale-90 mr-1" />
 						<span className="font-medium text-xs uppercase">{t("history:recentTasks")}</span>
 					</div>
-					<div
-						className="flex items-center gap-1 text-xs opacity-80 hover:opacity-100 cursor-pointer"
-						onClick={() => setShowAllWorkspaces(!showAllWorkspaces)}>
-						<VSCodeCheckbox
-							checked={showAllWorkspaces}
-							onChange={(e) => setShowAllWorkspaces((e.target as HTMLInputElement).checked)}
-						/>
-						<span className="text-vscode-foreground select-none">{t("history:showAllWorkspaces")}</span>
+					<div className="flex items-center gap-1 text-xs opacity-80 hover:opacity-100">
+						<div className="flex items-center space-x-2">
+							<Checkbox
+								id="show-all-workspaces"
+								checked={showAllWorkspaces}
+								onCheckedChange={(checked) => setShowAllWorkspaces(checked === true)}
+								variant="description"
+							/>
+							<label
+								htmlFor="show-all-workspaces"
+								className="text-vscode-descriptionForeground select-none cursor-pointer text-sm">
+								{t("history:showAllWorkspaces")}
+							</label>
+						</div>
 					</div>
 				</div>
-				<Button variant="ghost" size="sm" onClick={() => showHistoryView()} className="uppercase">
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => showHistoryView()}
+					className="uppercase text-xs hover:bg-vscode-toolbar-hoverBackground/50 transition-colors">
 					{t("history:viewAll")}
 				</Button>
 			</div>

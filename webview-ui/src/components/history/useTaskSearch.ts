@@ -24,18 +24,21 @@ export const useTaskSearch = () => {
 	}, [searchQuery, sortOption, lastNonRelevantSort])
 
 	const presentableTasks = useMemo(() => {
-		return taskHistory.filter((item) => item.ts && item.task)
-	}, [taskHistory])
+		let tasks = taskHistory.filter((item) => item.ts && item.task)
+		if (!showAllWorkspaces) {
+			tasks = tasks.filter((item) => item.workspace === cwd)
+		}
+		return tasks
+	}, [taskHistory, showAllWorkspaces, cwd])
 
 	const fzf = useMemo(() => {
 		return new Fzf(presentableTasks, {
-			selector: (item) => `${item.task} ${item.workspace || ""}`,
+			selector: (item) => `${item.task} ${item.workspace ?? ""}`,
 		})
 	}, [presentableTasks])
-
+	
 	const tasks = useMemo(() => {
-		// First filter by workspace if enabled
-		let results = showAllWorkspaces ? presentableTasks : presentableTasks.filter((item) => item.workspace === cwd)
+		let results = presentableTasks
 
 		if (searchQuery) {
 			const searchResults = fzf.find(searchQuery)
@@ -58,14 +61,10 @@ export const useTaskSearch = () => {
 							: undefined,
 					}
 				})
-				.filter((item) => (showAllWorkspaces ? true : item.workspace === cwd))
 		}
 
-		// First apply search if needed
-		const searchResults = results
-
 		// Then sort the results
-		return [...searchResults].sort((a, b) => {
+		return [...results].sort((a, b) => {
 			switch (sortOption) {
 				case "oldest":
 					return (a.ts || 0) - (b.ts || 0)
