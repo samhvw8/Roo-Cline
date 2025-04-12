@@ -24,7 +24,16 @@ type HistoryViewProps = {
 type SortOption = "newest" | "oldest" | "mostExpensive" | "mostTokens" | "mostRelevant"
 
 const HistoryView = ({ onDone }: HistoryViewProps) => {
-	const { tasks, searchQuery, setSearchQuery, sortOption, setSortOption, setLastNonRelevantSort } = useTaskSearch()
+	const {
+		tasks,
+		searchQuery,
+		setSearchQuery,
+		sortOption,
+		setSortOption,
+		setLastNonRelevantSort,
+		showAllWorkspaces,
+		setShowAllWorkspaces,
+	} = useTaskSearch()
 	const { t } = useAppTranslation()
 
 	const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null)
@@ -147,21 +156,34 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 						</VSCodeRadio>
 					</VSCodeRadioGroup>
 
+					<div className="flex items-center gap-2" onClick={() => setShowAllWorkspaces(!showAllWorkspaces)}>
+						<VSCodeCheckbox
+							checked={showAllWorkspaces}
+							onChange={(e) => setShowAllWorkspaces((e.target as HTMLInputElement).checked)}
+						/>
+						<span className="text-vscode-foreground">{t("history:showAllWorkspaces")}</span>
+					</div>
+
 					{/* Select all control in selection mode */}
 					{isSelectionMode && tasks.length > 0 && (
 						<div className="flex items-center py-1 px-2 bg-vscode-editor-background rounded">
-							<VSCodeCheckbox
-								checked={tasks.length > 0 && selectedTaskIds.length === tasks.length}
-								onChange={(e) => toggleSelectAll((e.target as HTMLInputElement).checked)}
-							/>
-							<span className="ml-2 text-vscode-foreground">
-								{selectedTaskIds.length === tasks.length
-									? t("history:deselectAll")
-									: t("history:selectAll")}
-							</span>
-							<span className="ml-auto text-vscode-descriptionForeground text-xs">
-								{t("history:selectedItems", { selected: selectedTaskIds.length, total: tasks.length })}
-							</span>
+							<div className="flex items-center gap-2">
+								<VSCodeCheckbox
+									checked={tasks.length > 0 && selectedTaskIds.length === tasks.length}
+									onChange={(e) => toggleSelectAll((e.target as HTMLInputElement).checked)}
+								/>
+								<span className="text-vscode-foreground">
+									{selectedTaskIds.length === tasks.length
+										? t("history:deselectAll")
+										: t("history:selectAll")}
+								</span>
+								<span className="ml-auto text-vscode-descriptionForeground text-xs">
+									{t("history:selectedItems", {
+										selected: selectedTaskIds.length,
+										total: tasks.length,
+									})}
+								</span>
+							</div>
 						</div>
 					)}
 				</div>
@@ -214,33 +236,42 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 
 								<div className="flex-1">
 									<div className="flex justify-between items-center">
-										<span className="text-vscode-descriptionForeground font-medium text-sm uppercase">
-											{formatDate(item.ts)}
-										</span>
-										<div className="flex flex-row">
-											{!isSelectionMode && (
-												<Button
-													variant="ghost"
-													size="sm"
-													title={t("history:deleteTaskTitle")}
-													data-testid="delete-task-button"
-													onClick={(e) => {
-														e.stopPropagation()
-
-														if (e.shiftKey) {
-															vscode.postMessage({
-																type: "deleteTaskWithId",
-																text: item.id,
-															})
-														} else {
-															setDeleteTaskId(item.id)
-														}
-													}}>
-													<span className="codicon codicon-trash" />
-													{item.size && prettyBytes(item.size)}
-												</Button>
+										<div className="flex items-center gap-4">
+											<span className="text-vscode-descriptionForeground font-medium text-sm uppercase">
+												{formatDate(item.ts)}
+											</span>
+											{item.workspace && (
+												<span className="text-xs text-vscode-descriptionForeground flex items-center gap-1">
+													<span className="codicon codicon-folder" />
+													<span
+														className="truncate max-w-[300px]"
+														dangerouslySetInnerHTML={{ __html: item.workspace }}
+													/>
+												</span>
 											)}
 										</div>
+										{!isSelectionMode && (
+											<Button
+												variant="ghost"
+												size="sm"
+												title={t("history:deleteTaskTitle")}
+												data-testid="delete-task-button"
+												onClick={(e) => {
+													e.stopPropagation()
+
+													if (e.shiftKey) {
+														vscode.postMessage({
+															type: "deleteTaskWithId",
+															text: item.id,
+														})
+													} else {
+														setDeleteTaskId(item.id)
+													}
+												}}>
+												<span className="codicon codicon-trash" />
+												{item.size && prettyBytes(item.size)}
+											</Button>
+										)}
 									</div>
 									<div
 										style={{
