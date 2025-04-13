@@ -1,7 +1,10 @@
 import { mentionRegex } from "@roo/shared/context-mentions"
 import { Fzf } from "fzf"
 import { ModeConfig } from "@roo/shared/modes"
-import * as path from "path"
+
+function getBasename(filepath: string): string {
+	return filepath.split("/").pop() || filepath
+}
 import { escapeSpaces } from "./path-mentions"
 
 export interface SearchResult {
@@ -254,7 +257,7 @@ export function getContextMenuOptions(
 
 		// For display purposes, we don't escape spaces in the label or description
 		const displayPath = formattedPath
-		const displayName = result.label || path.basename(result.path)
+		const displayName = result.label || getBasename(result.path)
 
 		// We don't need to escape spaces here because the insertMention function
 		// will handle that when the user selects a suggestion
