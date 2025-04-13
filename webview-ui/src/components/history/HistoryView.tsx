@@ -239,42 +239,33 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 
 								<div className="flex-1">
 									<div className="flex justify-between items-center">
-										<div className="flex items-center gap-4">
-											<span className="text-vscode-descriptionForeground font-medium text-sm uppercase">
-												{formatDate(item.ts)}
-											</span>
-											{item.workspace && (
-												<span className="text-xs text-vscode-descriptionForeground flex items-center gap-1">
-													<span className="codicon codicon-folder" />
-													<span
-														className="truncate max-w-[300px]"
-														dangerouslySetInnerHTML={{ __html: item.workspace }}
-													/>
-												</span>
+										<span className="text-vscode-descriptionForeground font-medium text-sm uppercase">
+											{formatDate(item.ts)}
+										</span>
+										<div className="flex flex-row">
+											{!isSelectionMode && (
+												<Button
+													variant="ghost"
+													size="sm"
+													title={t("history:deleteTaskTitle")}
+													data-testid="delete-task-button"
+													onClick={(e) => {
+														e.stopPropagation()
+
+														if (e.shiftKey) {
+															vscode.postMessage({
+																type: "deleteTaskWithId",
+																text: item.id,
+															})
+														} else {
+															setDeleteTaskId(item.id)
+														}
+													}}>
+													<span className="codicon codicon-trash" />
+													{item.size && prettyBytes(item.size)}
+												</Button>
 											)}
 										</div>
-										{!isSelectionMode && (
-											<Button
-												variant="ghost"
-												size="sm"
-												title={t("history:deleteTaskTitle")}
-												data-testid="delete-task-button"
-												onClick={(e) => {
-													e.stopPropagation()
-
-													if (e.shiftKey) {
-														vscode.postMessage({
-															type: "deleteTaskWithId",
-															text: item.id,
-														})
-													} else {
-														setDeleteTaskId(item.id)
-													}
-												}}>
-												<span className="codicon codicon-trash" />
-												{item.size && prettyBytes(item.size)}
-											</Button>
-										)}
 									</div>
 									<div
 										style={{
@@ -439,6 +430,13 @@ const HistoryView = ({ onDone }: HistoryViewProps) => {
 														<ExportButton itemId={item.id} />
 													</div>
 												)}
+											</div>
+										)}
+
+										{showAllWorkspaces && item.workspace && (
+											<div className="flex flex-row gap-1 text-vscode-descriptionForeground text-xs">
+												<span className="codicon codicon-folder scale-80" />
+												<span>{item.workspace}</span>
 											</div>
 										)}
 									</div>

@@ -33,34 +33,28 @@ export const useTaskSearch = () => {
 
 	const fzf = useMemo(() => {
 		return new Fzf(presentableTasks, {
-			selector: (item) => `${item.task} ${item.workspace ?? ""}`,
+			selector: (item) => item.task,
 		})
 	}, [presentableTasks])
-	
+
 	const tasks = useMemo(() => {
 		let results = presentableTasks
 
 		if (searchQuery) {
 			const searchResults = fzf.find(searchQuery)
-			results = searchResults
-				.map((result) => {
-					const positions = Array.from(result.positions)
-					const taskEndIndex = result.item.task.length
+			results = searchResults.map((result) => {
+				const positions = Array.from(result.positions)
+				const taskEndIndex = result.item.task.length
 
-					return {
-						...result.item,
-						task: highlightFzfMatch(
-							result.item.task,
-							positions.filter((p) => p < taskEndIndex),
-						),
-						workspace: result.item.workspace
-							? highlightFzfMatch(
-									result.item.workspace,
-									positions.filter((p) => p > taskEndIndex).map((p) => p - taskEndIndex - 1),
-								)
-							: undefined,
-					}
-				})
+				return {
+					...result.item,
+					task: highlightFzfMatch(
+						result.item.task,
+						positions.filter((p) => p < taskEndIndex),
+					),
+					workspace: result.item.workspace,
+				}
+			})
 		}
 
 		// Then sort the results
@@ -82,7 +76,7 @@ export const useTaskSearch = () => {
 					return (b.ts || 0) - (a.ts || 0)
 			}
 		})
-	}, [presentableTasks, searchQuery, fzf, sortOption, showAllWorkspaces, cwd])
+	}, [presentableTasks, searchQuery, fzf, sortOption])
 
 	return {
 		tasks,
