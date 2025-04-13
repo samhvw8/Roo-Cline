@@ -127,7 +127,12 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				} else if (message.type === "fileSearchResults") {
 					setSearchLoading(false)
 					if (message.requestId === searchRequestId) {
-						setFileSearchResults(message.results || [])
+						setFileSearchResults(message.results.map((item: SearchResult) => {
+							return {
+								...item,
+								path: item.path,
+							}
+						}) || [])
 					}
 				}
 			}

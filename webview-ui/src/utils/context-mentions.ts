@@ -2,6 +2,7 @@ import { mentionRegex } from "../../../src/shared/context-mentions"
 import { Fzf } from "fzf"
 import { ModeConfig } from "../../../src/shared/modes"
 import * as path from "path"
+import { formatPath } from "../../../src/shared/formatPath"
 
 export interface SearchResult {
 	path: string
@@ -230,13 +231,11 @@ export function getContextMenuOptions(
 
 	// Convert search results to queryItems format
 	const searchResultItems = dynamicSearchResults.map((result) => {
-		const formattedPath = result.path.startsWith("/") ? result.path : `/${result.path}`
-
 		return {
 			type: result.type === "folder" ? ContextMenuOptionType.Folder : ContextMenuOptionType.File,
-			value: formattedPath,
+			value: formatPath(result.path),
 			label: result.label || path.basename(result.path),
-			description: formattedPath,
+			description: formatPath(result.path, false),
 		}
 	})
 
