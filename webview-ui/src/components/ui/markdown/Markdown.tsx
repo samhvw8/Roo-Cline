@@ -13,7 +13,8 @@ const MemoizedReactMarkdown: FC<Options> = memo(
 	(prevProps, nextProps) => prevProps.children === nextProps.children && prevProps.className === nextProps.className,
 )
 
-export function Markdown({ content }: { content: string }) {
+export function Markdown({ content, isComplete }: { content: string; isComplete?: boolean }) {
+	// Added optional isComplete prop
 	return (
 		<MemoizedReactMarkdown
 			remarkPlugins={[remarkGfm]}
@@ -69,7 +70,8 @@ export function Markdown({ content }: { content: string }) {
 						<CodeBlock
 							language={(match && match[1]) || ""}
 							value={String(children).replace(/\n$/, "")}
-							className="rounded-xs p-3 mb-2"
+							className="rounded-xs p-3 mb-2" // Keep existing classes for now, margin replacement was reverted/failed
+							isComplete={isComplete ?? true} // Pass down isComplete, default to true if undefined
 						/>
 					)
 				},
