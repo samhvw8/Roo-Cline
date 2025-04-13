@@ -42,9 +42,9 @@ let extensionContext: vscode.ExtensionContext
 // Your extension is activated the very first time the command is executed.
 export async function activate(context: vscode.ExtensionContext) {
 	extensionContext = context
-	outputChannel = vscode.window.createOutputChannel(vscode.l10n.t("output.channel.name"))
+	outputChannel = vscode.window.createOutputChannel("Roo-Code")
 	context.subscriptions.push(outputChannel)
-	outputChannel.appendLine(vscode.l10n.t("extension.activated"))
+	outputChannel.appendLine("Roo-Code extension activated")
 
 	// Migrate old settings to new
 	await migrateSettings(context, outputChannel)
@@ -126,7 +126,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export async function deactivate() {
-	outputChannel.appendLine(vscode.l10n.t("extension.deactivated"))
+	outputChannel.appendLine("Roo-Code extension deactivated")
 	// Clean up MCP server manager
 	await McpServerManager.cleanup(extensionContext)
 	telemetryService.shutdown()
