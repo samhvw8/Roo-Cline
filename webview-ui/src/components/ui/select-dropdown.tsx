@@ -2,6 +2,7 @@ import * as React from "react"
 import { CaretUpIcon } from "@radix-ui/react-icons"
 import { Check, X } from "lucide-react"
 import { Fzf } from "fzf"
+import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
 import { useRooPortal } from "./hooks/useRooPortal"
@@ -58,6 +59,7 @@ export const SelectDropdown = React.memo(
 			},
 			ref,
 		) => {
+			const { t } = useTranslation()
 			const [open, setOpen] = React.useState(false)
 			const [searchValue, setSearchValue] = React.useState("")
 			const searchInputRef = React.useRef<HTMLInputElement>(null)
@@ -212,8 +214,8 @@ export const SelectDropdown = React.memo(
 									ref={searchInputRef}
 									value={searchValue}
 									onChange={(e) => setSearchValue(e.target.value)}
-									placeholder="Search..."
-									className="w-full h-8 px-2 py-1 text-xs bg-vscode-input-background text-vscode-input-foreground border border-vscode-input-border rounded focus:outline-none focus:border-vscode-focusBorder"
+									placeholder={t("common:ui.search_placeholder")}
+									className="w-full h-8 px-2 py-1 text-xs bg-vscode-input-background text-vscode-input-foreground border border-vscode-input-border rounded focus:outline-0"
 								/>
 								{searchValue.length > 0 && (
 									<div className="absolute right-4 top-0 bottom-0 flex items-center justify-center">
