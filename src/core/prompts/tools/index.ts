@@ -4,8 +4,6 @@ import { getFetchInstructionsDescription } from "./fetch-instructions"
 import { getWriteToFileDescription } from "./write-to-file"
 import { getSearchFilesDescription } from "./search-files"
 import { getListFilesDescription } from "./list-files"
-import { getInsertContentDescription } from "./insert-content"
-import { getSearchAndReplaceDescription } from "./search-and-replace"
 import { getListCodeDefinitionNamesDescription } from "./list-code-definition-names"
 import { getBrowserActionDescription } from "./browser-action"
 import { getAskFollowupQuestionDescription } from "./ask-followup-question"
@@ -36,8 +34,6 @@ const toolDescriptionMap: Record<string, (args: ToolArgs) => string | undefined>
 	access_mcp_resource: (args) => getAccessMcpResourceDescription(args),
 	switch_mode: () => getSwitchModeDescription(),
 	new_task: (args) => getNewTaskDescription(args),
-	insert_content: (args) => getInsertContentDescription(args),
-	search_and_replace: (args) => getSearchAndReplaceDescription(args),
 	apply_diff: (args) =>
 		args.diffStrategy ? args.diffStrategy.getToolDescription({ cwd: args.cwd, toolOptions: args.toolOptions }) : "",
 }
@@ -110,6 +106,4 @@ export {
 	getUseMcpToolDescription,
 	getAccessMcpResourceDescription,
 	getSwitchModeDescription,
-	getInsertContentDescription,
-	getSearchAndReplaceDescription,
 }

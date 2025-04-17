@@ -13,29 +13,10 @@ function getEditingInstructions(diffStrategy?: DiffStrategy, experiments?: Recor
 	} else {
 		availableTools.push("write_to_file (for creating new files or complete file rewrites)")
 	}
-	if (experiments?.["insert_content"]) {
-		availableTools.push("insert_content (for adding lines to existing files)")
-	}
-	if (experiments?.["search_and_replace"]) {
-		availableTools.push("search_and_replace (for finding and replacing individual pieces of text)")
-	}
 
 	// Base editing instruction mentioning all available tools
 	if (availableTools.length > 1) {
 		instructions.push(`- For editing files, you have access to these tools: ${availableTools.join(", ")}.`)
-	}
-
-	// Additional details for experimental features
-	if (experiments?.["insert_content"]) {
-		instructions.push(
-			"- The insert_content tool adds lines of text to files, such as adding a new function to a JavaScript file or inserting a new route in a Python file. This tool will insert it at the specified line location. It can support multiple operations at once.",
-		)
-	}
-
-	if (experiments?.["search_and_replace"]) {
-		instructions.push(
-			"- The search_and_replace tool finds and replaces text or regex in files. This tool allows you to search for a specific regex pattern or text and replace it with another value. Be cautious when using this tool to ensure you are replacing the correct text. It can support multiple operations at once.",
-		)
 	}
 
 	if (availableTools.length > 1) {

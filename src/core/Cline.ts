@@ -64,8 +64,6 @@ import { validateToolUse, isToolAllowedForMode, ToolName } from "./mode-validato
 import { getWorkspacePath } from "../utils/path"
 import { writeToFileTool } from "./tools/writeToFileTool"
 import { applyDiffTool } from "./tools/applyDiffTool"
-import { insertContentTool } from "./tools/insertContentTool"
-import { searchAndReplaceTool } from "./tools/searchAndReplaceTool"
 import { listCodeDefinitionNamesTool } from "./tools/listCodeDefinitionNamesTool"
 import { searchFilesTool } from "./tools/searchFilesTool"
 import { browserActionTool } from "./tools/browserActionTool"
@@ -1396,10 +1394,6 @@ export class Cline extends EventEmitter<ClineEvents> {
 							return `[${block.name} for '${block.params.regex}'${
 								block.params.file_pattern ? ` in '${block.params.file_pattern}'` : ""
 							}]`
-						case "insert_content":
-							return `[${block.name} for '${block.params.path}']`
-						case "search_and_replace":
-							return `[${block.name} for '${block.params.path}']`
 						case "list_files":
 							return `[${block.name} for '${block.params.path}']`
 						case "list_code_definition_names":
@@ -1575,19 +1569,6 @@ export class Cline extends EventEmitter<ClineEvents> {
 						break
 					case "apply_diff":
 						await applyDiffTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "insert_content":
-						await insertContentTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "search_and_replace":
-						await searchAndReplaceTool(
-							this,
-							block,
-							askApproval,
-							handleError,
-							pushToolResult,
-							removeClosingTag,
-						)
 						break
 					case "read_file":
 						await readFileTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)

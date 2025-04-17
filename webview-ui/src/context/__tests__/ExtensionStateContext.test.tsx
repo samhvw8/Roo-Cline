@@ -208,8 +208,7 @@ describe("mergeExtensionState", () => {
 			...baseState,
 			apiConfiguration: { modelMaxTokens: 1234, modelMaxThinkingTokens: 123 },
 			experiments: {
-				search_and_replace: true,
-				insert_content: true,
+				powerSteering: false,
 			} as Record<ExperimentId, boolean>,
 		}
 
@@ -229,8 +228,6 @@ describe("mergeExtensionState", () => {
 		})
 
 		expect(result.experiments).toEqual({
-			search_and_replace: true,
-			insert_content: true,
 			powerSteering: true,
 		})
 	})

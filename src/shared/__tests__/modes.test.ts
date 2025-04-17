@@ -257,54 +257,23 @@ describe("isToolAllowedForMode", () => {
 
 	describe("experimental tools", () => {
 		it("disables tools when experiment is disabled", () => {
-			const experiments = {
-				search_and_replace: false,
-				insert_content: false,
-			}
+			const experiments = {}
 
 			expect(
-				isToolAllowedForMode(
-					"search_and_replace",
-					"test-exp-mode",
-					customModes,
-					undefined,
-					undefined,
-					experiments,
-				),
-			).toBe(false)
-
-			expect(
-				isToolAllowedForMode("insert_content", "test-exp-mode", customModes, undefined, undefined, experiments),
+				isToolAllowedForMode("powerSteering", "test-exp-mode", customModes, undefined, undefined, experiments),
 			).toBe(false)
 		})
 
 		it("allows tools when experiment is enabled", () => {
-			const experiments = {
-				search_and_replace: true,
-				insert_content: true,
-			}
+			const experiments = {}
 
 			expect(
-				isToolAllowedForMode(
-					"search_and_replace",
-					"test-exp-mode",
-					customModes,
-					undefined,
-					undefined,
-					experiments,
-				),
-			).toBe(true)
-
-			expect(
-				isToolAllowedForMode("insert_content", "test-exp-mode", customModes, undefined, undefined, experiments),
+				isToolAllowedForMode("apply_diff", "test-exp-mode", customModes, undefined, undefined, experiments),
 			).toBe(true)
 		})
 
 		it("allows non-experimental tools when experiments are disabled", () => {
-			const experiments = {
-				search_and_replace: false,
-				insert_content: false,
-			}
+			const experiments = {}
 
 			expect(
 				isToolAllowedForMode("read_file", "markdown-editor", customModes, undefined, undefined, experiments),
