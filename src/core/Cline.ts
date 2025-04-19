@@ -5,6 +5,7 @@ import crypto from "crypto"
 import EventEmitter from "events"
 
 import { Anthropic } from "@anthropic-ai/sdk"
+import { ToolRegistry } from "./tools/ToolRegistry"
 import cloneDeep from "clone-deep"
 import delay from "delay"
 import pWaitFor from "p-wait-for"
@@ -1230,52 +1231,9 @@ export class Cline extends EventEmitter<ClineEvents> {
 				break
 			}
 			case "tool_use":
-				const toolDescription = (): string => {
-					switch (block.name) {
-						case "execute_command":
-							return `[${block.name} for '${block.params.command}']`
-						case "read_file":
-							return `[${block.name} for '${block.params.path}']`
-						case "fetch_instructions":
-							return `[${block.name} for '${block.params.task}']`
-						case "write_to_file":
-							return `[${block.name} for '${block.params.path}']`
-						case "append_to_file":
-							return `[${block.name} for '${block.params.path}']`
-						case "apply_diff":
-							return `[${block.name} for '${block.params.path}']`
-						case "search_files":
-							return `[${block.name} for '${block.params.regex}'${
-								block.params.file_pattern ? ` in '${block.params.file_pattern}'` : ""
-							}]`
-						case "insert_content":
-							return `[${block.name} for '${block.params.path}']`
-						case "search_and_replace":
-							return `[${block.name} for '${block.params.path}']`
-						case "list_files":
-							return `[${block.name} for '${block.params.path}']`
-						case "list_code_definition_names":
-							return `[${block.name} for '${block.params.path}']`
-						case "browser_action":
-							return `[${block.name} for '${block.params.action}']`
-						case "use_mcp_tool":
-							return `[${block.name} for '${block.params.server_name}']`
-						case "access_mcp_resource":
-							return `[${block.name} for '${block.params.server_name}']`
-						case "ask_followup_question":
-							return `[${block.name} for '${block.params.question}']`
-						case "attempt_completion":
-							return `[${block.name}]`
-						case "switch_mode":
-							return `[${block.name} to '${block.params.mode_slug}'${block.params.reason ? ` because: ${block.params.reason}` : ""}]`
-						case "new_task": {
-							const mode = block.params.mode ?? defaultModeSlug
-							const message = block.params.message ?? "(no message)"
-							const modeName = getModeBySlug(mode, customModes)?.name ?? mode
-							return `[${block.name} in ${modeName} mode: '${message}']`
-						}
-					}
-				}
+				const registry = ToolRegistry.getInstance()
+				const tool = registry.getTool(block.name)
+				const toolDescription = () => tool ? tool.getDescription(block) : `[${block.name}]`
 
 				if (this.didRejectTool) {
 					// ignore any tool content after user has rejected tool once
@@ -1422,107 +1380,18 @@ export class Cline extends EventEmitter<ClineEvents> {
 					break
 				}
 
-				switch (block.name) {
-					case "write_to_file":
-						await writeToFileTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "append_to_file":
-						await appendToFileTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "apply_diff":
-						await applyDiffTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "insert_content":
-						await insertContentTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "search_and_replace":
-						await searchAndReplaceTool(
-							this,
-							block,
-							askApproval,
-							handleError,
-							pushToolResult,
-							removeClosingTag,
-						)
-						break
-					case "read_file":
-						await readFileTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-
-						break
-					case "fetch_instructions":
-						await fetchInstructionsTool(this, block, askApproval, handleError, pushToolResult)
-						break
-					case "list_files":
-						await listFilesTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "list_code_definition_names":
-						await listCodeDefinitionNamesTool(
-							this,
-							block,
-							askApproval,
-							handleError,
-							pushToolResult,
-							removeClosingTag,
-						)
-						break
-					case "search_files":
-						await searchFilesTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "browser_action":
-						await browserActionTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "execute_command":
-						await executeCommandTool(
-							this,
-							block,
-							askApproval,
-							handleError,
-							pushToolResult,
-							removeClosingTag,
-						)
-						break
-					case "use_mcp_tool":
-						await useMcpToolTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "access_mcp_resource":
-						await accessMcpResourceTool(
-							this,
-							block,
-							askApproval,
-							handleError,
-							pushToolResult,
-							removeClosingTag,
-						)
-						break
-					case "ask_followup_question":
-						await askFollowupQuestionTool(
-							this,
-							block,
-							askApproval,
-							handleError,
-							pushToolResult,
-							removeClosingTag,
-						)
-						break
-					case "switch_mode":
-						await switchModeTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "new_task":
-						await newTaskTool(this, block, askApproval, handleError, pushToolResult, removeClosingTag)
-						break
-					case "attempt_completion":
-						await attemptCompletionTool(
-							this,
-							block,
-							askApproval,
-							handleError,
-							pushToolResult,
-							removeClosingTag,
-							toolDescription,
-							askFinishSubTaskApproval,
-						)
-						break
-				}
+				const toolRegistry = ToolRegistry.getInstance()
+				await toolRegistry.executeToolHandler(
+					block.name,
+					this,
+					block,
+					askApproval,
+					handleError,
+					pushToolResult,
+					removeClosingTag,
+					toolDescription,
+					askFinishSubTaskApproval
+				)
 
 				break
 		}
