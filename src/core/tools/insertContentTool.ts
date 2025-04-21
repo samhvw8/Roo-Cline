@@ -1,46 +1,15 @@
 import delay from "delay"
 import fs from "fs/promises"
+import path from "path"
 
 import { getReadablePath } from "../../utils/path"
 import { Cline } from "../Cline"
 import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } from "../../shared/tools"
-import { parseXml } from "../../utils/xml"
 import { formatResponse } from "../prompts/responses"
 import { ClineSayTool } from "../../shared/ExtensionMessage"
-import path from "path"
 import { RecordSource } from "../context-tracking/FileContextTrackerTypes"
 import { fileExistsAtPath } from "../../utils/fs"
 import { insertGroups } from "../diff/insert-groups"
-
-type Operation = {
-	start_line: number
-	content: string
-}
-
-function parseOperation(operationContent: string): Operation {
-	// Split into metadata and content sections
-	const [metadata, ...contentParts] = operationContent.split("-------")
-
-	// Extract start_line from metadata
-	const startLineMatch = metadata.match(/:start_line:(-?\d+)/)
-	if (!startLineMatch) {
-		throw new Error("Missing or invalid :start_line: in operation metadata")
-	}
-
-	const startLine = parseInt(startLineMatch[1], 10)
-
-	// Join content parts in case content contains ------- sequences
-	const content = contentParts.join("-------").trim()
-
-	if (!content) {
-		throw new Error("Missing content after ------- separator")
-	}
-
-	return {
-		start_line: startLine,
-		content: content,
-	}
-}
 
 export async function insertContentTool(
 	cline: Cline,
@@ -51,7 +20,8 @@ export async function insertContentTool(
 	removeClosingTag: RemoveClosingTag,
 ) {
 	const relPath: string | undefined = block.params.path
-	const operations: string | undefined = block.params.operations
+	const line: string | undefined = block.params.line
+	const content: string | undefined = block.params.content
 
 	const sharedMessageProps: ClineSayTool = {
 		tool: "appliedDiff",
@@ -73,10 +43,17 @@ export async function insertContentTool(
 			return
 		}
 
-		if (!operations) {
+		if (!line) {
 			cline.consecutiveMistakeCount++
 			cline.recordToolError("insert_content")
-			pushToolResult(await cline.sayAndCreateMissingParamError("insert_content", "operations"))
+			pushToolResult(await cline.sayAndCreateMissingParamError("insert_content", "line"))
+			return
+		}
+
+		if (!content) {
+			cline.consecutiveMistakeCount++
+			cline.recordToolError("insert_content")
+			pushToolResult(await cline.sayAndCreateMissingParamError("insert_content", "content"))
 			return
 		}
 
@@ -92,26 +69,11 @@ export async function insertContentTool(
 			return
 		}
 
-		let parsedOperations: Operation[] = []
-
-		try {
-			const xmlResult = parseXml(operations) as {
-				operation: string | string[]
-			}
-
-			if (typeof xmlResult.operation === "string") {
-				parsedOperations = [parseOperation(xmlResult.operation)]
-			} else if (Array.isArray(xmlResult.operation)) {
-				parsedOperations = xmlResult.operation.map(parseOperation)
-			} else {
-				throw new Error("Invalid operation format")
-			}
-		} catch (error) {
+		const lineNumber = parseInt(line, 10)
+		if (isNaN(lineNumber) || lineNumber < 0) {
 			cline.consecutiveMistakeCount++
 			cline.recordToolError("insert_content")
-			pushToolResult(formatResponse.toolError("Invalid operations JSON format"))
-			await cline.say("error", `Failed to parse operations: ${error.message}`)
-			pushToolResult(formatResponse.toolError("Invalid operations XML format"))
+			pushToolResult(formatResponse.toolError("Invalid line number. Must be a non-negative integer."))
 			return
 		}
 
@@ -123,15 +85,12 @@ export async function insertContentTool(
 		cline.diffViewProvider.originalContent = fileContent
 		const lines = fileContent.split("\n")
 
-		const updatedContent = insertGroups(
-			lines,
-			parsedOperations.map((operation) => {
-				return {
-					index: operation.start_line - 1,
-					elements: operation.content.split("\n"),
-				}
-			}),
-		).join("\n")
+		const updatedContent = insertGroups(lines, [
+			{
+				index: lineNumber - 1,
+				elements: content.split("\n"),
+			},
+		]).join("\n")
 
 		// Show changes in diff view
 		if (!cline.diffViewProvider.isEditing) {
@@ -174,7 +133,9 @@ export async function insertContentTool(
 		cline.didEditFile = true
 
 		if (!userEdits) {
-			pushToolResult(`The content was successfully inserted in ${relPath.toPosix()}.${newProblemsMessage}`)
+			pushToolResult(
+				`The content was successfully inserted in ${relPath.toPosix()} at line ${lineNumber}.${newProblemsMessage}`,
+			)
 			await cline.diffViewProvider.reset()
 			return
 		}
@@ -185,12 +146,11 @@ export async function insertContentTool(
 			diff: userEdits,
 		} satisfies ClineSayTool)
 
-		console.debug("[DEBUG] User made edits, sending feedback diff:", userFeedbackDiff)
 		await cline.say("user_feedback_diff", userFeedbackDiff)
 
 		pushToolResult(
 			`The user made the following updates to your content:\n\n${userEdits}\n\n` +
-				`The updated content, which includes both your original modifications and the user's edits, has been successfully saved to ${relPath.toPosix()}. Here is the full, updated content of the file:\n\n` +
+				`The updated content has been successfully saved to ${relPath.toPosix()}. Here is the full, updated content of the file:\n\n` +
 				`<final_file_content path="${relPath.toPosix()}">\n${finalContent}\n</final_file_content>\n\n` +
 				`Please note:\n` +
 				`1. You do not need to re-write the file with these changes, as they have already been applied.\n` +

@@ -50,6 +50,7 @@ export const toolParamNames = [
 	"mode_slug",
 	"reason",
 	"operations",
+	"line",
 	"mode",
 	"message",
 	"cwd",
@@ -91,7 +92,7 @@ export interface WriteToFileToolUse extends ToolUse {
 
 export interface InsertCodeBlockToolUse extends ToolUse {
 	name: "insert_content"
-	params: Partial<Pick<Record<ToolParamName, string>, "path" | "operations">>
+	params: Partial<Pick<Record<ToolParamName, string>, "path" | "line" | "content">>
 }
 
 export interface SearchFilesToolUse extends ToolUse {

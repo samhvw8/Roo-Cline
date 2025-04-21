@@ -272,10 +272,6 @@ describe("isToolAllowedForMode", () => {
 					experiments,
 				),
 			).toBe(false)
-
-			expect(
-				isToolAllowedForMode("insert_content", "test-exp-mode", customModes, undefined, undefined, experiments),
-			).toBe(false)
 		})
 
 		it("allows tools when experiment is enabled", () => {

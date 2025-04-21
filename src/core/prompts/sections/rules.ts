@@ -16,9 +16,8 @@ function getEditingInstructions(diffStrategy?: DiffStrategy, experiments?: Recor
 
 	availableTools.push("append_to_file (for appending content to the end of files)")
 
-	if (experiments?.["insert_content"]) {
-		availableTools.push("insert_content (for adding lines to existing files)")
-	}
+	availableTools.push("insert_content (for adding lines to existing files)")
+
 	if (experiments?.["search_and_replace"]) {
 		availableTools.push("search_and_replace (for finding and replacing individual pieces of text)")
 	}
@@ -32,11 +31,9 @@ function getEditingInstructions(diffStrategy?: DiffStrategy, experiments?: Recor
 	}
 
 	// Additional details for experimental features
-	if (experiments?.["insert_content"]) {
-		instructions.push(
-			"- The insert_content tool adds lines of text to files, such as adding a new function to a JavaScript file or inserting a new route in a Python file. This tool will insert it at the specified line location. It can support multiple operations at once.",
-		)
-	}
+	instructions.push(
+		"- The insert_content tool adds lines of text to files at a specific line number, such as adding a new function to a JavaScript file or inserting a new route in a Python file. Use line number 0 to append at the end of the file, or any positive number to insert before that line.",
+	)
 
 	if (experiments?.["search_and_replace"]) {
 		instructions.push(
