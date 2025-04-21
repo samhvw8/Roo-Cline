@@ -259,7 +259,6 @@ describe("isToolAllowedForMode", () => {
 		it("disables tools when experiment is disabled", () => {
 			const experiments = {
 				search_and_replace: false,
-				insert_content: false,
 			}
 
 			expect(
@@ -277,7 +276,6 @@ describe("isToolAllowedForMode", () => {
 		it("allows tools when experiment is enabled", () => {
 			const experiments = {
 				search_and_replace: true,
-				insert_content: true,
 			}
 
 			expect(
@@ -292,14 +290,20 @@ describe("isToolAllowedForMode", () => {
 			).toBe(true)
 
 			expect(
-				isToolAllowedForMode("insert_content", "test-exp-mode", customModes, undefined, undefined, experiments),
+				isToolAllowedForMode(
+					"search_and_replace",
+					"test-exp-mode",
+					customModes,
+					undefined,
+					undefined,
+					experiments,
+				),
 			).toBe(true)
 		})
 
 		it("allows non-experimental tools when experiments are disabled", () => {
 			const experiments = {
 				search_and_replace: false,
-				insert_content: false,
 			}
 
 			expect(
