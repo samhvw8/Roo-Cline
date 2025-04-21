@@ -25,7 +25,7 @@ async function validateParams(
 	relPath: string | undefined,
 	search: string | undefined,
 	replace: string | undefined,
-	pushToolResult: PushToolResult
+	pushToolResult: PushToolResult,
 ): Promise<boolean> {
 	if (!relPath) {
 		cline.consecutiveMistakeCount++
@@ -77,22 +77,20 @@ export async function searchAndReplaceTool(
 	const startLine: number | undefined = block.params.start_line ? parseInt(block.params.start_line, 10) : undefined
 	const endLine: number | undefined = block.params.end_line ? parseInt(block.params.end_line, 10) : undefined
 
-	const sharedMessageProps: ClineSayTool = {
-		tool: "appliedDiff",
-		path: getReadablePath(cline.cwd, removeClosingTag("path", relPath)),
-	}
-
 	try {
 		// Handle partial tool use
 		if (block.partial) {
-			const partialMessage = JSON.stringify({
-				...sharedMessageProps,
-				search,
-				replace,
-				use_regex: block.params.use_regex ?? "false",
-				ignore_case: block.params.ignore_case ?? "false",
-			})
-			await cline.ask("tool", partialMessage, block.partial).catch(() => {})
+			const partialMessageProps = {
+				tool: "searchAndReplace" as const,
+				path: getReadablePath(cline.cwd, removeClosingTag("path", relPath)),
+				search: removeClosingTag("search", search),
+				replace: removeClosingTag("replace", replace),
+				useRegex: block.params.use_regex === "true",
+				ignoreCase: block.params.ignore_case === "true",
+				startLine,
+				endLine,
+			}
+			await cline.ask("tool", JSON.stringify(partialMessageProps), block.partial).catch(() => {})
 			return
 		}
 
@@ -106,6 +104,17 @@ export async function searchAndReplaceTool(
 		const validSearch = search as string
 		const validReplace = replace as string
 
+		const sharedMessageProps: ClineSayTool = {
+			tool: "searchAndReplace",
+			path: getReadablePath(cline.cwd, validRelPath),
+			search: validSearch,
+			replace: validReplace,
+			useRegex: useRegex,
+			ignoreCase: ignoreCase,
+			startLine: startLine,
+			endLine: endLine,
+		}
+
 		const absolutePath = path.resolve(cline.cwd, validRelPath)
 		const fileExists = await fileExistsAtPath(absolutePath)
 
@@ -113,7 +122,7 @@ export async function searchAndReplaceTool(
 			cline.consecutiveMistakeCount++
 			cline.recordToolError("search_and_replace")
 			const formattedError = formatResponse.toolError(
-				`File does not exist at path: ${absolutePath}\nThe specified file could not be found. Please verify the file path and try again.`
+				`File does not exist at path: ${absolutePath}\nThe specified file could not be found. Please verify the file path and try again.`,
 			)
 			await cline.say("error", formattedError)
 			pushToolResult(formattedError)
@@ -138,15 +147,15 @@ export async function searchAndReplaceTool(
 			pushToolResult(formattedError)
 			return
 		}
-		
+
 		// Create search pattern and perform replacement
 		const flags = ignoreCase ? "gi" : "g"
 		const searchPattern = useRegex ? new RegExp(validSearch, flags) : new RegExp(escapeRegExp(validSearch), flags)
-		
+
 		let newContent: string
 		if (startLine !== undefined || endLine !== undefined) {
 			// Handle line-specific replacement
-			const lines = fileContent.split('\n')
+			const lines = fileContent.split("\n")
 			const start = Math.max((startLine ?? 1) - 1, 0)
 			const end = Math.min((endLine ?? lines.length) - 1, lines.length - 1)
 
@@ -155,12 +164,12 @@ export async function searchAndReplaceTool(
 			const afterLines = lines.slice(end + 1)
 
 			// Get and modify target section
-			const targetContent = lines.slice(start, end + 1).join('\n')
+			const targetContent = lines.slice(start, end + 1).join("\n")
 			const modifiedContent = targetContent.replace(searchPattern, validReplace)
-			const modifiedLines = modifiedContent.split('\n')
+			const modifiedLines = modifiedContent.split("\n")
 
 			// Reconstruct full content
-			newContent = [...beforeLines, ...modifiedLines, ...afterLines].join('\n')
+			newContent = [...beforeLines, ...modifiedLines, ...afterLines].join("\n")
 		} else {
 			// Global replacement
 			newContent = fileContent.replace(searchPattern, validReplace)
