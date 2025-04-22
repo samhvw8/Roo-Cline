@@ -2,18 +2,34 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import { ApiHandler } from ".."
 import { ModelInfo } from "../../shared/api"
 import { ApiStream } from "../transform/stream"
-import { Tiktoken } from "js-tiktoken/lite"
-import o200kBase from "js-tiktoken/ranks/o200k_base"
+import { workerManager } from "../../services/workers/WorkerManager"
 
-// Reuse the fudge factor used in the original code
-const TOKEN_FUDGE_FACTOR = 1.5
+const TOKEN_WORKER_ID = "token-counter"
+const TOKEN_WORKER_PATH = "workers/token-counter.worker.js"
 
 /**
  * Base class for API providers that implements common functionality
  */
 export abstract class BaseProvider implements ApiHandler {
-	// Cache the Tiktoken encoder instance since it's stateless
-	private encoder: Tiktoken | null = null
+	private isDestroyed: boolean = false
+
+	/**
+	 * Class destructor to ensure cleanup
+	 */
+	public async [Symbol.asyncDispose](): Promise<void> {
+		if (!this.isDestroyed) {
+			this.isDestroyed = true
+			await this.cleanup()
+		}
+	}
+
+	/**
+	 * Cleanup resources used by the provider
+	 * This method can be called explicitly or will be called automatically on destruction
+	 */
+	public async cleanup(): Promise<void> {
+		this.isDestroyed = true
+	}
 	abstract createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream
 	abstract getModel(): { id: string; info: ModelInfo }
 
@@ -30,35 +46,33 @@ export abstract class BaseProvider implements ApiHandler {
 	async countTokens(content: Array<Anthropic.Messages.ContentBlockParam>): Promise<number> {
 		if (!content || content.length === 0) return 0
 
-		let totalTokens = 0
+		const worker = await workerManager.initializeWorker(TOKEN_WORKER_ID, TOKEN_WORKER_PATH)
 
-		// Lazily create and cache the encoder if it doesn't exist
-		if (!this.encoder) {
-			this.encoder = new Tiktoken(o200kBase)
-		}
+		return new Promise((resolve, reject) => {
+			// Handle worker messages
+			const messageHandler = (result: number | { error: string }) => {
+				worker.removeListener("message", messageHandler)
+				worker.removeListener("error", errorHandler)
 
-		// Process each content block using the cached encoder
-		for (const block of content) {
-			if (block.type === "text") {
-				// Use tiktoken for text token counting
-				const text = block.text || ""
-				if (text.length > 0) {
-					const tokens = this.encoder.encode(text)
-					totalTokens += tokens.length
-				}
-			} else if (block.type === "image") {
-				// For images, calculate based on data size
-				const imageSource = block.source
-				if (imageSource && typeof imageSource === "object" && "data" in imageSource) {
-					const base64Data = imageSource.data as string
-					totalTokens += Math.ceil(Math.sqrt(base64Data.length))
+				if (typeof result === "number") {
+					resolve(result)
 				} else {
-					totalTokens += 300 // Conservative estimate for unknown images
+					reject(new Error(result.error))
 				}
 			}
-		}
 
-		// Add a fudge factor to account for the fact that tiktoken is not always accurate
-		return Math.ceil(totalTokens * TOKEN_FUDGE_FACTOR)
+			// Handle worker errors
+			const errorHandler = (error: Error) => {
+				worker.removeListener("message", messageHandler)
+				worker.removeListener("error", errorHandler)
+				reject(error)
+			}
+
+			worker.once("message", messageHandler)
+			worker.once("error", errorHandler)
+
+			// Send content to worker
+			worker.postMessage(content)
+		})
 	}
 }

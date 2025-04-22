@@ -187,12 +187,28 @@ const extensionConfig = {
 	external: ["vscode"],
 }
 
+const workerConfig = {
+	bundle: true,
+	minify: production,
+	sourcemap: !production,
+	logLevel: "silent",
+	entryPoints: ["src/api/providers/workers/token-counter.worker.ts"],
+	format: "cjs",
+	platform: "node",
+	outfile: "dist/workers/token-counter.worker.js",
+	plugins: [esbuildProblemMatcherPlugin],
+}
+
 async function main() {
-	const extensionCtx = await esbuild.context(extensionConfig)
+	// Create contexts for both worker and extension
+	const [workerCtx, extensionCtx] = await Promise.all([
+		esbuild.context(workerConfig),
+		esbuild.context(extensionConfig),
+	])
 
 	if (watch) {
-		// Start the esbuild watcher
-		await extensionCtx.watch()
+		// Start the esbuild watchers
+		await Promise.all([workerCtx.watch(), extensionCtx.watch()])
 
 		// Copy and watch locale files
 		console.log("Copying locale files initially...")
@@ -201,8 +217,9 @@ async function main() {
 		// Set up the watcher for locale files
 		setupLocaleWatcher()
 	} else {
-		await extensionCtx.rebuild()
-		await extensionCtx.dispose()
+		// Build once and dispose
+		await Promise.all([workerCtx.rebuild(), extensionCtx.rebuild()])
+		await Promise.all([workerCtx.dispose(), extensionCtx.dispose()])
 	}
 }
 
