@@ -1,6 +1,6 @@
 import { parentPort } from "worker_threads"
 import { Tiktoken } from "js-tiktoken/lite"
-import o200kBase from "js-tiktoken/ranks/o200k_base"
+import cl100kBase from "js-tiktoken/ranks/cl100k_base"
 import { Anthropic } from "@anthropic-ai/sdk"
 
 // Reuse the fudge factor used in the original code
@@ -22,7 +22,8 @@ parentPort?.on("message", async (content: Array<ContentBlock>) => {
 
 		// Lazily create encoder if it doesn't exist
 		if (!encoder) {
-			encoder = new Tiktoken(o200kBase)
+			// Use cl100k_base encoding which is used by Claude models
+			encoder = new Tiktoken(cl100kBase)
 		}
 
 		// Process each content block

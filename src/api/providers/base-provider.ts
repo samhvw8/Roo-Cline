@@ -11,25 +11,6 @@ const TOKEN_WORKER_PATH = "workers/token-counter.worker.js"
  * Base class for API providers that implements common functionality
  */
 export abstract class BaseProvider implements ApiHandler {
-	private isDestroyed: boolean = false
-
-	/**
-	 * Class destructor to ensure cleanup
-	 */
-	public async [Symbol.asyncDispose](): Promise<void> {
-		if (!this.isDestroyed) {
-			this.isDestroyed = true
-			await this.cleanup()
-		}
-	}
-
-	/**
-	 * Cleanup resources used by the provider
-	 * This method can be called explicitly or will be called automatically on destruction
-	 */
-	public async cleanup(): Promise<void> {
-		this.isDestroyed = true
-	}
 	abstract createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream
 	abstract getModel(): { id: string; info: ModelInfo }
 

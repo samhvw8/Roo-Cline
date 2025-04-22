@@ -28,6 +28,28 @@ class MockApiHandler extends BaseProvider {
 			},
 		}
 	}
+
+	override async countTokens(content: Array<Anthropic.Messages.ContentBlockParam>): Promise<number> {
+		if (!content || content.length === 0) return 0
+
+		let totalTokens = 0
+		for (const block of content) {
+			if (block.type === "text") {
+				const text = block.text || ""
+				// Simple estimation: 1 token per 4 characters
+				totalTokens += Math.ceil(text.length / 4)
+			} else if (block.type === "image") {
+				const imageSource = block.source
+				if (imageSource && typeof imageSource === "object" && "data" in imageSource) {
+					const base64Data = imageSource.data as string
+					totalTokens += Math.ceil(Math.sqrt(base64Data.length)) * 1.5
+				} else {
+					totalTokens += 300 // Conservative estimate for unknown images
+				}
+			}
+		}
+		return totalTokens
+	}
 }
 
 // Create a singleton instance for tests
