@@ -22,94 +22,119 @@ export async function readFileTool(
 	pushToolResult: PushToolResult,
 	removeClosingTag: RemoveClosingTag,
 ) {
-	const relPath: string | undefined = block.params.path
-	const startLineStr: string | undefined = block.params.start_line
-	const endLineStr: string | undefined = block.params.end_line
+	const args: string | undefined = block.params.args
 
-	// Get the full path and determine if it's outside the workspace
-	const fullPath = relPath ? path.resolve(cline.cwd, removeClosingTag("path", relPath)) : ""
-	const isOutsideWorkspace = isPathOutsideWorkspace(fullPath)
+	// Handle partial message first
+	if (block.partial) {
+		let filePath = ""
+		if (args) {
+			const firstEntry = args.split("======+++======")[0].trim()
+			const lines = firstEntry.split("\n")
+			for (const line of lines) {
+				// Skip empty lines
+				if (!line.trim()) continue
 
-	const sharedMessageProps: ClineSayTool = {
-		tool: "readFile",
-		path: getReadablePath(cline.cwd, removeClosingTag("path", relPath)),
-		isOutsideWorkspace,
+				// Remove leading : and split on first :
+				if (line.startsWith(":")) {
+					const [key, ...rest] = line.substring(1).split(":")
+					if (key === "path") {
+						filePath = rest.join(":").trim()
+						break
+					}
+				}
+			}
+		}
+
+		const fullPath = filePath ? path.resolve(cline.cwd, filePath) : ""
+		const sharedMessageProps: ClineSayTool = {
+			tool: "readFile",
+			path: getReadablePath(cline.cwd, filePath),
+			isOutsideWorkspace: filePath ? isPathOutsideWorkspace(fullPath) : false,
+		}
+		const partialMessage = JSON.stringify({
+			...sharedMessageProps,
+			content: undefined,
+		} satisfies ClineSayTool)
+		await cline.ask("tool", partialMessage, block.partial).catch(() => {})
+		return
 	}
+
+	if (!args) {
+		cline.consecutiveMistakeCount++
+		cline.recordToolError("read_file")
+		const errorMsg = await cline.sayAndCreateMissingParamError("read_file", "args")
+		pushToolResult(`<files><error>${errorMsg}</error></files>`)
+		return
+	}
+
+	// Parse file entries from args
+	const fileEntries: Array<{ path?: string; start_line?: number; end_line?: number }> = []
+
+	// Check if we have multiple files (contains separator)
+	const entries = args.includes("======+++======") ? args.split("======+++======") : [args]
+
+	for (const entry of entries) {
+		const fileEntry: { path?: string; start_line?: number; end_line?: number } = {}
+		const lines = entry.trim().split("\n")
+
+		for (const line of lines) {
+			// Skip empty lines
+			if (!line.trim()) continue
+
+			// Remove leading : and split on first :
+			if (line.startsWith(":")) {
+				const [key, ...rest] = line.substring(1).split(":")
+				if (key === "path") {
+					fileEntry.path = rest.join(":").trim()
+				} else if (key === "start_line") {
+					fileEntry.start_line = parseInt(rest.join(":").trim())
+				} else if (key === "end_line") {
+					fileEntry.end_line = parseInt(rest.join(":").trim())
+				}
+			}
+		}
+
+		if (fileEntry.path) {
+			fileEntries.push(fileEntry)
+		}
+	}
+
+	if (fileEntries.length === 0) {
+		cline.consecutiveMistakeCount++
+		cline.recordToolError("read_file")
+		const errorMsg = await cline.sayAndCreateMissingParamError("read_file", "args")
+		pushToolResult(`<files><error>${errorMsg}</error></files>`)
+		return
+	}
+
+	const results: string[] = []
+
 	try {
-		if (block.partial) {
-			const partialMessage = JSON.stringify({ ...sharedMessageProps, content: undefined } satisfies ClineSayTool)
-			await cline.ask("tool", partialMessage, block.partial).catch(() => {})
-			return
-		} else {
-			if (!relPath) {
-				cline.consecutiveMistakeCount++
-				cline.recordToolError("read_file")
-				const errorMsg = await cline.sayAndCreateMissingParamError("read_file", "path")
-				pushToolResult(`<file><path></path><error>${errorMsg}</error></file>`)
-				return
+		for (const entry of fileEntries) {
+			const relPath = entry.path || ""
+			const fullPath = path.resolve(cline.cwd, relPath)
+			const isOutsideWorkspace = isPathOutsideWorkspace(fullPath)
+
+			// Check access permissions
+			const accessAllowed = cline.rooIgnoreController?.validateAccess(relPath)
+			if (!accessAllowed) {
+				await cline.say("rooignore_error", relPath)
+				const errorMsg = formatResponse.rooIgnoreError(relPath)
+				results.push(`<file><path>${relPath}</path><error>${errorMsg}</error></file>`)
+				continue
 			}
 
 			const { maxReadFileLine = 500 } = (await cline.providerRef.deref()?.getState()) ?? {}
 			const isFullRead = maxReadFileLine === -1
 
-			// Check if we're doing a line range read
-			let isRangeRead = false
-			let startLine: number | undefined = undefined
-			let endLine: number | undefined = undefined
+			// Convert line numbers to 0-based
+			const startLine = entry.start_line !== undefined ? entry.start_line - 1 : undefined
+			const endLine = entry.end_line !== undefined ? entry.end_line - 1 : undefined
+			const isRangeRead = !isFullRead && (startLine !== undefined || endLine !== undefined)
 
-			// Check if we have either range parameter and we're not doing a full read
-			if (!isFullRead && (startLineStr || endLineStr)) {
-				isRangeRead = true
-			}
-
-			// Parse start_line if provided
-			if (startLineStr) {
-				startLine = parseInt(startLineStr)
-
-				if (isNaN(startLine)) {
-					// Invalid start_line
-					cline.consecutiveMistakeCount++
-					cline.recordToolError("read_file")
-					await cline.say("error", `Failed to parse start_line: ${startLineStr}`)
-					pushToolResult(`<file><path>${relPath}</path><error>Invalid start_line value</error></file>`)
-					return
-				}
-
-				startLine -= 1 // Convert to 0-based index
-			}
-
-			// Parse end_line if provided
-			if (endLineStr) {
-				endLine = parseInt(endLineStr)
-
-				if (isNaN(endLine)) {
-					// Invalid end_line
-					cline.consecutiveMistakeCount++
-					cline.recordToolError("read_file")
-					await cline.say("error", `Failed to parse end_line: ${endLineStr}`)
-					pushToolResult(`<file><path>${relPath}</path><error>Invalid end_line value</error></file>`)
-					return
-				}
-
-				// Convert to 0-based index
-				endLine -= 1
-			}
-
-			const accessAllowed = cline.rooIgnoreController?.validateAccess(relPath)
-
-			if (!accessAllowed) {
-				await cline.say("rooignore_error", relPath)
-				const errorMsg = formatResponse.rooIgnoreError(relPath)
-				pushToolResult(`<file><path>${relPath}</path><error>${errorMsg}</error></file>`)
-				return
-			}
-
-			// Create line snippet description for approval message
+			// Create line snippet for approval message
 			let lineSnippet = ""
-
-			if (isFullRead) {
-				// No snippet for full read
-			} else if (startLine !== undefined && endLine !== undefined) {
+			if (startLine !== undefined && endLine !== undefined) {
 				lineSnippet = t("tools:readFile.linesRange", { start: startLine + 1, end: endLine + 1 })
 			} else if (startLine !== undefined) {
 				lineSnippet = t("tools:readFile.linesFromToEnd", { start: startLine + 1 })
@@ -121,126 +146,93 @@ export async function readFileTool(
 				lineSnippet = t("tools:readFile.maxLines", { max: maxReadFileLine })
 			}
 
-			cline.consecutiveMistakeCount = 0
-			const absolutePath = path.resolve(cline.cwd, relPath)
-
+			// Get approval
 			const completeMessage = JSON.stringify({
-				...sharedMessageProps,
-				content: absolutePath,
+				tool: "readFile",
+				path: getReadablePath(cline.cwd, relPath),
+				isOutsideWorkspace,
+				content: fullPath,
 				reason: lineSnippet,
 			} satisfies ClineSayTool)
 
 			const didApprove = await askApproval("tool", completeMessage)
-
 			if (!didApprove) {
 				return
 			}
 
-			// Count total lines in the file
-			let totalLines = 0
+			// Process file content
+			const totalLines = await countFileLines(fullPath).catch(() => 0)
+			const isBinary = await isBinaryFile(fullPath).catch(() => false)
 
-			try {
-				totalLines = await countFileLines(absolutePath)
-			} catch (error) {
-				console.error(`Error counting lines in file ${absolutePath}:`, error)
-			}
-
-			// now execute the tool like normal
 			let content: string
-			let isFileTruncated = false
-			let sourceCodeDef = ""
-
-			const isBinary = await isBinaryFile(absolutePath).catch(() => false)
-
-			if (isRangeRead) {
-				if (startLine === undefined) {
-					content = addLineNumbers(await readLines(absolutePath, endLine, startLine))
-				} else {
-					content = addLineNumbers(await readLines(absolutePath, endLine, startLine), startLine + 1)
-				}
-			} else if (!isBinary && maxReadFileLine >= 0 && totalLines > maxReadFileLine) {
-				// If file is too large, only read the first maxReadFileLine lines
-				isFileTruncated = true
-
-				const res = await Promise.all([
-					maxReadFileLine > 0 ? readLines(absolutePath, maxReadFileLine - 1, 0) : "",
-					parseSourceCodeDefinitionsForFile(absolutePath, cline.rooIgnoreController),
-				])
-
-				content = res[0].length > 0 ? addLineNumbers(res[0]) : ""
-				const result = res[1]
-
-				if (result) {
-					sourceCodeDef = `${result}`
-				}
-			} else {
-				// Read entire file
-				content = await extractTextFromFile(absolutePath)
-			}
-
-			// Create variables to store XML components
 			let xmlInfo = ""
 			let contentTag = ""
 
-			// Add truncation notice if applicable
-			if (isFileTruncated) {
-				xmlInfo += `<notice>Showing only ${maxReadFileLine} of ${totalLines} total lines. Use start_line and end_line if you need to read more</notice>\n`
+			let isFileTruncated = false
+			let sourceCodeDef = ""
 
-				// Add source code definitions if available
-				if (sourceCodeDef) {
-					xmlInfo += `<list_code_definition_names>${sourceCodeDef}</list_code_definition_names>\n`
-				}
+			// Handle binary files
+			if (isBinary) {
+				xmlInfo += `<notice>Binary file</notice>\n`
+				results.push(`<file><path>${relPath}</path>\n${contentTag}${xmlInfo}</file>`)
+				continue
 			}
 
-			// Empty files (zero lines)
-			if (content === "" && totalLines === 0) {
-				// Always add self-closing content tag and notice for empty files
-				contentTag = `<content/>`
+			// Handle range reads (bypass maxReadFileLine)
+			if (startLine !== undefined && endLine !== undefined) {
+				content = addLineNumbers(await readLines(fullPath, endLine, startLine), startLine + 1)
+				const lineRangeAttr = ` lines="${startLine + 1}-${endLine + 1}"`
+				contentTag = `<content${lineRangeAttr}>\n${content}</content>\n`
+				results.push(`<file><path>${relPath}</path>\n${contentTag}${xmlInfo}</file>`)
+				continue
+			}
+
+			// Handle definitions-only mode
+			if (maxReadFileLine === 0) {
+				const defResult = await parseSourceCodeDefinitionsForFile(fullPath, cline.rooIgnoreController)
+				if (defResult) {
+					xmlInfo += `<list_code_definition_names>${defResult}</list_code_definition_names>\n`
+				}
+				results.push(`<file><path>${relPath}</path>\n${xmlInfo}</file>`)
+				continue
+			}
+
+			// Handle files exceeding line threshold
+			if (maxReadFileLine > 0 && totalLines > maxReadFileLine) {
+				content = addLineNumbers(await readLines(fullPath, maxReadFileLine - 1, 0))
+				const lineRangeAttr = ` lines="1-${maxReadFileLine}"`
+				contentTag = `<content${lineRangeAttr}>\n${content}</content>\n`
+
+				const defResult = await parseSourceCodeDefinitionsForFile(fullPath, cline.rooIgnoreController)
+				if (defResult) {
+					xmlInfo += `<list_code_definition_names>${defResult}</list_code_definition_names>\n`
+				}
+				xmlInfo += `<notice>Showing only ${maxReadFileLine} of ${totalLines} total lines. Use start_line and end_line if you need to read more</notice>\n`
+				results.push(`<file><path>${relPath}</path>\n${contentTag}${xmlInfo}</file>`)
+				continue
+			}
+
+			// Handle normal file read
+			content = await extractTextFromFile(fullPath)
+			const lineRangeAttr = ` lines="1-${totalLines}"`
+			contentTag = totalLines > 0 ? `<content${lineRangeAttr}>\n${content}</content>\n` : `<content/>`
+
+			if (totalLines === 0) {
 				xmlInfo += `<notice>File is empty</notice>\n`
 			}
-			// Range reads should always show content regardless of maxReadFileLine
-			else if (isRangeRead) {
-				// Create content tag with line range information
-				let lineRangeAttr = ""
-				const displayStartLine = startLine !== undefined ? startLine + 1 : 1
-				const displayEndLine = endLine !== undefined ? endLine + 1 : totalLines
-				lineRangeAttr = ` lines="${displayStartLine}-${displayEndLine}"`
 
-				// Maintain exact format expected by tests
-				contentTag = `<content${lineRangeAttr}>\n${content}</content>\n`
-			}
-			// maxReadFileLine=0 for non-range reads
-			else if (maxReadFileLine === 0) {
-				// Skip content tag for maxReadFileLine=0 (definitions only mode)
-				contentTag = ""
-			}
-			// Normal case: non-empty files with content (non-range reads)
-			else {
-				// For non-range reads, always show line range
-				let lines = totalLines
+			// Track file read
+			await cline.getFileContextTracker().trackFileContext(relPath, "read_tool" as RecordSource)
 
-				if (maxReadFileLine >= 0 && totalLines > maxReadFileLine) {
-					lines = maxReadFileLine
-				}
-
-				const lineRangeAttr = ` lines="1-${lines}"`
-
-				// Maintain exact format expected by tests
-				contentTag = `<content${lineRangeAttr}>\n${content}</content>\n`
-			}
-
-			// Track file read operation
-			if (relPath) {
-				await cline.getFileContextTracker().trackFileContext(relPath, "read_tool" as RecordSource)
-			}
-
-			// Format the result into the required XML structure
-			const xmlResult = `<file><path>${relPath}</path>\n${contentTag}${xmlInfo}</file>`
-			pushToolResult(xmlResult)
+			// Add result
+			results.push(`<file><path>${relPath}</path>\n${contentTag}${xmlInfo}</file>`)
 		}
+
+		// Push combined results
+		pushToolResult(`<files>\n${results.join("\n")}\n</files>`)
 	} catch (error) {
 		const errorMsg = error instanceof Error ? error.message : String(error)
-		pushToolResult(`<file><path>${relPath || ""}</path><error>Error reading file: ${errorMsg}</error></file>`)
-		await handleError("reading file", error)
+		pushToolResult(`<files><error>Error reading files: ${errorMsg}</error></files>`)
+		await handleError("reading files", error)
 	}
 }

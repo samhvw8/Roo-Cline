@@ -17,9 +17,10 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.`
 }
