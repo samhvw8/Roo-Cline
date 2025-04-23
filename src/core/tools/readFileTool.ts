@@ -157,7 +157,7 @@ export async function readFileTool(
 
 			const didApprove = await askApproval("tool", completeMessage)
 			if (!didApprove) {
-				return
+				continue
 			}
 
 			// Process file content
