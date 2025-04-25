@@ -21,55 +21,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -488,55 +515,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -955,55 +1009,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -1422,55 +1503,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -1945,55 +2053,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -2480,55 +2615,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -3003,55 +3165,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -3560,55 +3749,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -4069,55 +4285,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -4613,55 +4856,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -5071,55 +5341,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
@@ -5446,55 +5743,82 @@ Tool use is formatted using XML-style tags. The tool name is enclosed in opening
 
 For example:
 
-<read_file>
-<path>src/main.js</path>
-</read_file>
+<new_task>
+<mode>code</mode>
+<message>Implement a new feature for the application.</message>
+</new_task>
 
 Always adhere to this format for the tool use to ensure proper parsing and execution.
 
 # Tools
 
 ## read_file
-Description: Request to read the contents of a file at the specified path. Use this when you need to examine the contents of an existing file you do not know the contents of, for example to analyze code, review text files, or extract information from configuration files. The output includes line numbers prefixed to each line (e.g. "1 | const x = 1"), making it easier to reference specific lines when creating diffs or discussing code. By specifying start_line and end_line parameters, you can efficiently read specific portions of large files without loading the entire file into memory. Automatically extracts raw text from PDF and DOCX files. May not be suitable for other types of binary files, as it returns the raw content as a string.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+
 Parameters:
-- path: (required) The path of the file to read (relative to the current workspace directory /test/path)
-- start_line: (optional) The starting line number to read from (1-based). If not provided, it starts from the beginning of the file.
-- end_line: (optional) The ending line number to read to (1-based, inclusive). If not provided, it reads to the end of the file.
+- args (required): File read operations in the following format:
+  :path: File path (relative to workspace directory /test/path)
+  :start_line: (optional) Starting line number (1-based)
+  :end_line: (optional) Ending line number (1-based, inclusive)
+
+Multiple files can be read in a single request by separating entries with "======+++======". Each entry follows the same format with its own path and optional line range.
+
 Usage:
 <read_file>
-<path>File path here</path>
-<start_line>Starting line number (optional)</start_line>
-<end_line>Ending line number (optional)</end_line>
+<args>
+:path:path/to/file
+:start_line:1
+:end_line:100
+</args>
 </read_file>
 
 Examples:
 
-1. Reading an entire file:
+1. Reading a single file:
 <read_file>
-<path>frontend-config.json</path>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+</args>
 </read_file>
 
-2. Reading the first 1000 lines of a large log file:
+2. Reading specific lines from multiple files:
 <read_file>
-<path>logs/application.log</path>
-<end_line>1000</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:1000
+======+++======
+:path:src/utils.ts
+:start_line:10
+:end_line:20
+</args>
 </read_file>
 
-3. Reading lines 500-1000 of a CSV file:
+3. Reading an entire file (omitting line ranges):
 <read_file>
-<path>data/large-dataset.csv</path>
-<start_line>500</start_line>
-<end_line>1000</end_line>
+<args>
+:path:config.json
+</args>
 </read_file>
 
-4. Reading a specific function in a source file:
+4. Reading multiple files with different ranges:
 <read_file>
-<path>src/app.ts</path>
-<start_line>46</start_line>
-<end_line>68</end_line>
+<args>
+:path:src/app.ts
+:start_line:1
+:end_line:50
+======+++======
+:path:src/utils.ts
+:start_line:100
+:end_line:150
+======+++======
+:path:package.json
+</args>
 </read_file>
 
-Note: When both start_line and end_line are provided, this tool efficiently streams only the requested lines, making it suitable for processing large files like logs, CSV files, and other large datasets without memory issues.
+Note: Line ranges enable efficient streaming of specific portions from large files like logs or datasets.
 
 ## fetch_instructions
 Description: Request to fetch instructions to perform a task
