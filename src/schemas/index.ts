@@ -5,6 +5,7 @@
 import { z } from "zod"
 
 import { Equals, Keys, AssertEqual } from "../utils/type-fu"
+import { SETTING_IDS } from "../shared/settings"
 
 /**
  * ProviderName
@@ -520,18 +521,10 @@ export const globalSettingsSchema = z.object({
 	taskHistory: z.array(historyItemSchema).optional(),
 
 	autoApprovalEnabled: z.boolean().optional(),
-	alwaysAllowReadOnly: z.boolean().optional(),
-	alwaysAllowReadOnlyOutsideWorkspace: z.boolean().optional(),
-	alwaysAllowWrite: z.boolean().optional(),
-	alwaysAllowWriteOutsideWorkspace: z.boolean().optional(),
+	settings: z.record(z.nativeEnum(SETTING_IDS), z.boolean()).optional(), // Centralized settings for alwaysAllow flags
 	writeDelayMs: z.number().optional(),
-	alwaysAllowBrowser: z.boolean().optional(),
 	alwaysApproveResubmit: z.boolean().optional(),
 	requestDelaySeconds: z.number().optional(),
-	alwaysAllowMcp: z.boolean().optional(),
-	alwaysAllowModeSwitch: z.boolean().optional(),
-	alwaysAllowSubtasks: z.boolean().optional(),
-	alwaysAllowExecute: z.boolean().optional(),
 	allowedCommands: z.array(z.string()).optional(),
 
 	browserToolEnabled: z.boolean().optional(),
@@ -597,18 +590,10 @@ const globalSettingsRecord: GlobalSettingsRecord = {
 	taskHistory: undefined,
 
 	autoApprovalEnabled: undefined,
-	alwaysAllowReadOnly: undefined,
-	alwaysAllowReadOnlyOutsideWorkspace: undefined,
-	alwaysAllowWrite: undefined,
-	alwaysAllowWriteOutsideWorkspace: undefined,
+	settings: undefined,
 	writeDelayMs: undefined,
-	alwaysAllowBrowser: undefined,
 	alwaysApproveResubmit: undefined,
 	requestDelaySeconds: undefined,
-	alwaysAllowMcp: undefined,
-	alwaysAllowModeSwitch: undefined,
-	alwaysAllowSubtasks: undefined,
-	alwaysAllowExecute: undefined,
 	allowedCommands: undefined,
 
 	browserToolEnabled: undefined,

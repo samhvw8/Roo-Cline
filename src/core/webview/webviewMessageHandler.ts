@@ -5,6 +5,7 @@ import * as vscode from "vscode"
 
 import { ClineProvider } from "./ClineProvider"
 import { Language, ApiConfigMeta } from "../../schemas"
+import { SETTING_IDS, settingDefault } from "../../shared/settings"
 import { changeLanguage, t } from "../../i18n"
 import { ApiConfiguration } from "../../shared/api"
 import { supportPrompt } from "../../shared/support-prompt"
@@ -237,42 +238,20 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 		case "customInstructions":
 			await provider.updateCustomInstructions(message.text)
 			break
-		case "alwaysAllowReadOnly":
-			await updateGlobalState("alwaysAllowReadOnly", message.bool ?? undefined)
+		case "updateSettings": {
+			if (!message.values) {
+				break
+			}
+
+			const updatedSettings = {
+				...(getGlobalState("settings") ?? settingDefault),
+				...message.values,
+			}
+
+			await updateGlobalState("settings", updatedSettings)
 			await provider.postStateToWebview()
 			break
-		case "alwaysAllowReadOnlyOutsideWorkspace":
-			await updateGlobalState("alwaysAllowReadOnlyOutsideWorkspace", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		case "alwaysAllowWrite":
-			await updateGlobalState("alwaysAllowWrite", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		case "alwaysAllowWriteOutsideWorkspace":
-			await updateGlobalState("alwaysAllowWriteOutsideWorkspace", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		case "alwaysAllowExecute":
-			await updateGlobalState("alwaysAllowExecute", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		case "alwaysAllowBrowser":
-			await updateGlobalState("alwaysAllowBrowser", message.bool ?? undefined)
-			await provider.postStateToWebview()
-			break
-		case "alwaysAllowMcp":
-			await updateGlobalState("alwaysAllowMcp", message.bool)
-			await provider.postStateToWebview()
-			break
-		case "alwaysAllowModeSwitch":
-			await updateGlobalState("alwaysAllowModeSwitch", message.bool)
-			await provider.postStateToWebview()
-			break
-		case "alwaysAllowSubtasks":
-			await updateGlobalState("alwaysAllowSubtasks", message.bool)
-			await provider.postStateToWebview()
-			break
+		}
 		case "askResponse":
 			provider.getCurrentCline()?.handleWebviewAskResponse(message.askResponse!, message.text, message.images)
 			break

@@ -22,11 +22,7 @@ export interface WebviewMessage {
 		| "getListApiConfiguration"
 		| "customInstructions"
 		| "allowedCommands"
-		| "alwaysAllowReadOnly"
-		| "alwaysAllowReadOnlyOutsideWorkspace"
-		| "alwaysAllowWrite"
-		| "alwaysAllowWriteOutsideWorkspace"
-		| "alwaysAllowExecute"
+		| "updateSettings"
 		| "webviewDidLaunch"
 		| "newTask"
 		| "askResponse"
@@ -51,10 +47,6 @@ export interface WebviewMessage {
 		| "refreshUnboundModels"
 		| "refreshRequestyModels"
 		| "refreshOpenAiModels"
-		| "alwaysAllowBrowser"
-		| "alwaysAllowMcp"
-		| "alwaysAllowModeSwitch"
-		| "alwaysAllowSubtasks"
 		| "playSound"
 		| "playTts"
 		| "stopTts"
@@ -142,7 +134,7 @@ export interface WebviewMessage {
 	promptMode?: PromptMode
 	customPrompt?: PromptComponent
 	dataUrls?: string[]
-	values?: Record<string, any>
+	values?: Record<string, any> | Record<string, boolean> // For updateSettings message
 	query?: string
 	slug?: string
 	modeConfig?: ModeConfig
