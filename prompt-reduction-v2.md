@@ -13,6 +13,43 @@ The Roo-Code VSCode extension's prompt engineering system has been comprehensive
 
 The refactoring has significantly improved the maintainability of the prompt engineering system while preserving all functional aspects of the code.
 
+## Mode Improvements
+
+In addition to refactoring the prompt engineering system, several AI agent modes in `src/shared/modes.ts` have been improved with enhanced instructions and clearer role definitions:
+
+### Code Mode
+
+- Added comprehensive customInstructions to guide programming approach
+- Structured workflow from requirements gathering to implementation
+- Emphasized writing maintainable code with proper testing
+- Added guidance on code quality, comments, and documentation
+
+### Ask Mode
+
+- Expanded instructions for more structured knowledge sharing
+- Added guidance for breaking down complex concepts
+- Emphasized using practical examples and diagrams
+- Added strategy for handling uncertainty with proper acknowledgment
+
+### Debug Mode
+
+- Changed emoji from 🪲 to 🔍 to better represent systematic investigation
+- Implemented structured 9-step debugging methodology
+- Added emphasis on minimal changes and root cause analysis
+- Included guidance on preventative measures for future issues
+
+### Architect Mode
+
+- Changed emoji from 🏗️ to 🏛️ for better representation of design/planning
+- Restructured instructions with clearer implementation planning guidance
+- Enhanced component breakdown and technical approach sections
+- Improved collaboration and plan refinement process
+
+### Orchestrator Mode
+
+- Changed emoji from 🪃 to 🎭 to better represent coordinating multiple roles
+- Preserved comprehensive workflow management instructions
+
 ## File-by-File Improvements
 
 ### Core Files
@@ -160,6 +197,11 @@ The refactoring has significantly improved the maintainability of the prompt eng
 - Improved formatting and documentation
 - Enhanced JSDoc comments
 - Simplified list generation logic
+- Added comprehensive instructions to Code mode
+- Enhanced Ask mode with structured response guidelines
+- Improved Debug mode with systematic debugging methodology
+- Refined Architect mode instructions with clearer planning steps
+- Updated mode emojis for better visual representation
 
 #### `objective.ts`
 
@@ -222,5 +264,6 @@ This comprehensive refactoring has resulted in:
 3. **Enhanced Maintainability**: Common text elements are centralized
 4. **Consistent Style**: Uniform approach to documentation and formatting
 5. **Preserved Functionality**: All functional aspects remain intact
+6. **Enhanced Agent Capabilities**: Improved mode instructions provide better guidance for AI agents
 
-The refactored prompt engineering system will be more efficient, maintainable, and consistent while continuing to provide the same powerful functionality to the Roo-Code extension.
+The refactored prompt engineering system will be more efficient, maintainable, and consistent while continuing to provide the same powerful functionality to the Roo-Code extension. The improved mode instructions will help AI agents better understand their roles and provide more structured, high-quality responses to users.
