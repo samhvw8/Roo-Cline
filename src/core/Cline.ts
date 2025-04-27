@@ -85,10 +85,11 @@ import { parseMentions } from "./mentions"
 import { FileContextTracker } from "./context-tracking/FileContextTracker"
 import { RooIgnoreController } from "./ignore/RooIgnoreController"
 import { type AssistantMessageContent, parseAssistantMessage } from "./assistant-message"
-import { truncateConversationIfNeeded } from "./sliding-window"
+import { truncateConversationIfNeeded, estimateTokenCount } from "./sliding-window" // Added estimateTokenCount
 import { ClineProvider } from "./webview/ClineProvider"
 import { validateToolUse } from "./mode-validator"
 import { MultiSearchReplaceDiffStrategy } from "./diff/strategies/multi-search-replace"
+import { ContextSummarizer } from "../services/summarization/ContextSummarizer" // Added ContextSummarizer
 import { readApiMessages, saveApiMessages, readTaskMessages, saveTaskMessages, taskMetadata } from "./task-persistence"
 
 type UserContent = Array<Anthropic.Messages.ContentBlockParam>
@@ -124,6 +125,11 @@ export type ClineOptions = {
 	parentTask?: Cline
 	taskNumber?: number
 	onCreated?: (cline: Cline) => void
+	// Context Summarization Settings
+	enableContextSummarization?: boolean // Already added
+	contextSummarizationTriggerThreshold?: number // Already added
+	contextSummarizationInitialStaticTurns?: number // Already added
+	contextSummarizationRecentTurns?: number // Already added
 }
 
 export class Cline extends EventEmitter<ClineEvents> {
@@ -152,6 +158,12 @@ export class Cline extends EventEmitter<ClineEvents> {
 	diffStrategy?: DiffStrategy
 	diffEnabled: boolean = false
 	fuzzyMatchThreshold: number
+
+	// Context Summarization Settings (Added)
+	readonly enableContextSummarization: boolean
+	readonly contextSummarizationTriggerThreshold: number
+	readonly contextSummarizationInitialStaticTurns: number
+	readonly contextSummarizationRecentTurns: number
 
 	apiConversationHistory: (Anthropic.MessageParam & { ts?: number })[] = []
 	clineMessages: ClineMessage[] = []
@@ -213,6 +225,11 @@ export class Cline extends EventEmitter<ClineEvents> {
 		parentTask,
 		taskNumber = -1,
 		onCreated,
+		// Context Summarization Settings (Added)
+		enableContextSummarization = false,
+		contextSummarizationTriggerThreshold = 80,
+		contextSummarizationInitialStaticTurns = 5,
+		contextSummarizationRecentTurns = 10,
 	}: ClineOptions) {
 		super()
 
@@ -245,6 +262,11 @@ export class Cline extends EventEmitter<ClineEvents> {
 		this.globalStoragePath = provider.context.globalStorageUri.fsPath
 		this.diffViewProvider = new DiffViewProvider(this.cwd)
 		this.enableCheckpoints = enableCheckpoints
+
+		this.enableContextSummarization = enableContextSummarization
+		this.contextSummarizationTriggerThreshold = contextSummarizationTriggerThreshold
+		this.contextSummarizationInitialStaticTurns = contextSummarizationInitialStaticTurns
+		this.contextSummarizationRecentTurns = contextSummarizationRecentTurns
 
 		this.rootTask = rootTask
 		this.parentTask = parentTask
@@ -993,12 +1015,14 @@ export class Cline extends EventEmitter<ClineEvents> {
 			)
 		})()
 
-		// If the previous API request's total token usage is close to the context window, truncate the conversation history to free up space for the new request
+		// If the previous API request's total token usage is close to the context window,
+		// either truncate or summarize the conversation history based on settings.
 		if (previousApiReqIndex >= 0) {
 			const previousRequest = this.clineMessages[previousApiReqIndex]?.text
-			if (!previousRequest) return
+			if (!previousRequest) return // Should not happen, but guard anyway
 
 			const {
+				// These tokens are from the *previous* request's response, not the current history size
 				tokensIn = 0,
 				tokensOut = 0,
 				cacheWrites = 0,
@@ -1017,17 +1041,102 @@ export class Cline extends EventEmitter<ClineEvents> {
 				: modelInfo.maxTokens
 
 			const contextWindow = modelInfo.contextWindow
+			let historyModifiedBySummarization = false // Flag to track if summarization updated history
 
-			const trimmedMessages = await truncateConversationIfNeeded({
-				messages: this.apiConversationHistory,
-				totalTokens,
-				maxTokens,
-				contextWindow,
-				apiHandler: this.api,
-			})
+			if (this.enableContextSummarization) {
+				// --- Summarization Logic ---
+				const currentTokens = await this._estimateTotalTokenCount(this.apiConversationHistory)
+				const triggerTokenCount = contextWindow * (this.contextSummarizationTriggerThreshold / 100)
 
-			if (trimmedMessages !== this.apiConversationHistory) {
-				await this.overwriteApiConversationHistory(trimmedMessages)
+				this.providerRef
+					.deref()
+					?.log(`[Summarization] Current tokens: ${currentTokens}, Trigger: ${triggerTokenCount}`)
+
+				if (currentTokens >= triggerTokenCount) {
+					this.providerRef.deref()?.log(`[Summarization] Threshold met. Attempting summarization.`)
+					const initialMessagesToKeep = this.contextSummarizationInitialStaticTurns
+					const recentMessagesToKeep = this.contextSummarizationRecentTurns
+
+					// Ensure slice points are valid and don't overlap negatively
+					if (
+						this.apiConversationHistory.length > initialMessagesToKeep + recentMessagesToKeep &&
+						initialMessagesToKeep >= 0 &&
+						recentMessagesToKeep >= 0
+					) {
+						const initialSliceEnd = initialMessagesToKeep
+						const recentSliceStart = this.apiConversationHistory.length - recentMessagesToKeep
+
+						if (initialSliceEnd < recentSliceStart) {
+							const initialMessages = this.apiConversationHistory.slice(0, initialSliceEnd)
+							const recentMessages = this.apiConversationHistory.slice(recentSliceStart)
+							const messagesToSummarize = this.apiConversationHistory.slice(
+								initialSliceEnd,
+								recentSliceStart,
+							)
+
+							this.providerRef
+								.deref()
+								?.log(
+									`[Summarization] Slicing: Keep Initial ${initialMessages.length}, Summarize ${messagesToSummarize.length}, Keep Recent ${recentMessages.length}`,
+								)
+
+							// Instantiate the summarizer (consider using a dedicated API handler/model later)
+							const summarizer = new ContextSummarizer(this.api)
+							const summaryMessage = await summarizer.summarize(messagesToSummarize)
+
+							if (summaryMessage) {
+								const newHistory = [...initialMessages, summaryMessage, ...recentMessages]
+								this.providerRef
+									.deref()
+									?.log(
+										`[Summarization] Summarization successful. New history length: ${newHistory.length}`,
+									)
+								// Add a system message to notify the user in the UI
+								await this.say("text", "[Older conversation turns summarized to preserve context]")
+								await this.overwriteApiConversationHistory(newHistory)
+								historyModifiedBySummarization = true // Mark history as modified
+							} else {
+								this.providerRef
+									.deref()
+									?.log(`[Summarization] Summarization failed. Falling back to truncation.`)
+								// Fall through to truncation if summarization fails
+							}
+						} else {
+							this.providerRef
+								.deref()
+								?.log(
+									`[Summarization] Skipping: initialSliceEnd (${initialSliceEnd}) >= recentSliceStart (${recentSliceStart}). Not enough messages between initial/recent turns.`,
+								)
+							// Fall through to truncation if slicing is not possible
+						}
+					} else {
+						this.providerRef
+							.deref()
+							?.log(
+								`[Summarization] Skipping: Not enough messages (${this.apiConversationHistory.length}) to satisfy keep counts (${initialMessagesToKeep} + ${recentMessagesToKeep}).`,
+							)
+						// Fall through to truncation if history is too short
+					}
+				}
+				// If summarization is enabled but threshold not met, do nothing and proceed.
+			}
+
+			// --- Truncation Logic (Only run if summarization didn't modify history) ---
+			if (!historyModifiedBySummarization) {
+				// Note: totalTokens here refers to the previous response size, used by truncateConversationIfNeeded
+				// to estimate if the *next* request might overflow.
+				const trimmedMessages = await truncateConversationIfNeeded({
+					messages: this.apiConversationHistory, // Use potentially already summarized history if summarization failed above
+					totalTokens, // From previous response metrics
+					maxTokens,
+					contextWindow,
+					apiHandler: this.api,
+				})
+
+				if (trimmedMessages !== this.apiConversationHistory) {
+					this.providerRef.deref()?.log(`[Truncation] Truncation applied.`)
+					await this.overwriteApiConversationHistory(trimmedMessages)
+				}
 			}
 		}
 
@@ -2537,5 +2646,23 @@ export class Cline extends EventEmitter<ClineEvents> {
 
 	public getToolUsage() {
 		return this.toolUsage
+	}
+
+	/**
+	 * Estimates the total token count for an array of messages.
+	 * @param messages The messages to count tokens for.
+	 * @returns A promise resolving to the estimated total token count.
+	 */
+	private async _estimateTotalTokenCount(messages: Anthropic.MessageParam[]): Promise<number> {
+		let totalTokens = 0
+		for (const message of messages) {
+			const content = message.content
+			if (Array.isArray(content)) {
+				totalTokens += await estimateTokenCount(content, this.api)
+			} else if (typeof content === "string") {
+				totalTokens += await estimateTokenCount([{ type: "text", text: content }], this.api)
+			}
+		}
+		return totalTokens
 	}
 }

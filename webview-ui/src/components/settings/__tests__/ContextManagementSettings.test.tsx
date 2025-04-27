@@ -30,6 +30,16 @@ describe("ContextManagementSettings", () => {
 		maxWorkspaceFiles: 200,
 		showRooIgnoredFiles: false,
 		setCachedStateField: jest.fn(),
+		// Add mock setters for new props (Added)
+		setEnableContextSummarization: jest.fn(),
+		setContextSummarizationTriggerThreshold: jest.fn(),
+		setContextSummarizationInitialStaticTurns: jest.fn(),
+		setContextSummarizationRecentTurns: jest.fn(),
+		// Add default values for new state props (Added)
+		enableContextSummarization: false,
+		contextSummarizationTriggerThreshold: 80,
+		contextSummarizationInitialStaticTurns: 5,
+		contextSummarizationRecentTurns: 10,
 	}
 
 	beforeEach(() => {
@@ -51,6 +61,17 @@ describe("ContextManagementSettings", () => {
 		const showRooIgnoredFilesCheckbox = screen.getByTestId("show-rooignored-files-checkbox")
 		expect(showRooIgnoredFilesCheckbox).toBeInTheDocument()
 		expect(screen.getByTestId("show-rooignored-files-checkbox")).not.toBeChecked()
+
+		// Summarization controls (Added)
+		expect(screen.getByTestId("enable-context-summarization-checkbox")).toBeInTheDocument()
+		expect(screen.getByTestId("context-summarization-trigger-threshold-input")).toBeInTheDocument()
+		expect(screen.getByTestId("context-summarization-initial-turns-input")).toBeInTheDocument()
+		expect(screen.getByTestId("context-summarization-recent-turns-input")).toBeInTheDocument()
+
+		// Check initial disabled state for sub-settings (Added)
+		expect(screen.getByTestId("context-summarization-trigger-threshold-input")).toBeDisabled()
+		expect(screen.getByTestId("context-summarization-initial-turns-input")).toBeDisabled()
+		expect(screen.getByTestId("context-summarization-recent-turns-input")).toBeDisabled()
 	})
 
 	it("updates open tabs context limit", () => {
@@ -78,5 +99,43 @@ describe("ContextManagementSettings", () => {
 		fireEvent.click(checkbox)
 
 		expect(defaultProps.setCachedStateField).toHaveBeenCalledWith("showRooIgnoredFiles", true)
+	})
+
+	// --- Tests for new summarization settings --- (Added)
+
+	it("enables sub-settings when summarization is enabled", () => {
+		render(<ContextManagementSettings {...defaultProps} enableContextSummarization={true} />)
+
+		expect(screen.getByTestId("context-summarization-trigger-threshold-input")).not.toBeDisabled()
+		expect(screen.getByTestId("context-summarization-initial-turns-input")).not.toBeDisabled()
+		expect(screen.getByTestId("context-summarization-recent-turns-input")).not.toBeDisabled()
+	})
+
+	it("updates enable context summarization setting", () => {
+		render(<ContextManagementSettings {...defaultProps} />)
+		const checkbox = screen.getByTestId("enable-context-summarization-checkbox")
+		fireEvent.click(checkbox)
+		expect(defaultProps.setEnableContextSummarization).toHaveBeenCalledWith(true)
+	})
+
+	it("updates summarization trigger threshold", () => {
+		render(<ContextManagementSettings {...defaultProps} enableContextSummarization={true} />) // Enable first
+		const input = screen.getByTestId("context-summarization-trigger-threshold-input")
+		fireEvent.change(input, { target: { value: "95" } })
+		expect(defaultProps.setContextSummarizationTriggerThreshold).toHaveBeenCalledWith(95)
+	})
+
+	it("updates initial turns to keep", () => {
+		render(<ContextManagementSettings {...defaultProps} enableContextSummarization={true} />) // Enable first
+		const input = screen.getByTestId("context-summarization-initial-turns-input")
+		fireEvent.change(input, { target: { value: "3" } })
+		expect(defaultProps.setContextSummarizationInitialStaticTurns).toHaveBeenCalledWith(3)
+	})
+
+	it("updates recent turns to keep", () => {
+		render(<ContextManagementSettings {...defaultProps} enableContextSummarization={true} />) // Enable first
+		const input = screen.getByTestId("context-summarization-recent-turns-input")
+		fireEvent.change(input, { target: { value: "12" } })
+		expect(defaultProps.setContextSummarizationRecentTurns).toHaveBeenCalledWith(12)
 	})
 })

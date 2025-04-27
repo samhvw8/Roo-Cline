@@ -163,6 +163,11 @@ export type ExtensionState = Pick<
 	| "customModePrompts"
 	| "customSupportPrompts"
 	| "enhancementApiConfigId"
+	// Context Summarization Settings (Added)
+	| "enableContextSummarization"
+	| "contextSummarizationTriggerThreshold"
+	| "contextSummarizationInitialStaticTurns"
+	| "contextSummarizationRecentTurns"
 > & {
 	version: string
 	clineMessages: ClineMessage[]
@@ -199,6 +204,12 @@ export type ExtensionState = Pick<
 	renderContext: "sidebar" | "editor"
 	settingsImportedAt?: number
 	historyPreviewCollapsed?: boolean
+
+	// Context Summarization Settings (Required part)
+	enableContextSummarization: boolean
+	contextSummarizationTriggerThreshold: number
+	contextSummarizationInitialStaticTurns: number
+	contextSummarizationRecentTurns: number
 }
 
 export type { ClineMessage, ClineAsk, ClineSay }

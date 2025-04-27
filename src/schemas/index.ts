@@ -555,6 +555,12 @@ export const globalSettingsSchema = z.object({
 	terminalZdotdir: z.boolean().optional(),
 	terminalCompressProgressBar: z.boolean().optional(),
 
+	// Context Summarization Settings
+	enableContextSummarization: z.boolean().optional(),
+	contextSummarizationTriggerThreshold: z.number().optional(), // Percentage (e.g., 80)
+	contextSummarizationInitialStaticTurns: z.number().optional(), // Number of initial turns to keep
+	contextSummarizationRecentTurns: z.number().optional(), // Number of recent turns to keep
+
 	rateLimitSeconds: z.number().optional(),
 	diffEnabled: z.boolean().optional(),
 	fuzzyMatchThreshold: z.number().optional(),
@@ -632,6 +638,12 @@ const globalSettingsRecord: GlobalSettingsRecord = {
 	terminalZdotdir: undefined,
 	terminalCompressProgressBar: undefined,
 
+	// Context Summarization Settings
+	enableContextSummarization: undefined,
+	contextSummarizationTriggerThreshold: undefined,
+	contextSummarizationInitialStaticTurns: undefined,
+	contextSummarizationRecentTurns: undefined,
+
 	rateLimitSeconds: undefined,
 	diffEnabled: undefined,
 	fuzzyMatchThreshold: undefined,
@@ -651,7 +663,7 @@ const globalSettingsRecord: GlobalSettingsRecord = {
 	customSupportPrompts: undefined,
 	enhancementApiConfigId: undefined,
 	cachedChromeHostUrl: undefined,
-	historyPreviewCollapsed: undefined, 
+	historyPreviewCollapsed: undefined,
 }
 
 export const GLOBAL_SETTINGS_KEYS = Object.keys(globalSettingsRecord) as Keys<GlobalSettings>[]

@@ -125,6 +125,11 @@ export interface WebviewMessage {
 		| "searchFiles"
 		| "toggleApiConfigPin"
 		| "setHistoryPreviewCollapsed"
+		// Context Summarization Settings (Added)
+		| "enableContextSummarization"
+		| "contextSummarizationTriggerThreshold"
+		| "contextSummarizationInitialStaticTurns"
+		| "contextSummarizationRecentTurns"
 	text?: string
 	disabled?: boolean
 	askResponse?: ClineAskResponse

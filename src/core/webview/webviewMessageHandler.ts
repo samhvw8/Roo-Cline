@@ -848,6 +848,24 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			await updateGlobalState("historyPreviewCollapsed", message.bool ?? false)
 			// No need to call postStateToWebview here as the UI already updated optimistically
 			break
+		// Context Summarization Settings (Added)
+		case "enableContextSummarization":
+			await updateGlobalState("enableContextSummarization", message.bool ?? false)
+			await provider.postStateToWebview()
+			break
+		case "contextSummarizationTriggerThreshold":
+			await updateGlobalState("contextSummarizationTriggerThreshold", message.value ?? 80)
+			await provider.postStateToWebview()
+			break
+		case "contextSummarizationInitialStaticTurns":
+			await updateGlobalState("contextSummarizationInitialStaticTurns", message.value ?? 5)
+			await provider.postStateToWebview()
+			break
+		case "contextSummarizationRecentTurns":
+			await updateGlobalState("contextSummarizationRecentTurns", message.value ?? 10)
+			await provider.postStateToWebview()
+			break
+		// --- End Context Summarization ---
 		case "toggleApiConfigPin":
 			if (message.text) {
 				const currentPinned = getGlobalState("pinnedApiConfigs") ?? {}
