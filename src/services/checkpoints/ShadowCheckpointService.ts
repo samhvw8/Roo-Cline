@@ -21,11 +21,13 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 
 	protected _checkpoints: string[] = []
 	protected _baseHash?: string
+	protected _filesToStage: Set<string> = new Set()
 
 	protected readonly dotGitDir: string
 	protected git?: SimpleGit
 	protected readonly log: (message: string) => void
 	protected shadowGitConfigWorktree?: string
+	protected fileTracker?: EventEmitter
 
 	public get baseHash() {
 		return this._baseHash
@@ -39,7 +41,7 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 		return !!this.git
 	}
 
-	constructor(taskId: string, checkpointsDir: string, workspaceDir: string, log: (message: string) => void) {
+	constructor(taskId: string, checkpointsDir: string, workspaceDir: string, log: (message: string) => void, fileTracker?: EventEmitter) {
 		super()
 
 		const homedir = os.homedir()
@@ -55,9 +57,55 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 		this.taskId = taskId
 		this.checkpointsDir = checkpointsDir
 		this.workspaceDir = workspaceDir
+		this.fileTracker = fileTracker
 
 		this.dotGitDir = path.join(this.checkpointsDir, ".git")
 		this.log = log
+
+		if (fileTracker) {
+			fileTracker.on('file:prepare-change', this.handlePrepareChange.bind(this))
+			fileTracker.on('file:checkpoint', this.handleCheckpoint.bind(this))
+			fileTracker.on('file:modified', this.handleModified.bind(this))
+		}
+	}
+
+	private async stageFile(filePath: string) {
+		if (!this.git) {
+			throw new Error("Shadow git repo not initialized")
+		}
+
+		try {
+			await this.git.add(filePath)
+			this._filesToStage.add(filePath)
+			this.log(`[${this.constructor.name}#stageFile] staged file ${filePath}`)
+		} catch (error) {
+			this.log(
+				`[${this.constructor.name}#stageFile] failed to stage file ${filePath}: ${error instanceof Error ? error.message : String(error)}`
+			)
+		}
+	}
+
+	private handlePrepareChange(filePath: string) {
+		this.log(`[${this.constructor.name}#handlePrepareChange] preparing to change ${filePath}`)
+		this._filesToStage.add(filePath)
+	}
+
+	private handleCheckpoint(filePath: string) {
+		this.log(`[${this.constructor.name}#handleCheckpoint] file ready for checkpoint ${filePath}`)
+		this._filesToStage.add(filePath)
+	}
+
+	private handleModified(filePath: string) {
+		this.log(`[${this.constructor.name}#handleModified] file modified ${filePath}`)
+		this._filesToStage.add(filePath)
+	}
+
+	public dispose() {
+		if (this.fileTracker) {
+			this.fileTracker.removeAllListeners('file:prepare-change')
+			this.fileTracker.removeAllListeners('file:checkpoint')
+			this.fileTracker.removeAllListeners('file:modified')
+		}
 	}
 
 	public async initShadowGit(onInit?: () => Promise<void>) {
@@ -223,7 +271,20 @@ export abstract class ShadowCheckpointService extends EventEmitter {
 			}
 
 			const startTime = Date.now()
-			await this.stageAll(this.git)
+
+			// Stage only tracked files instead of bulk staging
+			if (this._filesToStage.size > 0) {
+				await this.renameNestedGitRepos(true)
+				try {
+					for (const filePath of this._filesToStage) {
+						await this.stageFile(filePath)
+					}
+				} finally {
+					await this.renameNestedGitRepos(false)
+				}
+				this._filesToStage.clear()
+			}
+
 			const result = await this.git.commit(message)
 			const isFirst = this._checkpoints.length === 0
 			const fromHash = this._checkpoints[this._checkpoints.length - 1] ?? this.baseHash!

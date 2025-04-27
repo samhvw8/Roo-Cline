@@ -1,11 +1,18 @@
 import * as path from "path"
 import * as vscode from "vscode"
+import { EventEmitter } from "events"
 import { getTaskDirectoryPath } from "../../shared/storagePathManager"
 import { GlobalFileNames } from "../../shared/globalFileNames"
 import { fileExistsAtPath } from "../../utils/fs"
 import fs from "fs/promises"
 import { ContextProxy } from "../config/ContextProxy"
-import type { FileMetadataEntry, RecordSource, TaskMetadata } from "./FileContextTrackerTypes"
+import type {
+  FileMetadataEntry,
+  RecordSource,
+  TaskMetadata,
+  FileContextEvents,
+  FileContextEventCallback
+} from "./FileContextTrackerTypes"
 import { ClineProvider } from "../webview/ClineProvider"
 
 // This class is responsible for tracking file operations that may result in stale context.
@@ -19,7 +26,7 @@ import { ClineProvider } from "../webview/ClineProvider"
 // This class is responsible for tracking file operations.
 // If the full contents of a file are passed to Roo via a tool, mention, or edit, the file is marked as active.
 // If a file is modified outside of Roo, we detect and track this change to prevent stale context.
-export class FileContextTracker {
+export class FileContextTracker extends EventEmitter {
 	readonly taskId: string
 	private providerRef: WeakRef<ClineProvider>
 
@@ -30,8 +37,24 @@ export class FileContextTracker {
 	private checkpointPossibleFiles = new Set<string>()
 
 	constructor(provider: ClineProvider, taskId: string) {
+		super()
 		this.providerRef = new WeakRef(provider)
 		this.taskId = taskId
+	}
+
+	// Event handling methods
+	override on<K extends keyof FileContextEvents>(
+		event: K,
+		listener: FileContextEventCallback<FileContextEvents[K]>
+	): this {
+		return super.on(event, listener)
+	}
+
+	override emit<K extends keyof FileContextEvents>(
+		event: K,
+		data: FileContextEvents[K]
+	): boolean {
+		return super.emit(event, data)
 	}
 
 	// Gets the current working directory or returns undefined if it cannot be determined
@@ -64,10 +87,11 @@ export class FileContextTracker {
 		// Track file changes
 		watcher.onDidChange(() => {
 			if (this.recentlyEditedByRoo.has(filePath)) {
-				this.recentlyEditedByRoo.delete(filePath) // This was an edit by Roo, no need to inform Roo
+				this.recentlyEditedByRoo.delete(filePath)
 			} else {
-				this.recentlyModifiedFiles.add(filePath) // This was a user edit, we will inform Roo
-				this.trackFileContext(filePath, "user_edited") // Update the task metadata with file tracking
+				this.recentlyModifiedFiles.add(filePath)
+				this.emit('file:modified', filePath)
+				this.trackFileContext(filePath, "user_edited")
 			}
 		})
 
@@ -170,25 +194,34 @@ export class FileContextTracker {
 			}
 
 			switch (source) {
-				// user_edited: The user has edited the file
 				case "user_edited":
 					newEntry.user_edit_date = now
 					this.recentlyModifiedFiles.add(filePath)
+					this.emit('file:modified', filePath)
 					break
 
-				// roo_edited: Roo has edited the file
 				case "roo_edited":
 					newEntry.roo_read_date = now
 					newEntry.roo_edit_date = now
-					this.checkpointPossibleFiles.add(filePath)
+					this.emit('file:checkpoint', filePath)
 					break
 
-				// read_tool/file_mentioned: Roo has read the file via a tool or file mention
+				case "roo_prepare_to_change":
+					newEntry.roo_read_date = now
+					this.emit('file:prepare-change', filePath)
+					break
+
 				case "read_tool":
 				case "file_mentioned":
 					newEntry.roo_read_date = now
 					break
 			}
+
+			this.emit('file:state-change', {
+				path: filePath,
+				state: newEntry.record_state,
+				source
+			})
 
 			metadata.files_in_context.push(newEntry)
 			await this.saveTaskMetadata(taskId, metadata)
@@ -207,6 +240,7 @@ export class FileContextTracker {
 	getAndClearCheckpointPossibleFile(): string[] {
 		const files = Array.from(this.checkpointPossibleFiles)
 		this.checkpointPossibleFiles.clear()
+		files.forEach(file => this.emit('file:checkpoint', file))
 		return files
 	}
 

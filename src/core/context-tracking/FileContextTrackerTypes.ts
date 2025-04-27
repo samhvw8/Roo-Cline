@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 // Zod schema for RecordSource
-export const recordSourceSchema = z.enum(["read_tool", "user_edited", "roo_edited", "file_mentioned"])
+export const recordSourceSchema = z.enum(["read_tool", "user_edited", "roo_edited", "file_mentioned", "roo_prepare_to_change"])
 
 // TypeScript type derived from the Zod schema
 export type RecordSource = z.infer<typeof recordSourceSchema>
@@ -26,3 +26,17 @@ export const taskMetadataSchema = z.object({
 
 // TypeScript type derived from the Zod schema
 export type TaskMetadata = z.infer<typeof taskMetadataSchema>
+
+// Event types for FileContextTracker
+export interface FileContextEvents {
+  'file:modified': string;
+  'file:checkpoint': string;
+  'file:prepare-change': string;
+  'file:state-change': {
+    path: string;
+    state: 'active' | 'stale';
+    source: RecordSource;
+  };
+}
+
+export type FileContextEventCallback<T> = (data: T) => void;

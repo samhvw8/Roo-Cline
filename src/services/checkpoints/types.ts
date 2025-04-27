@@ -1,4 +1,5 @@
 import { CommitResult } from "simple-git"
+import EventEmitter from "events"
 
 export type CheckpointResult = Partial<CommitResult> & Pick<CommitResult, "commit">
 
@@ -19,6 +20,7 @@ export interface CheckpointServiceOptions {
 	shadowDir: string // globalStorageUri.fsPath
 
 	log?: (message: string) => void
+	fileTracker?: EventEmitter
 }
 
 export interface CheckpointEventMap {

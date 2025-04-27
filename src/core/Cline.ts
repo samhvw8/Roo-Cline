@@ -898,6 +898,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 		this.browserSession.closeBrowser()
 		this.rooIgnoreController?.dispose()
 		this.fileContextTracker.dispose()
+		this.checkpointService?.dispose()
 
 		// If we're not streaming then `abortStream` (which reverts the diff
 		// view changes) won't be called, so we need to revert the changes here.
@@ -2267,6 +2268,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 				workspaceDir,
 				shadowDir: globalStorageDir,
 				log,
+				fileTracker: this.fileContextTracker,
 			}
 
 			const service = RepoPerTaskCheckpointService.create(options)
@@ -2285,10 +2287,14 @@ export class Cline extends EventEmitter<ClineEvents> {
 
 					if (isCheckpointNeeded) {
 						log("[Cline#getCheckpointService] no checkpoints found, saving initial checkpoint")
-						this.checkpointSave()
+						this.checkpointSave().catch(err => {
+							log("[Cline#getCheckpointService] failed to save initial checkpoint")
+							console.error(err)
+						})
 					}
 				} catch (err) {
 					log("[Cline#getCheckpointService] caught error in on('initialize'), disabling checkpoints")
+					console.error(err)
 					this.enableCheckpoints = false
 				}
 			})
@@ -2302,10 +2308,18 @@ export class Cline extends EventEmitter<ClineEvents> {
 						console.error(err)
 					})
 				} catch (err) {
-					log(
-						"[Cline#getCheckpointService] caught unexpected error in on('checkpoint'), disabling checkpoints",
-					)
+					log("[Cline#getCheckpointService] caught unexpected error in on('checkpoint')")
 					console.error(err)
+				}
+			})
+
+			service.on("error", ({ error }) => {
+				log(`[Cline#getCheckpointService] checkpoint service error: ${error.message}`)
+				console.error(error)
+				
+				// Only disable checkpoints for critical errors
+				if (error.message.includes("git init") || error.message.includes("permission denied")) {
+					log("[Cline#getCheckpointService] critical error, disabling checkpoints")
 					this.enableCheckpoints = false
 				}
 			})
@@ -2328,29 +2342,8 @@ export class Cline extends EventEmitter<ClineEvents> {
 		}
 	}
 
-	private async getInitializedCheckpointService({
-		interval = 250,
-		timeout = 15_000,
-	}: { interval?: number; timeout?: number } = {}) {
-		const service = this.getCheckpointService()
-
-		if (!service || service.isInitialized) {
-			return service
-		}
-
-		try {
-			await pWaitFor(
-				() => {
-					console.log("[Cline#getCheckpointService] waiting for service to initialize")
-					return service.isInitialized
-				},
-				{ interval, timeout },
-			)
-
-			return service
-		} catch (err) {
-			return undefined
-		}
+	private async getInitializedCheckpointService() {
+		return this.getCheckpointService()
 	}
 
 	public async checkpointDiff({
