@@ -218,6 +218,10 @@ type GlobalSettings = {
 	terminalZshP10k?: boolean | undefined
 	terminalZdotdir?: boolean | undefined
 	terminalCompressProgressBar?: boolean | undefined
+	enableContextSummarization?: boolean | undefined
+	contextSummarizationTriggerThreshold?: number | undefined
+	contextSummarizationInitialStaticTurns?: number | undefined
+	contextSummarizationRecentTurns?: number | undefined
 	rateLimitSeconds?: number | undefined
 	diffEnabled?: boolean | undefined
 	fuzzyMatchThreshold?: number | undefined
