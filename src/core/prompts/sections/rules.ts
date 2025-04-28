@@ -23,9 +23,10 @@ function getEditingInstructions(diffStrategy?: DiffStrategy, _experiments?: Reco
 
 	// Tool preferences and warnings
 	if (availableTools.length > 1) {
-		instructions.push(
-			"- Prefer targeted tools (apply_diff, insert_content, search_and_replace) over write_to_file for existing files",
-		)
+		const preferredTools = diffStrategy
+			? "(apply_diff, insert_content, search_and_replace)"
+			: "(insert_content, search_and_replace)"
+		instructions.push(`- Prefer targeted tools ${preferredTools} over write_to_file for existing files`)
 	}
 
 	instructions.push("- When using write_to_file: " + FILE_CONTENT_WARNING)
