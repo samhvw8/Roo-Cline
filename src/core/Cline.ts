@@ -2682,7 +2682,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 	 * @param isManualTrigger Whether this summarization was manually triggered by the user.
 	 * @returns A promise that resolves when summarization is complete.
 	 */
-	public async summarizeConversationContext(isManualTrigger: boolean = false): Promise<void> {
+	public async summarizeConversationContext(_isManualTrigger: boolean = false): Promise<void> {
 		// Skip if summarization is disabled
 		if (!this.enableContextSummarization) {
 			this.providerRef.deref()?.log("[Summarization] Context summarization is disabled.")
@@ -2738,13 +2738,6 @@ export class Cline extends EventEmitter<ClineEvents> {
 
 		// Create new history with summary
 		const newHistory = [...initialMessages, summaryMessage, ...recentMessages]
-
-		// Add a system message to notify the user in the UI
-		if (isManualTrigger) {
-			await this.say("text", "[Conversation history has been summarized to preserve context]")
-		} else {
-			await this.say("text", "[Older conversation turns summarized to preserve context]")
-		}
 
 		// Update the conversation history
 		await this.overwriteApiConversationHistory(newHistory)

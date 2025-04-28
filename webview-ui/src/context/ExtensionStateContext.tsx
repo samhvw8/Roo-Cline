@@ -253,22 +253,37 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 					break
 				}
 				case "summarizationStatus": {
-					setState((prevState) => ({
-						...prevState,
-						summarizationStatus: {
-							status: message.status as "started" | "completed" | "failed",
-							text: message.text || "",
-						},
-					}))
+					// For "started" status, update the state immediately
+					if (message.status === "started") {
+						setState((prevState) => ({
+							...prevState,
+							summarizationStatus: {
+								status: message.status as "started" | "completed" | "failed",
+								text: message.text || "",
+							},
+						}))
+					}
+					// For "completed" or "failed" status, update and then clear after delay
+					else if (message.status === "completed" || message.status === "failed") {
+						// First update the status
+						setState((prevState) => ({
+							...prevState,
+							summarizationStatus: {
+								status: message.status as "completed" | "failed",
+								text: message.text || "",
+							},
+						}))
 
-					// Auto-clear the status after completion or failure
-					if (message.status === "completed" || message.status === "failed") {
-						setTimeout(() => {
+						// Then clear it after a delay
+						const timer = setTimeout(() => {
 							setState((prevState) => ({
 								...prevState,
 								summarizationStatus: undefined,
 							}))
-						}, 5000) // Clear after 5 seconds
+						}, 3000) // Reduced to 3 seconds for better UX
+
+						// Clean up the timer if component unmounts
+						return () => clearTimeout(timer)
 					}
 					break
 				}

@@ -889,41 +889,28 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 				})
 
 				// Use a non-blocking approach with proper error handling
-				;(async function summarizeContext() {
-					try {
-						// Add a system notification message that doesn't require user interaction
-						await currentCline.say("text", "[System: Summarizing conversation context...]")
+				try {
+					// Trigger the summarization process directly without adding system messages
+					await currentCline.summarizeConversationContext(true) // true indicates manual trigger
 
-						// Trigger the summarization process
-						await currentCline.summarizeConversationContext(true) // true indicates manual trigger
+					// Send a message to the webview to hide the progress indicator
+					void provider.postMessageToWebview({
+						type: "summarizationStatus",
+						status: "completed",
+						text: t("common:info.summarization_complete"),
+					})
+				} catch (error) {
+					provider.log(
+						`Error during manual summarization: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
+					)
 
-						// Add a completion message
-						await currentCline.say("text", "[System: Conversation context summarization complete]")
-
-						// Send a message to the webview to hide the progress indicator
-						void provider.postMessageToWebview({
-							type: "summarizationStatus",
-							status: "completed",
-							text: t("common:info.summarization_complete"),
-						})
-					} catch (error) {
-						provider.log(
-							`Error during manual summarization: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
-						)
-
-						// Update the UI to show the error
-						void provider.postMessageToWebview({
-							type: "summarizationStatus",
-							status: "failed",
-							text: t("common:errors.summarization_failed"),
-						})
-
-						// Add an error message
-						await currentCline.say("error", t("common:errors.summarization_failed"))
-					}
-				})().catch((error) => {
-					provider.log(`Unhandled error in summarization: ${String(error)}`)
-				})
+					// Update the UI to show the error
+					void provider.postMessageToWebview({
+						type: "summarizationStatus",
+						status: "failed",
+						text: t("common:errors.summarization_failed"),
+					})
+				}
 			}
 			break
 		// --- End Context Summarization ---
