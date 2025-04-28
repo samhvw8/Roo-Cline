@@ -20,7 +20,7 @@ export interface ExtensionStateContextType extends ExtensionState {
 	mcpServers: McpServer[]
 	hasSystemPromptOverride?: boolean
 	currentCheckpoint?: string
-	summarizationStatus?: {
+	synthesizationStatus?: {
 		status: "started" | "completed" | "failed"
 		text: string
 	}
@@ -98,7 +98,7 @@ export interface ExtensionStateContextType extends ExtensionState {
 	setTerminalCompressProgressBar: (value: boolean) => void
 	setHistoryPreviewCollapsed: (value: boolean) => void
 
-	// Context Summarization Setters (Added)
+	// Context Synthesization Setters
 	enableContextSummarization: boolean
 	setEnableContextSummarization: (value: boolean) => void
 	contextSummarizationTriggerThreshold: number
@@ -252,12 +252,12 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 					setCurrentCheckpoint(message.text)
 					break
 				}
-				case "summarizationStatus": {
+				case "synthesizationStatus": {
 					// For "started" status, update the state immediately
 					if (message.status === "started") {
 						setState((prevState) => ({
 							...prevState,
-							summarizationStatus: {
+							synthesizationStatus: {
 								status: message.status as "started" | "completed" | "failed",
 								text: message.text || "",
 							},
@@ -268,7 +268,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 						// First update the status
 						setState((prevState) => ({
 							...prevState,
-							summarizationStatus: {
+							synthesizationStatus: {
 								status: message.status as "completed" | "failed",
 								text: message.text || "",
 							},
@@ -278,7 +278,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 						const timer = setTimeout(() => {
 							setState((prevState) => ({
 								...prevState,
-								summarizationStatus: undefined,
+								synthesizationStatus: undefined,
 							}))
 						}, 3000) // Reduced to 3 seconds for better UX
 
@@ -401,7 +401,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		setHistoryPreviewCollapsed: (value) =>
 			setState((prevState) => ({ ...prevState, historyPreviewCollapsed: value })), // Implement the setter
 
-		// Context Summarization Setters Implementation (Added)
+		// Context Synthesization Setters Implementation
 		setEnableContextSummarization: (value) => {
 			setState((prevState) => ({ ...prevState, enableContextSummarization: value }))
 			vscode.postMessage({ type: "enableContextSummarization", bool: value })

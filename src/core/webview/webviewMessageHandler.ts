@@ -860,7 +860,7 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			await updateGlobalState("historyPreviewCollapsed", message.bool ?? false)
 			// No need to call postStateToWebview here as the UI already updated optimistically
 			break
-		// Context Summarization Settings (Added)
+		// Context Synthesization Settings
 		case "enableContextSummarization":
 			await updateGlobalState("enableContextSummarization", message.bool ?? false)
 			await provider.postStateToWebview()
@@ -877,43 +877,43 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			await updateGlobalState("contextSummarizationRecentTurns", message.value ?? 10)
 			await provider.postStateToWebview()
 			break
-		case "manualSummarize":
-			// Trigger manual summarization of the conversation context
+		case "manualSynthesize":
+			// Trigger manual synthesizing of the conversation context
 			const currentCline = provider.getCurrentCline()
 			if (currentCline) {
 				// First send a message to the webview to show a progress indicator
 				void provider.postMessageToWebview({
-					type: "summarizationStatus",
+					type: "synthesizationStatus",
 					status: "started",
-					text: t("common:info.summarizing_context"),
+					text: t("common:info.synthesizing_context"),
 				})
 
 				// Use a non-blocking approach with proper error handling
 				try {
-					// Trigger the summarization process directly without adding system messages
-					await currentCline.summarizeConversationContext(true) // true indicates manual trigger
+					// Trigger the synthesizing process directly without adding system messages
+					await currentCline.synthesizeConversationContext(true) // true indicates manual trigger
 
 					// Send a message to the webview to hide the progress indicator
 					void provider.postMessageToWebview({
-						type: "summarizationStatus",
+						type: "synthesizationStatus",
 						status: "completed",
-						text: t("common:info.summarization_complete"),
+						text: t("common:info.synthesization_complete"),
 					})
 				} catch (error) {
 					provider.log(
-						`Error during manual summarization: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
+						`Error during manual synthesizing: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
 					)
 
 					// Update the UI to show the error
 					void provider.postMessageToWebview({
-						type: "summarizationStatus",
+						type: "synthesizationStatus",
 						status: "failed",
-						text: t("common:errors.summarization_failed"),
+						text: t("common:errors.synthesization_failed"),
 					})
 				}
 			}
 			break
-		// --- End Context Summarization ---
+		// --- End Context Synthesization ---
 		case "toggleApiConfigPin":
 			if (message.text) {
 				const currentPinned = getGlobalState("pinnedApiConfigs") ?? {}

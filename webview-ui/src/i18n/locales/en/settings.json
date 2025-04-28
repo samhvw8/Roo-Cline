@@ -301,14 +301,14 @@
 			"lines": "lines",
 			"always_full_read": "Always read entire file"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
-				"label": "Enable context summarization",
-				"description": "When enabled, older conversation turns will be summarized instead of truncated when the context limit is approached. This preserves more information but incurs additional token costs for summarization."
+				"label": "Enable automatic context synthesization",
+				"description": "When enabled, older conversation turns will be synthesized instead of truncated when the context limit is approached. This preserves more information but incurs additional token costs for synthesization."
 			},
 			"triggerThreshold": {
-				"label": "Summarization trigger threshold",
-				"description": "Percentage of the context window size at which summarization should be triggered (e.g., 80%)."
+				"label": "Synthesization trigger threshold",
+				"description": "Percentage of the context window size at which synthesization should be triggered (e.g., 80%)."
 			},
 			"initialTurns": {
 				"label": "Initial turns to keep",

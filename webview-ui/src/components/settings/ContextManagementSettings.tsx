@@ -156,18 +156,18 @@ export const ContextManagementSettings = ({
 						onChange={(e: any) => setCachedStateField("enableContextSummarization", e.target.checked)} // Use generic setter
 						data-testid="enable-context-summarization-checkbox">
 						<label className="block font-medium mb-1">
-							{t("settings:contextManagement.summarization.enable.label")}
+							{t("settings:contextManagement.synthesization.enable.label")}
 						</label>
 					</VSCodeCheckbox>
 					<div className="text-vscode-descriptionForeground text-sm mt-1">
-						{t("settings:contextManagement.summarization.enable.description")}
+						{t("settings:contextManagement.synthesization.enable.description")}
 					</div>
 				</div>
 
 				<div className={!enableContextSummarization ? "opacity-50" : ""}>
 					<div className="flex flex-col gap-2">
 						<span className="font-medium">
-							{t("settings:contextManagement.summarization.triggerThreshold.label")}
+							{t("settings:contextManagement.synthesization.triggerThreshold.label")}
 						</span>
 						<div className="flex items-center gap-4">
 							<input
@@ -191,14 +191,14 @@ export const ContextManagementSettings = ({
 						</div>
 					</div>
 					<div className="text-vscode-descriptionForeground text-sm mt-2">
-						{t("settings:contextManagement.summarization.triggerThreshold.description")}
+						{t("settings:contextManagement.synthesization.triggerThreshold.description")}
 					</div>
 				</div>
 
 				<div className={!enableContextSummarization ? "opacity-50" : ""}>
 					<div className="flex flex-col gap-2">
 						<span className="font-medium">
-							{t("settings:contextManagement.summarization.initialTurns.label")}
+							{t("settings:contextManagement.synthesization.initialTurns.label")}
 						</span>
 						<div className="flex items-center gap-4">
 							<input
@@ -217,18 +217,18 @@ export const ContextManagementSettings = ({
 								data-testid="context-summarization-initial-turns-input"
 								disabled={!enableContextSummarization}
 							/>
-							<span>{t("settings:contextManagement.summarization.turns")}</span>
+							<span>{t("settings:contextManagement.synthesization.turns")}</span>
 						</div>
 					</div>
 					<div className="text-vscode-descriptionForeground text-sm mt-2">
-						{t("settings:contextManagement.summarization.initialTurns.description")}
+						{t("settings:contextManagement.synthesization.initialTurns.description")}
 					</div>
 				</div>
 
 				<div className={!enableContextSummarization ? "opacity-50" : ""}>
 					<div className="flex flex-col gap-2">
 						<span className="font-medium">
-							{t("settings:contextManagement.summarization.recentTurns.label")}
+							{t("settings:contextManagement.synthesization.recentTurns.label")}
 						</span>
 						<div className="flex items-center gap-4">
 							<input
@@ -247,11 +247,11 @@ export const ContextManagementSettings = ({
 								data-testid="context-summarization-recent-turns-input"
 								disabled={!enableContextSummarization}
 							/>
-							<span>{t("settings:contextManagement.summarization.turns")}</span>
+							<span>{t("settings:contextManagement.synthesization.turns")}</span>
 						</div>
 					</div>
 					<div className="text-vscode-descriptionForeground text-sm mt-2">
-						{t("settings:contextManagement.summarization.recentTurns.description")}
+						{t("settings:contextManagement.synthesization.recentTurns.description")}
 					</div>
 				</div>
 				{/* --- End Context Summarization Settings --- */}

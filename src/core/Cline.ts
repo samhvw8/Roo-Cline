@@ -90,7 +90,7 @@ import { truncateConversationIfNeeded, estimateTokenCount } from "./sliding-wind
 import { ClineProvider } from "./webview/ClineProvider"
 import { validateToolUse } from "./mode-validator"
 import { MultiSearchReplaceDiffStrategy } from "./diff/strategies/multi-search-replace"
-import { ContextSummarizer } from "../services/summarization/ContextSummarizer" // Added ContextSummarizer
+import { ContextSynthesizer } from "../services/synthesization/ContextSynthesizer" // Updated to ContextSynthesizer
 import { readApiMessages, saveApiMessages, readTaskMessages, saveTaskMessages, taskMetadata } from "./task-persistence"
 
 type UserContent = Array<Anthropic.Messages.ContentBlockParam>
@@ -1056,16 +1056,16 @@ export class Cline extends EventEmitter<ClineEvents> {
 			let historyModifiedBySummarization = false // Flag to track if summarization updated history
 
 			if (this.enableContextSummarization) {
-				// --- Summarization Logic ---
+				// --- Synthesizing Logic ---
 				const currentTokens = await this._estimateTotalTokenCount(this.apiConversationHistory)
 				const triggerTokenCount = contextWindow * (this.contextSummarizationTriggerThreshold / 100)
 
 				this.providerRef
 					.deref()
-					?.log(`[Summarization] Current tokens: ${currentTokens}, Trigger: ${triggerTokenCount}`)
+					?.log(`[Synthesizing] Current tokens: ${currentTokens}, Trigger: ${triggerTokenCount}`)
 
 				if (currentTokens >= triggerTokenCount) {
-					this.providerRef.deref()?.log(`[Summarization] Threshold met. Attempting summarization.`)
+					this.providerRef.deref()?.log(`[Synthesizing] Threshold met. Attempting synthesizing.`)
 					const initialMessagesToKeep = this.contextSummarizationInitialStaticTurns
 					const recentMessagesToKeep = this.contextSummarizationRecentTurns
 
@@ -1089,35 +1089,35 @@ export class Cline extends EventEmitter<ClineEvents> {
 							this.providerRef
 								.deref()
 								?.log(
-									`[Summarization] Slicing: Keep Initial ${initialMessages.length}, Summarize ${messagesToSummarize.length}, Keep Recent ${recentMessages.length}`,
+									`[Synthesizing] Slicing: Keep Initial ${initialMessages.length}, Synthesize ${messagesToSummarize.length}, Keep Recent ${recentMessages.length}`,
 								)
 
-							// Instantiate the summarizer (consider using a dedicated API handler/model later)
-							const summarizer = new ContextSummarizer(this.api)
-							const summaryMessage = await summarizer.summarize(messagesToSummarize)
+							// Instantiate the synthesizer (consider using a dedicated API handler/model later)
+							const synthesizer = new ContextSynthesizer(this.api)
+							const summaryMessage = await synthesizer.synthesize(messagesToSummarize)
 
 							if (summaryMessage) {
 								const newHistory = [...initialMessages, summaryMessage, ...recentMessages]
 								this.providerRef
 									.deref()
 									?.log(
-										`[Summarization] Summarization successful. New history length: ${newHistory.length}`,
+										`[Synthesizing] Synthesizing successful. New history length: ${newHistory.length}`,
 									)
 								// Add a system message to notify the user in the UI
-								await this.say("text", "[Older conversation turns summarized to preserve context]")
+								await this.say("text", "[Older conversation turns synthesized to preserve context]")
 								await this.overwriteApiConversationHistory(newHistory)
 								historyModifiedBySummarization = true // Mark history as modified
 							} else {
 								this.providerRef
 									.deref()
-									?.log(`[Summarization] Summarization failed. Falling back to truncation.`)
+									?.log(`[Synthesizing] Synthesizing failed. Falling back to truncation.`)
 								// Fall through to truncation if summarization fails
 							}
 						} else {
 							this.providerRef
 								.deref()
 								?.log(
-									`[Summarization] Skipping: initialSliceEnd (${initialSliceEnd}) >= recentSliceStart (${recentSliceStart}). Not enough messages between initial/recent turns.`,
+									`[Synthesizing] Skipping: initialSliceEnd (${initialSliceEnd}) >= recentSliceStart (${recentSliceStart}). Not enough messages between initial/recent turns.`,
 								)
 							// Fall through to truncation if slicing is not possible
 						}
@@ -1125,7 +1125,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 						this.providerRef
 							.deref()
 							?.log(
-								`[Summarization] Skipping: Not enough messages (${this.apiConversationHistory.length}) to satisfy keep counts (${initialMessagesToKeep} + ${recentMessagesToKeep}).`,
+								`[Synthesizing] Skipping: Not enough messages (${this.apiConversationHistory.length}) to satisfy keep counts (${initialMessagesToKeep} + ${recentMessagesToKeep}).`,
 							)
 						// Fall through to truncation if history is too short
 					}
@@ -1146,7 +1146,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 				})
 
 				if (trimmedMessages !== this.apiConversationHistory) {
-					this.providerRef.deref()?.log(`[Truncation] Truncation applied.`)
+					this.providerRef.deref()?.log(`[Synthesizing] Truncation applied as fallback.`)
 					await this.overwriteApiConversationHistory(trimmedMessages)
 				}
 			}
@@ -2682,22 +2682,22 @@ export class Cline extends EventEmitter<ClineEvents> {
 	 * @param isManualTrigger Whether this summarization was manually triggered by the user.
 	 * @returns A promise that resolves when summarization is complete.
 	 */
-	public async summarizeConversationContext(_isManualTrigger: boolean = false): Promise<void> {
-		// Skip if summarization is disabled
+	public async synthesizeConversationContext(_isManualTrigger: boolean = false): Promise<void> {
+		// Skip if synthesizing is disabled
 		if (!this.enableContextSummarization) {
-			this.providerRef.deref()?.log("[Summarization] Context summarization is disabled.")
+			this.providerRef.deref()?.log("[Synthesizing] Context synthesizing is disabled.")
 			return
 		}
 
 		const initialMessagesToKeep = this.contextSummarizationInitialStaticTurns
 		const recentMessagesToKeep = this.contextSummarizationRecentTurns
 
-		// Ensure we have enough messages to summarize
+		// Ensure we have enough messages to synthesize
 		if (this.apiConversationHistory.length <= initialMessagesToKeep + recentMessagesToKeep) {
 			this.providerRef
 				.deref()
 				?.log(
-					`[Summarization] Not enough messages to summarize. Need more than ${initialMessagesToKeep + recentMessagesToKeep} messages.`,
+					`[Synthesizing] Not enough messages to synthesize. Need more than ${initialMessagesToKeep + recentMessagesToKeep} messages.`,
 				)
 			return
 		}
@@ -2711,7 +2711,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 			this.providerRef
 				.deref()
 				?.log(
-					`[Summarization] Skipping: initialSliceEnd (${initialSliceEnd}) >= recentSliceStart (${recentSliceStart}). Not enough messages between initial/recent turns.`,
+					`[Synthesizing] Skipping: initialSliceEnd (${initialSliceEnd}) >= recentSliceStart (${recentSliceStart}). Not enough messages between initial/recent turns.`,
 				)
 			return
 		}
@@ -2724,15 +2724,15 @@ export class Cline extends EventEmitter<ClineEvents> {
 		this.providerRef
 			.deref()
 			?.log(
-				`[Summarization] Slicing: Keep Initial ${initialMessages.length}, Summarize ${messagesToSummarize.length}, Keep Recent ${recentMessages.length}`,
+				`[Synthesizing] Slicing: Keep Initial ${initialMessages.length}, Synthesize ${messagesToSummarize.length}, Keep Recent ${recentMessages.length}`,
 			)
 
-		// Create summarizer and generate summary
-		const summarizer = new ContextSummarizer(this.api)
-		const summaryMessage = await summarizer.summarize(messagesToSummarize)
+		// Create synthesizer and generate synthesis
+		const synthesizer = new ContextSynthesizer(this.api)
+		const summaryMessage = await synthesizer.synthesize(messagesToSummarize)
 
 		if (!summaryMessage) {
-			this.providerRef.deref()?.log(`[Summarization] Failed to generate summary.`)
+			this.providerRef.deref()?.log(`[Synthesizing] Failed to generate synthesis.`)
 			return
 		}
 
@@ -2745,7 +2745,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 		this.providerRef
 			.deref()
 			?.log(
-				`[Summarization] Successfully summarized ${messagesToSummarize.length} messages. New history length: ${newHistory.length}`,
+				`[Synthesizing] Successfully synthesized ${messagesToSummarize.length} messages. New history length: ${newHistory.length}`,
 			)
 	}
 }

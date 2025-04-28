@@ -252,9 +252,9 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				setShowContextMenu(false)
 				setSelectedType(null)
 
-				if (type === ContextMenuOptionType.Summarize) {
-					// Handle summarize action - trigger manual summarization
-					vscode.postMessage({ type: "manualSummarize" })
+				if (type === ContextMenuOptionType.Synthesize) {
+					// Handle synthesize action - trigger manual synthesizing
+					vscode.postMessage({ type: "manualSynthesize" })
 					setShowContextMenu(false)
 					setSelectedType(null)
 					return

@@ -3,36 +3,36 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import { ApiHandler } from "../../api"
 
 /**
- * Service responsible for summarizing conversation history segments.
+ * Service responsible for synthesizing conversation history segments.
  */
-export class ContextSummarizer {
+export class ContextSynthesizer {
 	private apiHandler: ApiHandler
 
 	constructor(apiHandler: ApiHandler) {
 		this.apiHandler = apiHandler
-		// TODO: Consider if a specific, potentially faster/cheaper model should be configured for summarization,
+		// TODO: Consider if a specific, potentially faster/cheaper model should be configured for synthesizing,
 		// possibly by accepting a separate ApiConfiguration or model ID in the constructor.
 	}
 
 	/**
-	 * Summarizes a given array of conversation messages using an LLM.
-	 * @param messagesToSummarize The array of messages to be summarized.
-	 * @returns A promise that resolves to a new message object containing the summary,
-	 *          or null if summarization fails or is not possible.
+	 * Synthesizes a given array of conversation messages using an LLM.
+	 * @param messagesToSynthesize The array of messages to be synthesized.
+	 * @returns A promise that resolves to a new message object containing the synthesis,
+	 *          or null if synthesizing fails or is not possible.
 	 */
-	async summarize(messagesToSummarize: Anthropic.MessageParam[]): Promise<Anthropic.MessageParam | null> {
-		if (messagesToSummarize.length === 0) {
-			return null // Nothing to summarize
+	async synthesize(messagesToSynthesize: Anthropic.MessageParam[]): Promise<Anthropic.MessageParam | null> {
+		if (messagesToSynthesize.length === 0) {
+			return null // Nothing to synthesize
 		}
 
-		// Construct the prompt for the summarization model (User Final Refinement)
+		// Construct the prompt for the synthesizing model (User Final Refinement)
 		const systemPrompt = `You are a specialized context compression system for Roo-Code, a VS Code extension that enables AI coding agents. Your sole purpose is to condense conversation history while preserving maximum technical context with minimum tokens.
 
 **Context Schema:**
-- You are summarizing the MIDDLE portion of a conversation
-- The original system prompt and initial interactions remain intact before your summary
-- Recent conversation turns remain intact after your summary
-- Your summary will be the critical bridge connecting these preserved segments
+- You are synthesizing the MIDDLE portion of a conversation
+- The original system prompt and initial interactions remain intact before your synthesis
+- Recent conversation turns remain intact after your synthesis
+- Your synthesis will be the critical bridge connecting these preserved segments
 
 **Content Priorities (Highest to Lowest):**
 1. **Code Context:**
@@ -64,7 +64,7 @@ export class ContextSummarizer {
 		 - Testing approaches
 
 **Output Requirements:**
-- Produce ONLY the summary text with no meta-commentary
+- Produce ONLY the synthesis text with no meta-commentary
 - Use precise, technical language optimized for information density
 - Structure with minimal formatting (use ## for major sections if necessary)
 - Omit pleasantries, acknowledgments, and conversational elements
@@ -72,11 +72,11 @@ export class ContextSummarizer {
 - Use minimal tokens while maximizing preserved information
 - Prioritize factual over instructional content
 
-This summary must enable seamless conversation continuity with no perceived context loss between the earlier and later preserved segments.`
+This synthesis must enable seamless conversation continuity with no perceived context loss between the earlier and later preserved segments.`
 
 		// Format the messages for the prompt. Simple stringification might be too verbose or lose structure.
 		// Let's try a more readable format.
-		const formattedMessages = messagesToSummarize
+		const formattedMessages = messagesToSynthesize
 			.map((msg) => {
 				let contentText = ""
 				if (Array.isArray(msg.content)) {
@@ -95,27 +95,27 @@ This summary must enable seamless conversation continuity with no perceived cont
 			})
 			.join("\n\n---\n\n")
 
-		const userPrompt = `Please summarize the following conversation turns:\n\n${formattedMessages}`
+		const userPrompt = `Please synthesize the following conversation turns:\n\n${formattedMessages}`
 
 		try {
-			// Use the configured API handler to make the summarization call
-			// Note: This uses the main configured model. Consider allowing a specific summarization model.
-			// Disable prompt caching for summarization calls? - Currently not directly supported per-call.
+			// Use the configured API handler to make the synthesizing call
+			// Note: This uses the main configured model. Consider allowing a specific synthesizing model.
+			// Disable prompt caching for synthesizing calls? - Currently not directly supported per-call.
 			// It will use the handler's configured caching setting.
 			const stream = this.apiHandler.createMessage(
 				systemPrompt,
 				[{ role: "user", content: userPrompt }],
-				undefined, // No specific cache key for summarization
+				undefined, // No specific cache key for synthesizing
 				// { promptCachingEnabled: false } // Removed incorrect 4th argument
 			)
 
-			let summaryText = ""
+			let synthesisText = ""
 			let finalUsage = null
 
 			// Consume the stream to get the full response
 			for await (const chunk of stream) {
 				if (chunk.type === "text") {
-					summaryText += chunk.text
+					synthesisText += chunk.text
 				} else if (chunk.type === "usage") {
 					// Capture usage details if needed for cost tracking/logging
 					finalUsage = chunk
@@ -123,24 +123,24 @@ This summary must enable seamless conversation continuity with no perceived cont
 			}
 
 			if (finalUsage) {
-				// Optional: Log summarization cost/tokens
+				// Optional: Log synthesizing cost/tokens
 				console.log(
-					`[Summarization] Usage: In=${finalUsage.inputTokens}, Out=${finalUsage.outputTokens}, Cost=${finalUsage.totalCost?.toFixed(6) ?? "N/A"}`,
+					`[Synthesizing] Usage: In=${finalUsage.inputTokens}, Out=${finalUsage.outputTokens}, Cost=${finalUsage.totalCost?.toFixed(6) ?? "N/A"}`,
 				)
 			}
 
-			if (!summaryText || summaryText.trim() === "") {
-				console.warn("Context summarization resulted in an empty summary.")
+			if (!synthesisText || synthesisText.trim() === "") {
+				console.warn("Context synthesizing resulted in an empty synthesis.")
 				return null
 			}
 
-			// Return the summary as a user message, representing the summarized history.
+			// Return the synthesis as a user message, representing the synthesized history.
 			return {
-				role: "user", // Represents the summarized user/assistant interaction leading up to the current point.
-				content: `[Summarized Conversation History]\n${summaryText.trim()}`,
+				role: "user", // Represents the synthesized user/assistant interaction leading up to the current point.
+				content: `[Synthesized Conversation History]\n${synthesisText.trim()}`,
 			}
 		} catch (error) {
-			console.error("Context summarization API call failed:", error)
+			console.error("Context synthesizing API call failed:", error)
 			// TODO: Add more robust error handling/logging (e.g., telemetry)
 			return null // Indicate failure
 		}

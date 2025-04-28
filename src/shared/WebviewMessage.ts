@@ -127,13 +127,13 @@ export interface WebviewMessage {
 		| "searchFiles"
 		| "toggleApiConfigPin"
 		| "setHistoryPreviewCollapsed"
-		// Context Summarization Settings (Added)
+		// Context Synthesizing Settings
 		| "enableContextSummarization"
 		| "contextSummarizationTriggerThreshold"
 		| "contextSummarizationInitialStaticTurns"
 		| "contextSummarizationRecentTurns"
-		| "manualSummarize"
-		| "summarizationStatus"
+		| "manualSynthesize"
+		| "synthesizationStatus"
 	text?: string
 	disabled?: boolean
 	askResponse?: ClineAskResponse
