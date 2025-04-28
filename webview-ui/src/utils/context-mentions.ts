@@ -165,13 +165,13 @@ export function getContextMenuOptions(
 		}
 
 		return [
+			{ type: ContextMenuOptionType.Summarize, label: "Summarize", description: "Compress conversation history" },
 			{ type: ContextMenuOptionType.Problems },
 			{ type: ContextMenuOptionType.Terminal },
 			{ type: ContextMenuOptionType.URL },
 			{ type: ContextMenuOptionType.Folder },
 			{ type: ContextMenuOptionType.File },
 			{ type: ContextMenuOptionType.Git },
-			{ type: ContextMenuOptionType.Summarize, label: "Summarize", description: "Compress conversation history" },
 		]
 	}
 
