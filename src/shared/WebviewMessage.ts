@@ -133,6 +133,7 @@ export interface WebviewMessage {
 		| "contextSummarizationInitialStaticTurns"
 		| "contextSummarizationRecentTurns"
 		| "manualSummarize"
+		| "summarizationStatus"
 	text?: string
 	disabled?: boolean
 	askResponse?: ClineAskResponse
@@ -161,6 +162,7 @@ export interface WebviewMessage {
 	hasSystemPromptOverride?: boolean
 	terminalOperation?: "continue" | "abort"
 	historyPreviewCollapsed?: boolean
+	status?: "started" | "completed" | "failed"
 }
 
 export const checkoutDiffPayloadSchema = z.object({

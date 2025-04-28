@@ -67,6 +67,7 @@ export interface ExtensionMessage {
 		| "toggleApiConfigPin"
 		| "acceptInput"
 		| "setHistoryPreviewCollapsed"
+		| "summarizationStatus"
 	text?: string
 	action?:
 		| "chatButtonClicked"
@@ -103,6 +104,7 @@ export interface ExtensionMessage {
 	promptText?: string
 	results?: { path: string; type: "file" | "folder"; label?: string }[]
 	error?: string
+	status?: "started" | "completed" | "failed"
 }
 
 export type ExtensionState = Pick<

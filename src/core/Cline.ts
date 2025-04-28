@@ -370,7 +370,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 		this.emit("message", { action: "updated", message: partialMessage })
 	}
 
-	private async saveClineMessages() {
+	public async saveClineMessages() {
 		try {
 			await saveTaskMessages({
 				messages: this.clineMessages,

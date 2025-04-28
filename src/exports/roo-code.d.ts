@@ -342,6 +342,7 @@ type ClineMessage = {
 				| "checkpoint_saved"
 				| "rooignore_error"
 				| "diff_error"
+				| "summarizing"
 		  )
 		| undefined
 	text?: string | undefined
@@ -423,6 +424,7 @@ type RooCodeEvents = {
 							| "checkpoint_saved"
 							| "rooignore_error"
 							| "diff_error"
+							| "summarizing"
 					  )
 					| undefined
 				text?: string | undefined
