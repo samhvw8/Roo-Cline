@@ -60,7 +60,9 @@ ${getEditingInstructions(diffStrategy)}
 - Use environment_details for context but don't reference it unless relevant
 - Check "Actively Running Terminals" before launching duplicate processes
 - Use MCP operations one at a time with confirmation between steps
-- NEVER use long running commands with attempt_completion
+- NEVER use long running commands with attempt_completion including: npm run/start, go test/run, java -jar, python manage.py runserver, cargo test/run, or any command containing server, watch, daemon, dev, or test that doesn't complete quickly.
+- Prefer commands that execute and complete immediately like git status, ls, cat, head, or simple one-time operations.
+- Always consider the execution time before running ANY command.
 - Always wait for user confirmation after each tool use before proceeding${
 		supportsComputerUse
 			? '\n- For non-development tasks like "check weather", use browser_action when appropriate'
