@@ -877,6 +877,27 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			await updateGlobalState("contextSummarizationRecentTurns", message.value ?? 10)
 			await provider.postStateToWebview()
 			break
+		case "manualSummarize":
+			// Trigger manual summarization of the conversation context
+			const currentCline = provider.getCurrentCline()
+			if (currentCline) {
+				try {
+					// Notify user that summarization is in progress
+					vscode.window.showInformationMessage(t("common:info.summarizing_context"))
+
+					// Trigger the summarization process
+					await currentCline.summarizeConversationContext(true) // true indicates manual trigger
+
+					// Notify user that summarization is complete
+					vscode.window.showInformationMessage(t("common:info.summarization_complete"))
+				} catch (error) {
+					provider.log(
+						`Error during manual summarization: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
+					)
+					vscode.window.showErrorMessage(t("common:errors.summarization_failed"))
+				}
+			}
+			break
 		// --- End Context Summarization ---
 		case "toggleApiConfigPin":
 			if (message.text) {

@@ -132,6 +132,7 @@ export interface WebviewMessage {
 		| "contextSummarizationTriggerThreshold"
 		| "contextSummarizationInitialStaticTurns"
 		| "contextSummarizationRecentTurns"
+		| "manualSummarize"
 	text?: string
 	disabled?: boolean
 	askResponse?: ClineAskResponse

@@ -77,6 +77,7 @@ export enum ContextMenuOptionType {
 	Git = "git",
 	NoResults = "noResults",
 	Mode = "mode", // Add mode type
+	Summarize = "summarize", // Add summarize type
 }
 
 export interface ContextMenuQueryItem {
@@ -170,6 +171,7 @@ export function getContextMenuOptions(
 			{ type: ContextMenuOptionType.Folder },
 			{ type: ContextMenuOptionType.File },
 			{ type: ContextMenuOptionType.Git },
+			{ type: ContextMenuOptionType.Summarize, label: "Summarize", description: "Compress conversation history" },
 		]
 	}
 
@@ -192,6 +194,13 @@ export function getContextMenuOptions(
 	}
 	if ("terminal".startsWith(lowerQuery)) {
 		suggestions.push({ type: ContextMenuOptionType.Terminal })
+	}
+	if ("summarize".startsWith(lowerQuery)) {
+		suggestions.push({
+			type: ContextMenuOptionType.Summarize,
+			label: "Summarize",
+			description: "Compress conversation history",
+		})
 	}
 	if (query.startsWith("http")) {
 		suggestions.push({ type: ContextMenuOptionType.URL, value: query })

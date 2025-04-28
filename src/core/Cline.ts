@@ -2676,4 +2676,83 @@ export class Cline extends EventEmitter<ClineEvents> {
 		}
 		return totalTokens
 	}
+
+	/**
+	 * Manually triggers summarization of the conversation context.
+	 * @param isManualTrigger Whether this summarization was manually triggered by the user.
+	 * @returns A promise that resolves when summarization is complete.
+	 */
+	public async summarizeConversationContext(isManualTrigger: boolean = false): Promise<void> {
+		// Skip if summarization is disabled
+		if (!this.enableContextSummarization) {
+			this.providerRef.deref()?.log("[Summarization] Context summarization is disabled.")
+			return
+		}
+
+		const initialMessagesToKeep = this.contextSummarizationInitialStaticTurns
+		const recentMessagesToKeep = this.contextSummarizationRecentTurns
+
+		// Ensure we have enough messages to summarize
+		if (this.apiConversationHistory.length <= initialMessagesToKeep + recentMessagesToKeep) {
+			this.providerRef
+				.deref()
+				?.log(
+					`[Summarization] Not enough messages to summarize. Need more than ${initialMessagesToKeep + recentMessagesToKeep} messages.`,
+				)
+			return
+		}
+
+		// Calculate slice points
+		const initialSliceEnd = initialMessagesToKeep
+		const recentSliceStart = this.apiConversationHistory.length - recentMessagesToKeep
+
+		// Ensure slice points don't overlap
+		if (initialSliceEnd >= recentSliceStart) {
+			this.providerRef
+				.deref()
+				?.log(
+					`[Summarization] Skipping: initialSliceEnd (${initialSliceEnd}) >= recentSliceStart (${recentSliceStart}). Not enough messages between initial/recent turns.`,
+				)
+			return
+		}
+
+		// Slice the conversation history
+		const initialMessages = this.apiConversationHistory.slice(0, initialSliceEnd)
+		const recentMessages = this.apiConversationHistory.slice(recentSliceStart)
+		const messagesToSummarize = this.apiConversationHistory.slice(initialSliceEnd, recentSliceStart)
+
+		this.providerRef
+			.deref()
+			?.log(
+				`[Summarization] Slicing: Keep Initial ${initialMessages.length}, Summarize ${messagesToSummarize.length}, Keep Recent ${recentMessages.length}`,
+			)
+
+		// Create summarizer and generate summary
+		const summarizer = new ContextSummarizer(this.api)
+		const summaryMessage = await summarizer.summarize(messagesToSummarize)
+
+		if (!summaryMessage) {
+			this.providerRef.deref()?.log(`[Summarization] Failed to generate summary.`)
+			return
+		}
+
+		// Create new history with summary
+		const newHistory = [...initialMessages, summaryMessage, ...recentMessages]
+
+		// Add a system message to notify the user in the UI
+		if (isManualTrigger) {
+			await this.say("text", "[Conversation history has been summarized to preserve context]")
+		} else {
+			await this.say("text", "[Older conversation turns summarized to preserve context]")
+		}
+
+		// Update the conversation history
+		await this.overwriteApiConversationHistory(newHistory)
+
+		this.providerRef
+			.deref()
+			?.log(
+				`[Summarization] Successfully summarized ${messagesToSummarize.length} messages. New history length: ${newHistory.length}`,
+			)
+	}
 }
