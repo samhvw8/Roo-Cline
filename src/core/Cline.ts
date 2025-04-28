@@ -1031,7 +1031,9 @@ export class Cline extends EventEmitter<ClineEvents> {
 		// either truncate or summarize the conversation history based on settings.
 		if (previousApiReqIndex >= 0) {
 			const previousRequest = this.clineMessages[previousApiReqIndex]?.text
-			if (!previousRequest) return // Should not happen, but guard anyway
+			if (!previousRequest) {
+				return // Should not happen, but guard anyway
+			}
 
 			const {
 				// These tokens are from the *previous* request's response, not the current history size
