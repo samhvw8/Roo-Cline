@@ -34,12 +34,7 @@ function getEditingInstructions(diffStrategy?: DiffStrategy, _experiments?: Reco
 	return instructions.join("\n")
 }
 
-export function getRulesSection(
-	cwd: string,
-	supportsComputerUse: boolean,
-	diffStrategy?: DiffStrategy,
-	experiments?: Record<string, boolean> | undefined,
-): string {
+export function getRulesSection(cwd: string, supportsComputerUse: boolean, diffStrategy?: DiffStrategy): string {
 	return `====
 
 RULES
@@ -51,7 +46,7 @@ RULES
 - For commands in other directories, combine with \`cd\`: \`cd /target/dir && command\`
 - Use search_files with balanced regex patterns to find code elements, then examine with read_file before making changes with ${diffStrategy ? "apply_diff or write_to_file" : "write_to_file"}
 - When creating a new project, organize files in a dedicated directory with logical structure following best practices
-${getEditingInstructions(diffStrategy, experiments)}
+${getEditingInstructions(diffStrategy)}
 - Some modes have restrictions on which files they can edit (FileRestrictionError will specify allowed patterns)
 - Consider project type and relevant files when determining structure and dependencies
 - Make code changes that maintain compatibility with the existing codebase and follow project standards

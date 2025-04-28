@@ -119,9 +119,9 @@ ${getCapabilitiesSection(cwd, supportsComputerUse, mcpHub, effectiveDiffStrategy
 
 ${modesSection}
 
-${getRulesSection(cwd, supportsComputerUse, effectiveDiffStrategy, experiments)}
+${getRulesSection(cwd, supportsComputerUse, effectiveDiffStrategy)}
 
-${getSystemInfoSection(cwd, mode, customModeConfigs)}
+${getSystemInfoSection(cwd)}
 
 ${getObjectiveSection()}
 
