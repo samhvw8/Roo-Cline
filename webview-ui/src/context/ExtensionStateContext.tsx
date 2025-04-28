@@ -20,6 +20,10 @@ export interface ExtensionStateContextType extends ExtensionState {
 	mcpServers: McpServer[]
 	hasSystemPromptOverride?: boolean
 	currentCheckpoint?: string
+	summarizationStatus?: {
+		status: "started" | "completed" | "failed"
+		text: string
+	}
 	filePaths: string[]
 	openedTabs: Array<{ label: string; isActive: boolean; path?: string }>
 	setApiConfiguration: (config: ApiConfiguration) => void
@@ -246,6 +250,26 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 				}
 				case "currentCheckpointUpdated": {
 					setCurrentCheckpoint(message.text)
+					break
+				}
+				case "summarizationStatus": {
+					setState((prevState) => ({
+						...prevState,
+						summarizationStatus: {
+							status: message.status as "started" | "completed" | "failed",
+							text: message.text || "",
+						},
+					}))
+
+					// Auto-clear the status after completion or failure
+					if (message.status === "completed" || message.status === "failed") {
+						setTimeout(() => {
+							setState((prevState) => ({
+								...prevState,
+								summarizationStatus: undefined,
+							}))
+						}, 5000) // Clear after 5 seconds
+					}
 					break
 				}
 				case "listApiConfig": {

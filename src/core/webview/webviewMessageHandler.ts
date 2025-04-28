@@ -881,64 +881,49 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			// Trigger manual summarization of the conversation context
 			const currentCline = provider.getCurrentCline()
 			if (currentCline) {
-				try {
-					// First send a message to the webview to show a progress indicator
-					provider.postMessageToWebview({
-						type: "summarizationStatus",
-						status: "started",
-						text: t("common:info.summarizing_context"),
-					})
+				// First send a message to the webview to show a progress indicator
+				void provider.postMessageToWebview({
+					type: "summarizationStatus",
+					status: "started",
+					text: t("common:info.summarizing_context"),
+				})
 
-					// Notify user that summarization is in progress
-					vscode.window.showInformationMessage(t("common:info.summarizing_context"))
+				// Use a non-blocking approach with proper error handling
+				;(async function summarizeContext() {
+					try {
+						// Add a system notification message that doesn't require user interaction
+						await currentCline.say("text", "[System: Summarizing conversation context...]")
 
-					// Add a "summarizing" message to the chat
-					await currentCline.say("summarizing", t("common:info.summarizing_context"), undefined, true)
+						// Trigger the summarization process
+						await currentCline.summarizeConversationContext(true) // true indicates manual trigger
 
-					// Trigger the summarization process
-					await currentCline.summarizeConversationContext(true) // true indicates manual trigger
+						// Add a completion message
+						await currentCline.say("text", "[System: Conversation context summarization complete]")
 
-					// Update the "summarizing" message to show completion
-					const lastMessage = currentCline.clineMessages.at(-1)
-					if (lastMessage && lastMessage.say === "summarizing" && lastMessage.partial) {
-						lastMessage.text = t("common:info.summarization_complete")
-						lastMessage.partial = false
-						await currentCline.saveClineMessages()
-						await provider.postStateToWebview()
+						// Send a message to the webview to hide the progress indicator
+						void provider.postMessageToWebview({
+							type: "summarizationStatus",
+							status: "completed",
+							text: t("common:info.summarization_complete"),
+						})
+					} catch (error) {
+						provider.log(
+							`Error during manual summarization: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
+						)
+
+						// Update the UI to show the error
+						void provider.postMessageToWebview({
+							type: "summarizationStatus",
+							status: "failed",
+							text: t("common:errors.summarization_failed"),
+						})
+
+						// Add an error message
+						await currentCline.say("error", t("common:errors.summarization_failed"))
 					}
-
-					// Send a message to the webview to hide the progress indicator
-					provider.postMessageToWebview({
-						type: "summarizationStatus",
-						status: "completed",
-						text: t("common:info.summarization_complete"),
-					})
-
-					// Notify user that summarization is complete
-					vscode.window.showInformationMessage(t("common:info.summarization_complete"))
-				} catch (error) {
-					provider.log(
-						`Error during manual summarization: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
-					)
-
-					// Update the UI to show the error
-					provider.postMessageToWebview({
-						type: "summarizationStatus",
-						status: "failed",
-						text: t("common:errors.summarization_failed"),
-					})
-
-					// Update any partial message
-					const lastMessage = currentCline.clineMessages.at(-1)
-					if (lastMessage && lastMessage.say === "summarizing" && lastMessage.partial) {
-						lastMessage.text = t("common:errors.summarization_failed")
-						lastMessage.partial = false
-						await currentCline.saveClineMessages()
-						await provider.postStateToWebview()
-					}
-
-					vscode.window.showErrorMessage(t("common:errors.summarization_failed"))
-				}
+				})().catch((error) => {
+					provider.log(`Unhandled error in summarization: ${String(error)}`)
+				})
 			}
 			break
 		// --- End Context Summarization ---

@@ -38,6 +38,7 @@ import ChatTextArea from "./ChatTextArea"
 import TaskHeader from "./TaskHeader"
 import AutoApproveMenu from "./AutoApproveMenu"
 import SystemPromptWarning from "./SystemPromptWarning"
+import SummarizationIndicator from "./SummarizationIndicator"
 import { useTaskSearch } from "../history/useTaskSearch"
 
 export interface ChatViewProps {
@@ -1249,6 +1250,11 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 							<CheckpointWarningMessage />
 						</div>
 					)}
+
+					{/* Summarization status indicator */}
+					<div className="px-3">
+						<SummarizationIndicator />
+					</div>
 				</>
 			) : (
 				<div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4">
