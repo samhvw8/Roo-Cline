@@ -40,7 +40,7 @@ export function AdvancedSettings() {
 			<Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
 				<CollapsibleTrigger asChild>
 					<Button variant="ghost" className="flex w-full justify-between p-2">
-						<span className="font-medium">Advanced Settings</span>
+						<span className="font-medium">Model Configuration</span>
 						{isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
 					</Button>
 				</CollapsibleTrigger>

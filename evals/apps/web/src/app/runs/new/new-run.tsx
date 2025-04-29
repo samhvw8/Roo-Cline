@@ -253,7 +253,7 @@ export function NewRun() {
 				<Tabs value={mode} onValueChange={(value) => setMode(value as "openrouter" | "settings")}>
 					<TabsList>
 						<TabsTrigger value="openrouter">OpenRouter Model</TabsTrigger>
-						<TabsTrigger value="settings">Advanced Settings</TabsTrigger>
+						<TabsTrigger value="settings">Settings Profiles</TabsTrigger>
 					</TabsList>
 				</Tabs>
 			</div>
