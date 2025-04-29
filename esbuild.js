@@ -154,6 +154,26 @@ const copyLocalesFiles = {
 	},
 }
 
+const copyEjsTemplates = {
+	name: "copy-ejs-templates",
+	setup(build) {
+		build.onEnd(() => {
+			const srcDir = path.join(__dirname, "src", "core", "prompts", "templates")
+			const destDir = path.join(__dirname, "dist", "templates")
+
+			// Create destination directory
+			fs.mkdirSync(destDir, { recursive: true })
+
+			// Copy all .ejs files
+			const ejsFiles = fs.readdirSync(srcDir).filter((file) => file.endsWith(".ejs"))
+			ejsFiles.forEach((file) => {
+				fs.copyFileSync(path.join(srcDir, file), path.join(destDir, file))
+			})
+			console.log("Copied EJS template files to dist/templates")
+		})
+	},
+}
+
 const extensionConfig = {
 	bundle: true,
 	minify: production,
@@ -162,12 +182,13 @@ const extensionConfig = {
 	plugins: [
 		copyWasmFiles,
 		copyLocalesFiles,
+		copyEjsTemplates,
 		/* add to the end of plugins array */
 		esbuildProblemMatcherPlugin,
 		{
 			name: "alias-plugin",
 			setup(build) {
-				build.onResolve({ filter: /^pkce-challenge$/ }, (args) => {
+				build.onResolve({ filter: /^pkce-challenge$/ }, (_args) => {
 					return { path: require.resolve("pkce-challenge/dist/index.browser.js") }
 				})
 			},
