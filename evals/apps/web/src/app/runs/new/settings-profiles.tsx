@@ -95,8 +95,9 @@ export function SettingsProfiles({ currentSettings, onSelectProfile }: SettingsP
 		const newProfile: SettingsProfile = {
 			id: Date.now().toString(),
 			name: profileName,
-			settings: { ...currentSettings },
+			settings: { ...currentSettings }, // Copy current settings
 		}
+		console.log("Saving profile with settings:", newProfile.settings) // DEBUG LOG
 
 		// Create a new array with the new profile
 		const updatedProfiles = [...profiles, newProfile]
@@ -130,8 +131,9 @@ export function SettingsProfiles({ currentSettings, onSelectProfile }: SettingsP
 	}
 
 	const selectProfile = (profile: SettingsProfile) => {
+		console.log("Loading profile with settings:", profile.settings) // DEBUG LOG
 		setSelectedProfileId(profile.id)
-		onSelectProfile(profile.settings)
+		onSelectProfile(profile.settings) // Pass loaded settings to parent
 		toast.success(`Profile "${profile.name}" loaded`)
 	}
 
