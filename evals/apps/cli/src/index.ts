@@ -40,7 +40,7 @@ type TaskResult = { success: boolean }
 type TaskPromise = Promise<TaskResult>
 
 const TASK_START_DELAY = 10 * 1_000
-const TASK_TIMEOUT = 5 * 60 * 1_000
+const TASK_TIMEOUT = 10 * 60 * 1_000 // Increased to 10 minutes
 const UNIT_TEST_TIMEOUT = 2 * 60 * 1_000
 
 const testCommands: Record<ExerciseLanguage, { commands: string[]; timeout?: number; cwd?: string }> = {
@@ -185,24 +185,61 @@ const runExercise = async ({ run, task, server }: { run: Run; task: Task; server
 
 	console.log(`${Date.now()} [cli#runExercise] Opening new VS Code window at ${workspacePath}`)
 
-	await execa({
-		env: {
-			ROO_CODE_IPC_SOCKET_PATH: taskSocketPath,
-		},
-		shell: "/bin/bash",
-	})`code --disable-workspace-trust -n ${workspacePath}`
+	// Add retry logic for VS Code launch
+	let retryCount = 0
+	const maxRetries = 3
+	let client: IpcClient | null = null
 
-	// Give VSCode some time to spawn before connecting to its unix socket.
-	await new Promise((resolve) => setTimeout(resolve, 3_000))
-	console.log(`${Date.now()} [cli#runExercise] Connecting to ${taskSocketPath}`)
-	const client = new IpcClient(taskSocketPath)
+	while (retryCount < maxRetries) {
+		try {
+			await execa({
+				env: {
+					ROO_CODE_IPC_SOCKET_PATH: taskSocketPath,
+				},
+				shell: "/bin/bash",
+			})`code --disable-workspace-trust -n ${workspacePath}`
 
-	try {
-		await pWaitFor(() => client.isReady, { interval: 250, timeout: 5_000 })
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	} catch (error) {
-		console.log(`${Date.now()} [cli#runExercise | ${language} / ${exercise}] unable to connect`)
-		client.disconnect()
+			// Give VSCode some time to spawn before connecting to its unix socket.
+			await new Promise((resolve) => setTimeout(resolve, 3_000))
+			console.log(`${Date.now()} [cli#runExercise] Connecting to ${taskSocketPath} (attempt ${retryCount + 1})`)
+			client = new IpcClient(taskSocketPath)
+
+			// Try to connect
+			await pWaitFor(() => client!.isReady, { interval: 250, timeout: 10_000 })
+
+			// If we get here, VS Code launched successfully
+			console.log(`${Date.now()} [cli#runExercise] Successfully connected to VS Code (attempt ${retryCount + 1})`)
+			break
+		} catch (error) {
+			retryCount++
+			console.log(
+				`${Date.now()} [cli#runExercise] VS Code launch attempt ${retryCount} failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+			)
+
+			// Disconnect the client if it was created
+			if (client) {
+				client.disconnect()
+				client = null
+			}
+
+			if (retryCount >= maxRetries) {
+				console.log(
+					`${Date.now()} [cli#runExercise | ${language} / ${exercise}] Failed to launch VS Code after ${maxRetries} attempts`,
+				)
+				return { success: false }
+			}
+
+			// Wait before retrying
+			console.log(`${Date.now()} [cli#runExercise] Waiting before retry attempt ${retryCount + 1}...`)
+			await new Promise((resolve) => setTimeout(resolve, 5_000))
+		}
+	}
+
+	// If we somehow got here without a client, return failure
+	if (!client) {
+		console.log(
+			`${Date.now()} [cli#runExercise | ${language} / ${exercise}] No client available after launch attempts`,
+		)
 		return { success: false }
 	}
 
@@ -337,7 +374,18 @@ const runExercise = async ({ run, task, server }: { run: Run; task: Task; server
 			await new Promise((resolve) => setTimeout(resolve, 5_000))
 		}
 
-		await updateTask(task.id, { finishedAt: new Date() })
+		// Mark the task as failed explicitly
+		await updateTask(task.id, {
+			finishedAt: new Date(),
+			passed: false, // Explicitly mark as failed
+		})
+
+		// Add error record
+		await createToolError({
+			taskId: task.id,
+			toolName: "execute_command",
+			error: "Task execution timed out",
+		})
 	}
 
 	if (!isClientDisconnected) {

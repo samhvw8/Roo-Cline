@@ -1,13 +1,13 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useRef, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { z } from "zod"
 import { useForm, FormProvider } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import fuzzysort from "fuzzysort"
 import { toast } from "sonner"
-import { X, Rocket, Check, ChevronsUpDown, HardDriveUpload, CircleCheck } from "lucide-react"
+import { X, Rocket, Check, ChevronsUpDown, HardDriveUpload, CircleCheck, Save, ArrowLeft } from "lucide-react"
 
 import { globalSettingsSchema, providerSettingsSchema, rooCodeDefaults } from "@evals/types"
 
@@ -48,11 +48,31 @@ import {
 } from "@/components/ui"
 
 import { SettingsDiff } from "./settings-diff"
+import { SettingsProfiles } from "./settings-profiles"
+import { AdvancedSettings } from "./advanced-settings"
 
 export function NewRun() {
 	const router = useRouter()
 
+	// Check for saved profiles on mount and set mode accordingly
 	const [mode, setMode] = useState<"openrouter" | "settings">("openrouter")
+	const [savedProfilesExist, setSavedProfilesExist] = useState(false)
+
+	// Check if there are saved profiles on component mount
+	useEffect(() => {
+		try {
+			const savedProfiles = localStorage.getItem("settingsProfiles")
+			if (savedProfiles) {
+				const profiles = JSON.parse(savedProfiles)
+				if (profiles && Array.isArray(profiles) && profiles.length > 0) {
+					setSavedProfilesExist(true)
+					// Don't automatically switch to settings mode to allow OpenRouter model selection
+				}
+			}
+		} catch (error) {
+			console.error("Error checking for saved profiles:", error)
+		}
+	}, [])
 
 	const [modelSearchValue, setModelSearchValue] = useState("")
 	const [modelPopoverOpen, setModelPopoverOpen] = useState(false)
@@ -81,7 +101,7 @@ export function NewRun() {
 		formState: { isSubmitting },
 	} = form
 
-	const [model, suite, settings] = watch(["model", "suite", "settings", "concurrency"])
+	const [model, suite, settings, concurrency] = watch(["model", "suite", "settings", "concurrency"])
 
 	const onSubmit = useCallback(
 		async (values: FormValues) => {
@@ -206,7 +226,8 @@ export function NewRun() {
 						throw new Error(`Unsupported API provider: ${apiProvider}`)
 				}
 
-				setValue("settings", { ...rooCodeDefaults, ...providerSettings, ...globalSettings })
+				const mergedSettings = { ...rooCodeDefaults, ...providerSettings, ...globalSettings }
+				setValue("settings", mergedSettings)
 				setMode("settings")
 
 				event.target.value = ""
@@ -220,76 +241,165 @@ export function NewRun() {
 
 	return (
 		<>
+			<div className="flex justify-between items-center mb-4">
+				<Button variant="outline" size="sm" onClick={() => router.push("/")} title="Back to runs">
+					<ArrowLeft className="mr-2 h-4 w-4" />
+					Back to Runs
+				</Button>
+				<h1 className="text-2xl font-bold">New Evaluation Run</h1>
+			</div>
+
+			<div className="mb-6">
+				<Tabs value={mode} onValueChange={(value) => setMode(value as "openrouter" | "settings")}>
+					<TabsList>
+						<TabsTrigger value="openrouter">OpenRouter Model</TabsTrigger>
+						<TabsTrigger value="settings">Advanced Settings</TabsTrigger>
+					</TabsList>
+				</Tabs>
+			</div>
 			<FormProvider {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
 					className="flex flex-col justify-center divide-y divide-primary *:py-5">
 					<div className="flex flex-row justify-between gap-4">
 						{mode === "openrouter" && (
-							<FormField
-								control={form.control}
-								name="model"
-								render={() => (
-									<FormItem className="flex-1">
-										<Popover open={modelPopoverOpen} onOpenChange={setModelPopoverOpen}>
-											<PopoverTrigger asChild>
-												<Button
-													variant="input"
-													role="combobox"
-													aria-expanded={modelPopoverOpen}
-													className="flex items-center justify-between">
-													<div>
-														{models.data?.find(({ id }) => id === model)?.name ||
-															model ||
-															"Select OpenRouter Model"}
-													</div>
-													<ChevronsUpDown className="opacity-50" />
-												</Button>
-											</PopoverTrigger>
-											<PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
-												<Command filter={onFilterModels}>
-													<CommandInput
-														placeholder="Search"
-														value={modelSearchValue}
-														onValueChange={setModelSearchValue}
-														className="h-9"
-													/>
-													<CommandList>
-														<CommandEmpty>No model found.</CommandEmpty>
-														<CommandGroup>
-															{models.data?.map(({ id, name }) => (
-																<CommandItem
-																	key={id}
-																	value={id}
-																	onSelect={onSelectModel}>
-																	{name}
-																	<Check
-																		className={cn(
-																			"ml-auto text-accent group-data-[selected=true]:text-accent-foreground size-4",
-																			id === model ? "opacity-100" : "opacity-0",
-																		)}
-																	/>
-																</CommandItem>
-															))}
-														</CommandGroup>
-													</CommandList>
-												</Command>
-											</PopoverContent>
-										</Popover>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+							<div className="flex-1">
+								<FormField
+									control={form.control}
+									name="model"
+									render={() => (
+										<FormItem className="flex-1">
+											<Popover open={modelPopoverOpen} onOpenChange={setModelPopoverOpen}>
+												<PopoverTrigger asChild>
+													<Button
+														variant="input"
+														role="combobox"
+														aria-expanded={modelPopoverOpen}
+														className="flex items-center justify-between">
+														<div>
+															{models.data?.find(({ id }) => id === model)?.name ||
+																model ||
+																"Select OpenRouter Model"}
+														</div>
+														<ChevronsUpDown className="opacity-50" />
+													</Button>
+												</PopoverTrigger>
+												<PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
+													<Command filter={onFilterModels}>
+														<CommandInput
+															placeholder="Search"
+															value={modelSearchValue}
+															onValueChange={setModelSearchValue}
+															className="h-9"
+														/>
+														<CommandList>
+															<CommandEmpty>No model found.</CommandEmpty>
+															<CommandGroup>
+																{models.data?.map(({ id, name }) => (
+																	<CommandItem
+																		key={id}
+																		value={id}
+																		onSelect={onSelectModel}>
+																		{name}
+																		<Check
+																			className={cn(
+																				"ml-auto text-accent group-data-[selected=true]:text-accent-foreground size-4",
+																				id === model
+																					? "opacity-100"
+																					: "opacity-0",
+																			)}
+																		/>
+																	</CommandItem>
+																))}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								{/* Add Advanced Settings component for OpenRouter mode */}
+								<AdvancedSettings />
+							</div>
 						)}
 
 						<FormItem className="flex-1">
-							<Button
-								type="button"
-								variant="secondary"
-								onClick={() => document.getElementById("json-upload")?.click()}>
-								<HardDriveUpload />
-								Import Settings
-							</Button>
+							{/* Always show SettingsProfiles if saved profiles exist */}
+							{(mode === "settings" || savedProfilesExist) && (
+								<div className="mb-4">
+									<SettingsProfiles
+										currentSettings={settings}
+										onSelectProfile={(profileSettings) => {
+											setValue("settings", profileSettings)
+
+											// Try to set the model based on the profile settings
+											const {
+												apiProvider,
+												apiModelId,
+												openRouterModelId,
+												glamaModelId,
+												requestyModelId,
+												unboundModelId,
+												ollamaModelId,
+												lmStudioModelId,
+												openAiModelId,
+											} = profileSettings || {}
+
+											switch (apiProvider) {
+												case "anthropic":
+												case "bedrock":
+												case "deepseek":
+												case "gemini":
+												case "mistral":
+												case "openai-native":
+												case "xai":
+												case "vertex":
+													setValue("model", apiModelId || "")
+													break
+												case "openrouter":
+													setValue("model", openRouterModelId || "")
+													break
+												case "glama":
+													setValue("model", glamaModelId || "")
+													break
+												case "requesty":
+													setValue("model", requestyModelId || "")
+													break
+												case "unbound":
+													setValue("model", unboundModelId || "")
+													break
+												case "openai":
+													setValue("model", openAiModelId || "")
+													break
+												case "ollama":
+													setValue("model", ollamaModelId || "")
+													break
+												case "lmstudio":
+													setValue("model", lmStudioModelId || "")
+													break
+											}
+										}}
+									/>
+								</div>
+							)}
+							<div className="flex flex-wrap gap-2 items-center">
+								<Button
+									type="button"
+									variant="secondary"
+									onClick={() => document.getElementById("json-upload")?.click()}>
+									<HardDriveUpload className="mr-2 h-4 w-4" />
+									Import Settings
+								</Button>
+
+								{savedProfilesExist && !settings && (
+									<div className="text-sm text-muted-foreground ml-2">
+										You have saved profiles available. Click "Load Profile" to use them.
+									</div>
+								)}
+							</div>
 							<input
 								id="json-upload"
 								type="file"
