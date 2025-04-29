@@ -344,15 +344,31 @@ const runExercise = async ({ run, task, server }: { run: Run; task: Task; server
 		data: {
 			commandName: TaskCommandName.StartNewTask,
 			data: {
-				configuration: {
-					...rooCodeDefaults,
-					...run.settings, // Apply imported settings first
-					// Conditionally add API key based on provider in settings
-					...(run.settings?.apiProvider === "openrouter" && process.env.OPENROUTER_API_KEY
-						? { openRouterApiKey: process.env.OPENROUTER_API_KEY }
-						: {}),
-					// Add other provider-specific keys here if needed in the future
-				},
+				configuration: (() => {
+					// Start with defaults, then merge run-specific settings
+					let config = { ...rooCodeDefaults, ...(run.settings || {}) }
+					const provider = config.apiProvider
+
+					// Clean up keys for providers *not* selected
+					if (provider !== "openrouter") {
+						delete config.openRouterApiKey
+						delete config.openRouterModelId
+						delete config.openRouterUseMiddleOutTransform
+					}
+					if (provider !== "vertex") {
+						delete config.vertexProjectId
+						delete config.vertexRegion
+					}
+					// Add cleanup for other providers here (ollama, openai, etc.) if needed
+
+					// Explicitly add required keys for the selected provider if missing/needed
+					if (provider === "openrouter" && process.env.OPENROUTER_API_KEY) {
+						config.openRouterApiKey = process.env.OPENROUTER_API_KEY
+					}
+					// Add logic for other providers requiring env vars if necessary
+
+					return config
+				})(),
 				text: prompt,
 				newTab: true,
 			},
