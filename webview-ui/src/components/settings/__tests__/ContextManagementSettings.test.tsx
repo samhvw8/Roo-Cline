@@ -115,27 +115,27 @@ describe("ContextManagementSettings", () => {
 		render(<ContextManagementSettings {...defaultProps} />)
 		const checkbox = screen.getByTestId("enable-context-synthesization-checkbox")
 		fireEvent.click(checkbox)
-		expect(defaultProps.setEnableContextSummarization).toHaveBeenCalledWith(true)
+		expect(defaultProps.setCachedStateField).toHaveBeenCalledWith("enableContextSummarization", true)
 	})
 
 	it("updates synthesization trigger threshold", () => {
 		render(<ContextManagementSettings {...defaultProps} enableContextSummarization={true} />) // Enable first
 		const input = screen.getByTestId("context-synthesization-trigger-threshold-input")
 		fireEvent.change(input, { target: { value: "95" } })
-		expect(defaultProps.setContextSummarizationTriggerThreshold).toHaveBeenCalledWith(95)
+		expect(defaultProps.setCachedStateField).toHaveBeenCalledWith("contextSummarizationTriggerThreshold", 95)
 	})
 
 	it("updates initial turns to keep", () => {
 		render(<ContextManagementSettings {...defaultProps} enableContextSummarization={true} />) // Enable first
 		const input = screen.getByTestId("context-synthesization-initial-turns-input")
 		fireEvent.change(input, { target: { value: "3" } })
-		expect(defaultProps.setContextSummarizationInitialStaticTurns).toHaveBeenCalledWith(3)
+		expect(defaultProps.setCachedStateField).toHaveBeenCalledWith("contextSummarizationInitialStaticTurns", 3)
 	})
 
 	it("updates recent turns to keep", () => {
 		render(<ContextManagementSettings {...defaultProps} enableContextSummarization={true} />) // Enable first
 		const input = screen.getByTestId("context-synthesization-recent-turns-input")
 		fireEvent.change(input, { target: { value: "12" } })
-		expect(defaultProps.setContextSummarizationRecentTurns).toHaveBeenCalledWith(12)
+		expect(defaultProps.setCachedStateField).toHaveBeenCalledWith("contextSummarizationRecentTurns", 12)
 	})
 })
