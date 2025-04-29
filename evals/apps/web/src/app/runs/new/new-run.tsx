@@ -321,8 +321,7 @@ export function NewRun() {
 									)}
 								/>
 
-								{/* Add Advanced Settings component for OpenRouter mode */}
-								<AdvancedSettings />
+								{/* AdvancedSettings moved below */}
 							</div>
 						)}
 
@@ -424,6 +423,8 @@ export function NewRun() {
 							<FormMessage />
 						</FormItem>
 					</div>
+					{/* Render AdvancedSettings below the main row if in openrouter mode */}
+					{mode === "openrouter" && <AdvancedSettings />}
 
 					<FormField
 						control={form.control}
