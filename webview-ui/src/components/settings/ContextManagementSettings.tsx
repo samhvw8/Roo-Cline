@@ -15,7 +15,7 @@ type ContextManagementSettingsProps = HTMLAttributes<HTMLDivElement> & {
 	maxWorkspaceFiles: number
 	showRooIgnoredFiles?: boolean
 	maxReadFileLine?: number
-	// Context Summarization Props (Added)
+	// Context Synthesization Props (Added)
 	enableContextSummarization?: boolean
 	contextSummarizationTriggerThreshold?: number
 	contextSummarizationInitialStaticTurns?: number
@@ -26,7 +26,7 @@ type ContextManagementSettingsProps = HTMLAttributes<HTMLDivElement> & {
 		| "maxWorkspaceFiles"
 		| "showRooIgnoredFiles"
 		| "maxReadFileLine"
-		// Context Summarization Keys (Added)
+		// Context Synthesization Keys (Added)
 		| "enableContextSummarization"
 		| "contextSummarizationTriggerThreshold"
 		| "contextSummarizationInitialStaticTurns"
@@ -40,7 +40,7 @@ export const ContextManagementSettings = ({
 	showRooIgnoredFiles,
 	setCachedStateField,
 	maxReadFileLine,
-	// Context Summarization Props (Added)
+	// Context Synthesization Props (Added)
 	enableContextSummarization,
 	contextSummarizationTriggerThreshold,
 	contextSummarizationInitialStaticTurns,
@@ -147,14 +147,14 @@ export const ContextManagementSettings = ({
 					</div>
 				</div>
 
-				{/* --- Context Summarization Settings --- */}
+				{/* --- Context Synthesization Settings --- */}
 				<div className="border-t border-vscode-settings-rowHoverBackground my-4"></div>
 
 				<div>
 					<VSCodeCheckbox
 						checked={!!enableContextSummarization}
 						onChange={(e: any) => setCachedStateField("enableContextSummarization", e.target.checked)} // Use generic setter
-						data-testid="enable-context-summarization-checkbox">
+						data-testid="enable-context-synthesization-checkbox">
 						<label className="block font-medium mb-1">
 							{t("settings:contextManagement.synthesization.enable.label")}
 						</label>
@@ -184,7 +184,7 @@ export const ContextManagementSettings = ({
 									}
 								}}
 								onClick={(e) => e.currentTarget.select()}
-								data-testid="context-summarization-trigger-threshold-input"
+								data-testid="context-synthesization-trigger-threshold-input"
 								disabled={!enableContextSummarization}
 							/>
 							<span>%</span>
@@ -214,7 +214,7 @@ export const ContextManagementSettings = ({
 									}
 								}}
 								onClick={(e) => e.currentTarget.select()}
-								data-testid="context-summarization-initial-turns-input"
+								data-testid="context-synthesization-initial-turns-input"
 								disabled={!enableContextSummarization}
 							/>
 							<span>{t("settings:contextManagement.synthesization.turns")}</span>
@@ -244,7 +244,7 @@ export const ContextManagementSettings = ({
 									}
 								}}
 								onClick={(e) => e.currentTarget.select()}
-								data-testid="context-summarization-recent-turns-input"
+								data-testid="context-synthesization-recent-turns-input"
 								disabled={!enableContextSummarization}
 							/>
 							<span>{t("settings:contextManagement.synthesization.turns")}</span>
@@ -254,7 +254,7 @@ export const ContextManagementSettings = ({
 						{t("settings:contextManagement.synthesization.recentTurns.description")}
 					</div>
 				</div>
-				{/* --- End Context Summarization Settings --- */}
+				{/* --- End Context Synthesization Settings --- */}
 			</Section>
 		</div>
 	)

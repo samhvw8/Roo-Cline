@@ -302,7 +302,7 @@
 			"lines": "行",
 			"always_full_read": "始終讀取整個檔案"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "啟用內容摘要",
 				"description": "啟用後，當接近內容限制時，較早的對話輪次將被摘要而不是截斷。這可以保留更多資訊，但會產生額外的 token 費用用於摘要。"

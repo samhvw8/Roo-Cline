@@ -259,7 +259,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			vscode.postMessage({ type: "updateExperimental", values: experiments })
 			vscode.postMessage({ type: "alwaysAllowModeSwitch", bool: alwaysAllowModeSwitch })
 			vscode.postMessage({ type: "alwaysAllowSubtasks", bool: alwaysAllowSubtasks })
-			// Context Summarization Settings (Added - Use cachedState values)
+			// Context Synthesization Settings (Added - Use cachedState values)
 			vscode.postMessage({ type: "enableContextSummarization", bool: cachedState.enableContextSummarization })
 			vscode.postMessage({
 				type: "contextSummarizationTriggerThreshold",
@@ -273,7 +273,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 				type: "contextSummarizationRecentTurns",
 				value: cachedState.contextSummarizationRecentTurns,
 			})
-			// --- End Context Summarization ---
+			// --- End Context Synthesization ---
 			vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
 			vscode.postMessage({ type: "telemetrySetting", text: telemetrySetting })
 			setChangeDetected(false)
@@ -496,7 +496,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 						showRooIgnoredFiles={showRooIgnoredFiles}
 						maxReadFileLine={maxReadFileLine}
 						setCachedStateField={setCachedStateField}
-						// Pass summarization state from cachedState (Added)
+						// Pass synthesization state from cachedState (Added)
 						enableContextSummarization={cachedState.enableContextSummarization}
 						contextSummarizationTriggerThreshold={cachedState.contextSummarizationTriggerThreshold}
 						contextSummarizationInitialStaticTurns={cachedState.contextSummarizationInitialStaticTurns}

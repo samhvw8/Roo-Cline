@@ -425,7 +425,7 @@ describe("ClineProvider", () => {
 			showRooIgnoredFiles: true,
 			renderContext: "sidebar",
 			maxReadFileLine: 500,
-			// Context Summarization Defaults (Added for test)
+			// Context Synthesization Defaults (Added for test)
 			enableContextSummarization: false,
 			contextSummarizationTriggerThreshold: 80,
 			contextSummarizationInitialStaticTurns: 5,
@@ -734,7 +734,7 @@ describe("ClineProvider", () => {
 		expect((await provider.getState()).showRooIgnoredFiles).toBe(false)
 	})
 
-	test("handles context summarization settings messages", async () => {
+	test("handles context synthesization settings messages", async () => {
 		await provider.resolveWebviewView(mockWebviewView)
 		const messageHandler = (mockWebviewView.webview.onDidReceiveMessage as jest.Mock).mock.calls[0][0]
 
@@ -773,7 +773,7 @@ describe("ClineProvider", () => {
 		expect((await provider.getState()).contextSummarizationRecentTurns).toBe(15)
 	})
 
-	test("context summarization settings have correct default values", async () => {
+	test("context synthesization settings have correct default values", async () => {
 		// Mock globalState.get to return undefined for the new settings
 		;(mockContext.globalState.get as jest.Mock).mockImplementation((key: string) => {
 			if (

@@ -166,7 +166,7 @@ export type ExtensionState = Pick<
 	| "customModePrompts"
 	| "customSupportPrompts"
 	| "enhancementApiConfigId"
-	// Context Summarization Settings (Added)
+	// Context Synthesization Settings (Added)
 	| "enableContextSummarization"
 	| "contextSummarizationTriggerThreshold"
 	| "contextSummarizationInitialStaticTurns"
@@ -208,7 +208,7 @@ export type ExtensionState = Pick<
 	settingsImportedAt?: number
 	historyPreviewCollapsed?: boolean
 
-	// Context Summarization Settings (Required part)
+	// Context Synthesization Settings (Required part)
 	enableContextSummarization: boolean
 	contextSummarizationTriggerThreshold: number
 	contextSummarizationInitialStaticTurns: number

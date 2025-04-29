@@ -302,7 +302,7 @@
 			"lines": "righe",
 			"always_full_read": "Leggi sempre l'intero file"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "Abilita riassunto del contesto",
 				"description": "Se abilitato, i turni di conversazione più vecchi verranno riassunti invece di essere troncati all'avvicinarsi del limite di contesto. Ciò preserva più informazioni ma comporta costi aggiuntivi di token per il riassunto."

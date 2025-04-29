@@ -186,7 +186,7 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 		terminalCompressProgressBar: true, // Default to compress progress bar output
 		historyPreviewCollapsed: false, // Initialize the new state (default to expanded)
 
-		// Context Summarization Defaults (Added)
+		// Context Synthesization Defaults (Added)
 		enableContextSummarization: false,
 		contextSummarizationTriggerThreshold: 80,
 		contextSummarizationInitialStaticTurns: 5,

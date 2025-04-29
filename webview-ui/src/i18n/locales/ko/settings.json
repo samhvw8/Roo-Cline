@@ -302,7 +302,7 @@
 			"lines": "줄",
 			"always_full_read": "항상 전체 파일 읽기"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "컨텍스트 요약 활성화",
 				"description": "활성화하면 컨텍스트 제한에 가까워질 때 이전 대화 턴이 잘리는 대신 요약됩니다. 이렇게 하면 더 많은 정보가 보존되지만 요약에 추가 토큰 비용이 발생합니다."

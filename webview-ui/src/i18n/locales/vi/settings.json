@@ -302,7 +302,7 @@
 			"lines": "dòng",
 			"always_full_read": "Luôn đọc toàn bộ tệp"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "Bật tóm tắt ngữ cảnh",
 				"description": "Khi được bật, các lượt trò chuyện cũ hơn sẽ được tóm tắt thay vì bị cắt bớt khi đạt đến giới hạn ngữ cảnh. Điều này bảo toàn nhiều thông tin hơn nhưng phải trả thêm chi phí token cho việc tóm tắt."

@@ -302,7 +302,7 @@
 			"lines": "satır",
 			"always_full_read": "Her zaman tüm dosyayı oku"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "Bağlam özetlemeyi etkinleştir",
 				"description": "Etkinleştirildiğinde, bağlam sınırına yaklaşıldığında eski konuşma turları kesilmek yerine özetlenir. Bu, daha fazla bilgi korur ancak özetleme için ek token maliyetlerine neden olur."

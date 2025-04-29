@@ -302,7 +302,7 @@
 			"lines": "línies",
 			"always_full_read": "Llegeix sempre el fitxer sencer"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "Activar resum de context",
 				"description": "Quan està activat, els torns de conversa més antics es resumiran en lloc de truncar-se quan s'acosti el límit de context. Això conserva més informació però implica costos addicionals de token per al resum."

@@ -302,7 +302,7 @@
 			"lines": "Zeilen",
 			"always_full_read": "Immer die gesamte Datei lesen"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "Kontextzusammenfassung aktivieren",
 				"description": "Wenn aktiviert, werden ältere Gesprächsrunden zusammengefasst statt abgeschnitten, wenn das Kontextlimit erreicht wird. Dies bewahrt mehr Informationen, verursacht aber zusätzliche Token-Kosten für die Zusammenfassung."

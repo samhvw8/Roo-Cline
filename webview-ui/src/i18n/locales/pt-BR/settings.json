@@ -302,7 +302,7 @@
 			"lines": "linhas",
 			"always_full_read": "Sempre ler o arquivo inteiro"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "Habilitar resumo de contexto",
 				"description": "Quando habilitado, os turnos de conversa mais antigos serão resumidos em vez de truncados quando o limite de contexto for atingido. Isso preserva mais informações, mas incorre em custos adicionais de token para o resumo."

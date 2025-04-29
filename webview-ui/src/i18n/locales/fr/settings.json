@@ -302,7 +302,7 @@
 			"lines": "lignes",
 			"always_full_read": "Toujours lire le fichier entier"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "Activer le résumé du contexte",
 				"description": "Lorsque cette option est activée, les anciens tours de conversation seront résumés au lieu d'être tronqués à l'approche de la limite de contexte. Cela préserve plus d'informations mais entraîne des coûts de token supplémentaires pour le résumé."

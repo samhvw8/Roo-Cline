@@ -494,7 +494,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			mode,
 			customInstructions: globalInstructions,
 			experiments,
-			// Context Summarization Settings (Added)
+			// Context Synthesization Settings (Added)
 			enableContextSummarization,
 			contextSummarizationTriggerThreshold,
 			contextSummarizationInitialStaticTurns,
@@ -518,7 +518,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			parentTask,
 			taskNumber: this.clineStack.length + 1,
 			onCreated: (cline) => this.emit("clineCreated", cline),
-			// Pass summarization settings to Cline (Added)
+			// Pass synthesization settings to Cline (Added)
 			enableContextSummarization,
 			contextSummarizationTriggerThreshold,
 			contextSummarizationInitialStaticTurns,
@@ -547,7 +547,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			mode,
 			customInstructions: globalInstructions,
 			experiments,
-			// Context Summarization Settings (Added)
+			// Context Synthesization Settings (Added)
 			enableContextSummarization,
 			contextSummarizationTriggerThreshold,
 			contextSummarizationInitialStaticTurns,
@@ -570,7 +570,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			parentTask: historyItem.parentTask,
 			taskNumber: historyItem.number,
 			onCreated: (cline) => this.emit("clineCreated", cline),
-			// Pass summarization settings to Cline (Added)
+			// Pass synthesization settings to Cline (Added)
 			enableContextSummarization,
 			contextSummarizationTriggerThreshold,
 			contextSummarizationInitialStaticTurns,
@@ -1235,7 +1235,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			maxReadFileLine,
 			terminalCompressProgressBar,
 			historyPreviewCollapsed,
-			// Context Summarization Settings (Added)
+			// Context Synthesization Settings (Added)
 			enableContextSummarization,
 			contextSummarizationTriggerThreshold,
 			contextSummarizationInitialStaticTurns,
@@ -1327,7 +1327,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			terminalCompressProgressBar: terminalCompressProgressBar ?? true,
 			hasSystemPromptOverride,
 			historyPreviewCollapsed: historyPreviewCollapsed ?? false,
-			// Context Summarization Settings (Added)
+			// Context Synthesization Settings (Added)
 			enableContextSummarization: enableContextSummarization ?? false,
 			contextSummarizationTriggerThreshold: contextSummarizationTriggerThreshold ?? 80,
 			contextSummarizationInitialStaticTurns: contextSummarizationInitialStaticTurns ?? 5,
@@ -1422,7 +1422,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			showRooIgnoredFiles: stateValues.showRooIgnoredFiles ?? true,
 			maxReadFileLine: stateValues.maxReadFileLine ?? 500,
 			historyPreviewCollapsed: stateValues.historyPreviewCollapsed ?? false,
-			// Context Summarization Settings (Added)
+			// Context Synthesization Settings (Added)
 			enableContextSummarization: stateValues.enableContextSummarization ?? false,
 			contextSummarizationTriggerThreshold: stateValues.contextSummarizationTriggerThreshold ?? 80,
 			contextSummarizationInitialStaticTurns: stateValues.contextSummarizationInitialStaticTurns ?? 5,

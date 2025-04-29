@@ -558,7 +558,7 @@ export const globalSettingsSchema = z.object({
 	terminalZdotdir: z.boolean().optional(),
 	terminalCompressProgressBar: z.boolean().optional(),
 
-	// Context Summarization Settings
+	// Context Synthesization Settings
 	enableContextSummarization: z.boolean().optional(),
 	contextSummarizationTriggerThreshold: z.number().optional(), // Percentage (e.g., 80)
 	contextSummarizationInitialStaticTurns: z.number().optional(), // Number of initial turns to keep
@@ -642,7 +642,7 @@ const globalSettingsRecord: GlobalSettingsRecord = {
 	terminalZdotdir: undefined,
 	terminalCompressProgressBar: undefined,
 
-	// Context Summarization Settings
+	// Context Synthesization Settings
 	enableContextSummarization: undefined,
 	contextSummarizationTriggerThreshold: undefined,
 	contextSummarizationInitialStaticTurns: undefined,

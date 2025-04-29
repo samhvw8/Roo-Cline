@@ -202,7 +202,7 @@ describe("mergeExtensionState", () => {
 			showRooIgnoredFiles: true,
 			renderContext: "sidebar",
 			maxReadFileLine: 500,
-			// Context Summarization Defaults (Added for test)
+			// Context Synthesization Defaults (Added for test)
 			enableContextSummarization: false,
 			contextSummarizationTriggerThreshold: 80,
 			contextSummarizationInitialStaticTurns: 5,

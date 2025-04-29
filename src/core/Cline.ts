@@ -126,7 +126,7 @@ export type ClineOptions = {
 	parentTask?: Cline
 	taskNumber?: number
 	onCreated?: (cline: Cline) => void
-	// Context Summarization Settings
+	// Context Synthesization Settings
 	enableContextSummarization?: boolean // Already added
 	contextSummarizationTriggerThreshold?: number // Already added
 	contextSummarizationInitialStaticTurns?: number // Already added
@@ -160,7 +160,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 	diffEnabled: boolean = false
 	fuzzyMatchThreshold: number
 
-	// Context Summarization Settings (Added)
+	// Context Synthesization Settings (Added)
 	readonly enableContextSummarization: boolean
 	readonly contextSummarizationTriggerThreshold: number
 	readonly contextSummarizationInitialStaticTurns: number
@@ -229,7 +229,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 		parentTask,
 		taskNumber = -1,
 		onCreated,
-		// Context Summarization Settings (Added)
+		// Context Synthesization Settings (Added)
 		enableContextSummarization = false,
 		contextSummarizationTriggerThreshold = 80,
 		contextSummarizationInitialStaticTurns = 5,
@@ -1062,7 +1062,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 				: modelInfo.maxTokens
 
 			const contextWindow = modelInfo.contextWindow
-			let historyModifiedBySummarization = false // Flag to track if summarization updated history
+			let historyModifiedBySynthesization = false // Flag to track if synthesization updated history
 
 			if (this.enableContextSummarization) {
 				// --- Synthesizing Logic ---
@@ -1090,7 +1090,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 						if (initialSliceEnd < recentSliceStart) {
 							const initialMessages = this.apiConversationHistory.slice(0, initialSliceEnd)
 							const recentMessages = this.apiConversationHistory.slice(recentSliceStart)
-							const messagesToSummarize = this.apiConversationHistory.slice(
+							const messagesToSynthesize = this.apiConversationHistory.slice(
 								initialSliceEnd,
 								recentSliceStart,
 							)
@@ -1098,12 +1098,12 @@ export class Cline extends EventEmitter<ClineEvents> {
 							this.providerRef
 								.deref()
 								?.log(
-									`[Synthesizing] Slicing: Keep Initial ${initialMessages.length}, Synthesize ${messagesToSummarize.length}, Keep Recent ${recentMessages.length}`,
+									`[Synthesizing] Slicing: Keep Initial ${initialMessages.length}, Synthesize ${messagesToSynthesize.length}, Keep Recent ${recentMessages.length}`,
 								)
 
 							// Instantiate the synthesizer (consider using a dedicated API handler/model later)
 							const synthesizer = new ContextSynthesizer(this.api)
-							const summaryMessage = await synthesizer.synthesize(messagesToSummarize)
+							const summaryMessage = await synthesizer.synthesize(messagesToSynthesize)
 
 							if (summaryMessage) {
 								const newHistory = [...initialMessages, summaryMessage, ...recentMessages]
@@ -1115,12 +1115,12 @@ export class Cline extends EventEmitter<ClineEvents> {
 								// Add a system message to notify the user in the UI
 								await this.say("text", "[Older conversation turns synthesized to preserve context]")
 								await this.overwriteApiConversationHistory(newHistory)
-								historyModifiedBySummarization = true // Mark history as modified
+								historyModifiedBySynthesization = true // Mark history as modified
 							} else {
 								this.providerRef
 									.deref()
 									?.log(`[Synthesizing] Synthesizing failed. Falling back to truncation.`)
-								// Fall through to truncation if summarization fails
+								// Fall through to truncation if synthesization fails
 							}
 						} else {
 							this.providerRef
@@ -1139,15 +1139,15 @@ export class Cline extends EventEmitter<ClineEvents> {
 						// Fall through to truncation if history is too short
 					}
 				}
-				// If summarization is enabled but threshold not met, do nothing and proceed.
+				// If synthesization is enabled but threshold not met, do nothing and proceed.
 			}
 
-			// --- Truncation Logic (Only run if summarization didn't modify history) ---
-			if (!historyModifiedBySummarization) {
+			// --- Truncation Logic (Only run if synthesization didn't modify history) ---
+			if (!historyModifiedBySynthesization) {
 				// Note: totalTokens here refers to the previous response size, used by truncateConversationIfNeeded
 				// to estimate if the *next* request might overflow.
 				const trimmedMessages = await truncateConversationIfNeeded({
-					messages: this.apiConversationHistory, // Use potentially already summarized history if summarization failed above
+					messages: this.apiConversationHistory, // Use potentially already summarized history if synthesization failed above
 					totalTokens, // From previous response metrics
 					maxTokens,
 					contextWindow,
@@ -2695,9 +2695,9 @@ export class Cline extends EventEmitter<ClineEvents> {
 	}
 
 	/**
-	 * Manually triggers summarization of the conversation context.
-	 * @param isManualTrigger Whether this summarization was manually triggered by the user.
-	 * @returns A promise that resolves when summarization is complete.
+	 * Manually triggers synthesization of the conversation context.
+	 * @param isManualTrigger Whether this synthesization was manually triggered by the user.
+	 * @returns A promise that resolves when synthesization is complete.
 	 */
 	public async synthesizeConversationContext(_isManualTrigger: boolean = false): Promise<void> {
 		// Skip if synthesizing is disabled
@@ -2736,17 +2736,17 @@ export class Cline extends EventEmitter<ClineEvents> {
 		// Slice the conversation history
 		const initialMessages = this.apiConversationHistory.slice(0, initialSliceEnd)
 		const recentMessages = this.apiConversationHistory.slice(recentSliceStart)
-		const messagesToSummarize = this.apiConversationHistory.slice(initialSliceEnd, recentSliceStart)
+		const messagesToSynthesize = this.apiConversationHistory.slice(initialSliceEnd, recentSliceStart)
 
 		this.providerRef
 			.deref()
 			?.log(
-				`[Synthesizing] Slicing: Keep Initial ${initialMessages.length}, Synthesize ${messagesToSummarize.length}, Keep Recent ${recentMessages.length}`,
+				`[Synthesizing] Slicing: Keep Initial ${initialMessages.length}, Synthesize ${messagesToSynthesize.length}, Keep Recent ${recentMessages.length}`,
 			)
 
 		// Create synthesizer and generate synthesis
 		const synthesizer = new ContextSynthesizer(this.api)
-		const summaryMessage = await synthesizer.synthesize(messagesToSummarize)
+		const summaryMessage = await synthesizer.synthesize(messagesToSynthesize)
 
 		if (!summaryMessage) {
 			this.providerRef.deref()?.log(`[Synthesizing] Failed to generate synthesis.`)
@@ -2762,7 +2762,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 		this.providerRef
 			.deref()
 			?.log(
-				`[Synthesizing] Successfully synthesized ${messagesToSummarize.length} messages. New history length: ${newHistory.length}`,
+				`[Synthesizing] Successfully synthesized ${messagesToSynthesize.length} messages. New history length: ${newHistory.length}`,
 			)
 	}
 }

@@ -302,7 +302,7 @@
 			"lines": "行",
 			"always_full_read": "始终读取整个文件"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "启用上下文摘要",
 				"description": "启用后，当接近上下文限制时，较早的对话轮次将被摘要而不是截断。这可以保留更多信息，但会产生额外的 token 费用用于摘要。"

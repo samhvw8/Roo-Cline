@@ -302,7 +302,7 @@
 			"lines": "linii",
 			"always_full_read": "Zawsze czytaj cały plik"
 		},
-		"summarization": {
+		"synthesization": {
 			"enable": {
 				"label": "Włącz podsumowanie kontekstu",
 				"description": "Gdy włączone, starsze tury konwersacji będą podsumowywane zamiast obcinane, gdy zbliża się limit kontekstu. Zachowuje to więcej informacji, ale wiąże się z dodatkowymi kosztami tokenów za podsumowanie."
