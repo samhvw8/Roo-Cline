@@ -1,18 +1,33 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react" // Added useState
 import { useRouter } from "next/navigation"
-import { LoaderCircle, Download, ArrowLeft } from "lucide-react"
+import { LoaderCircle, Download, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react" // Added Chevrons
 
 import * as db from "@evals/db"
-
+import { rooCodeDefaults } from "@evals/types" // Added rooCodeDefaults
+import { CONCURRENCY_DEFAULT } from "@/lib/schemas" // Added CONCURRENCY_DEFAULT
 import { formatCurrency, formatDuration, formatTokens } from "@/lib/formatters"
 import { useRunStatus } from "@/hooks/use-run-status"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button } from "@/components/ui"
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+	Button,
+	Collapsible, // Added Collapsible components
+	CollapsibleContent,
+	CollapsibleTrigger,
+	// ScrollArea, // Removed ScrollArea
+} from "@/components/ui"
+// import { SettingsDiff } from "../new/settings-diff" // Removed SettingsDiff
 
 import { TaskStatus } from "./task-status"
 import { ConnectionStatus } from "./connection-status"
 import { EventSourceStatus } from "@/hooks/use-event-source"
+import { RooCodeSettings } from "@evals/types" // Added RooCodeSettings type
 
 type TaskMetrics = Pick<db.TaskMetrics, "tokensIn" | "tokensOut" | "tokensContext" | "duration" | "cost">
 
@@ -20,8 +35,65 @@ interface Task extends db.Task {
 	taskMetrics?: TaskMetrics | null
 }
 
+// Mapping from setting keys to human-readable labels
+const settingLabels: Partial<Record<keyof RooCodeSettings, string>> = {
+	modelTemperature: "Model Temperature",
+	reasoningEffort: "Reasoning Effort",
+	includeMaxTokens: "Include Max Tokens",
+	terminalOutputLineLimit: "Terminal Output Limit",
+	terminalShellIntegrationTimeout: "Terminal Integration Timeout",
+	// terminalShellIntegrationDisabled: "Terminal Integration Disabled", // Removed incorrect key
+	terminalCommandDelay: "Terminal Command Delay",
+	terminalPowershellCounter: "Terminal PowerShell Counter",
+	terminalZshClearEolMark: "Terminal Zsh Clear EOL Mark",
+	terminalZshOhMy: "Terminal Zsh Oh My",
+	terminalZshP10k: "Terminal Zsh P10k",
+	terminalZdotdir: "Terminal Zdotdir",
+	// terminalCompressProgressBar: "Compress Terminal Progress", // Removed incorrect key
+	allowedCommands: "Allowed Commands",
+	maxReadFileLine: "Max Read File Line",
+	maxOpenTabsContext: "Max Open Tabs Context",
+	maxWorkspaceFiles: "Max Workspace Files",
+	rateLimitSeconds: "Rate Limit (s)",
+	requestDelaySeconds: "Request Delay (s)",
+	writeDelayMs: "Write Delay (ms)",
+	fuzzyMatchThreshold: "Fuzzy Match Threshold",
+	autoApprovalEnabled: "Auto-Approval",
+	alwaysAllowReadOnly: "Always Allow ReadOnly (Workspace)",
+	alwaysAllowReadOnlyOutsideWorkspace: "Always Allow ReadOnly (Outside)",
+	alwaysAllowWrite: "Always Allow Write (Workspace)",
+	alwaysAllowWriteOutsideWorkspace: "Always Allow Write (Outside)",
+	alwaysAllowBrowser: "Always Allow Browser",
+	alwaysApproveResubmit: "Always Approve Resubmit",
+	alwaysAllowMcp: "Always Allow MCP",
+	alwaysAllowModeSwitch: "Always Allow Mode Switch",
+	alwaysAllowSubtasks: "Always Allow Subtasks",
+	alwaysAllowExecute: "Always Allow Execute",
+	diffEnabled: "Diff View Enabled",
+	// Add more labels as needed
+}
+
+// Function to format setting values for display
+const formatSettingValue = (value: any): string => {
+	if (typeof value === "boolean") {
+		return value ? "Enabled" : "Disabled"
+	}
+	if (Array.isArray(value)) {
+		// Handle '*' specifically for allowedCommands
+		if (value.length === 1 && value[0] === "*") {
+			return "All (*)"
+		}
+		return value.join(", ") || "(empty)"
+	}
+	if (value === null || value === undefined) {
+		return "(default)"
+	}
+	return String(value)
+}
+
 export function Run({ run }: { run: db.Run }) {
 	const router = useRouter()
+	const [isSettingsOpen, setIsSettingsOpen] = useState(false) // State for settings collapsible
 	const { tasks, status, tokenUsage, usageUpdatedAt } = useRunStatus(run) as {
 		tasks: Task[]
 		status: EventSourceStatus
@@ -95,38 +167,126 @@ export function Run({ run }: { run: db.Run }) {
 		document.body.removeChild(link)
 	}
 
+	// Filter and format settings that differ from defaults
+	const nonDefaultSettings = useMemo(() => {
+		const settings = (run.settings || {}) as Partial<RooCodeSettings> // Cast to partial for easier comparison
+		const defaults = rooCodeDefaults as RooCodeSettings
+		const diff: { label: string; value: string }[] = []
+
+		// Iterate over known setting keys with labels
+		for (const key in settingLabels) {
+			const typedKey = key as keyof RooCodeSettings
+			const runValue = settings[typedKey]
+			const defaultValue = defaults[typedKey]
+
+			// Check if the key exists in run settings and differs from default
+			if (
+				runValue !== undefined &&
+				runValue !== null && // Explicitly check for null
+				JSON.stringify(runValue) !== JSON.stringify(defaultValue) // Compare values robustly
+			) {
+				diff.push({
+					label: settingLabels[typedKey]!,
+					value: formatSettingValue(runValue),
+				})
+			}
+		}
+		// Add concurrency separately if it differs from the imported default
+		if (run.concurrency !== CONCURRENCY_DEFAULT) {
+			diff.push({
+				label: "Concurrency",
+				value: formatSettingValue(run.concurrency),
+			})
+		}
+
+		// Sort alphabetically by label
+		diff.sort((a, b) => a.label.localeCompare(b.label))
+
+		return diff
+	}, [run.settings, run.concurrency])
+
+	const hasNonDefaultSettings = nonDefaultSettings.length > 0
+
 	return (
 		<>
 			<div>
 				<div className="mb-6">
-					<div className="flex justify-between items-center">
+					<div className="flex justify-between items-start">
+						{" "}
+						{/* Changed items-center to items-start */}
 						<div>
 							<h1 className="text-3xl font-bold">Run #{run.id}</h1>
-							<div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-4">
+							<div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-2 mt-4">
+								{" "}
+								{/* Use 4 columns */}
+								{/* API Provider */}
 								<div>
-									<div className="text-sm font-medium text-muted-foreground">Provider</div>
-									<div>{run.model.split("/")[0] || "Unknown"}</div>
+									<div className="text-sm font-medium text-muted-foreground">API Provider</div>
+									<div>{run.settings?.apiProvider || "Unknown"}</div>
 								</div>
+								{/* Model */}
 								<div>
 									<div className="text-sm font-medium text-muted-foreground">Model</div>
 									<div>{run.model.includes("/") ? run.model.split("/")[1] : run.model}</div>
 								</div>
+								{/* Temperature */}
 								<div>
 									<div className="text-sm font-medium text-muted-foreground">Temperature</div>
 									<div>
 										{run.settings?.modelTemperature !== undefined &&
-										run.settings?.modelTemperature !== null
+										run.settings?.modelTemperature !== null &&
+										run.settings?.modelTemperature !== rooCodeDefaults.modelTemperature
 											? run.settings.modelTemperature
-											: "Default"}
+											: "(default)"}
 									</div>
 								</div>
+								{/* Concurrency */}
+								<div>
+									<div className="text-sm font-medium text-muted-foreground">Concurrency</div>
+									<div>{run.concurrency !== CONCURRENCY_DEFAULT ? run.concurrency : "(default)"}</div>
+								</div>
+								{/* Notes */}
 								{run.description && (
-									<div className="col-span-2">
+									<div className="col-span-full md:col-span-4">
+										{" "}
+										{/* Span full width */}
 										<div className="text-sm font-medium text-muted-foreground">Notes</div>
 										<div className="max-w-[500px]">{run.description}</div>
 									</div>
 								)}
 							</div>
+							{/* Settings Collapsible Section */}
+							{hasNonDefaultSettings && ( // Only show if there are non-default settings
+								<Collapsible
+									open={isSettingsOpen}
+									onOpenChange={setIsSettingsOpen}
+									className="mt-4 border rounded-md max-w-xl">
+									{" "}
+									{/* Added max-width */}
+									<CollapsibleTrigger asChild>
+										<Button variant="ghost" className="flex w-full justify-between p-2">
+											<span className="font-medium">
+												Other Configuration ({nonDefaultSettings.length} non-default)
+											</span>
+											{isSettingsOpen ? (
+												<ChevronUp className="h-4 w-4" />
+											) : (
+												<ChevronDown className="h-4 w-4" />
+											)}
+										</Button>
+									</CollapsibleTrigger>
+									<CollapsibleContent className="p-4">
+										<div className="space-y-2">
+											{nonDefaultSettings.map(({ label, value }) => (
+												<div key={label} className="flex justify-between text-sm">
+													<span className="text-muted-foreground">{label}:</span>
+													<span className="font-mono text-right">{value}</span>
+												</div>
+											))}
+										</div>
+									</CollapsibleContent>
+								</Collapsible>
+							)}
 						</div>
 						<div className="flex items-center gap-4">
 							<Button variant="outline" size="sm" onClick={() => router.push("/")} title="Back to runs">

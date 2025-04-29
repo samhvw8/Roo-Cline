@@ -49,7 +49,7 @@ import {
 
 import { SettingsDiff } from "./settings-diff"
 import { SettingsProfiles } from "./settings-profiles"
-import { AdvancedSettings } from "./advanced-settings"
+import { AgentRunConfiguration } from "./agent-run-configuration" // Renamed import
 
 export function NewRun() {
 	const router = useRouter()
@@ -114,7 +114,27 @@ export function NewRun() {
 					}
 
 					const openRouterModelId = openRouterModel.id
-					values.settings = { ...(values.settings || {}), openRouterModelId }
+					// Ensure settings object exists and merge defaults, existing form settings, and OpenRouter specifics
+					const currentFormSettings = form.getValues("settings") || {}
+					values.settings = {
+						...rooCodeDefaults, // Start with base defaults
+						...currentFormSettings, // Merge any user-configured settings
+						apiProvider: "openrouter", // Set the provider
+						openRouterModelId, // Set the specific model
+						// Add necessary OpenRouter specific defaults if not already present
+						openRouterUseMiddleOutTransform:
+							currentFormSettings.openRouterUseMiddleOutTransform ??
+							rooCodeDefaults.openRouterUseMiddleOutTransform ?? // Use schema default
+							false, // Final fallback
+					}
+				} else {
+					// For "Settings Profiles" mode, ensure defaults are merged if settings exist
+					if (values.settings) {
+						values.settings = {
+							...rooCodeDefaults,
+							...values.settings,
+						}
+					}
 				}
 
 				const { id } = await createRun(values)
@@ -423,8 +443,8 @@ export function NewRun() {
 							<FormMessage />
 						</FormItem>
 					</div>
-					{/* Render AdvancedSettings below the main row if in openrouter mode */}
-					{mode === "openrouter" && <AdvancedSettings />}
+					{/* Render AgentRunConfiguration below the main row if in openrouter mode */}
+					{mode === "openrouter" && <AgentRunConfiguration />}
 
 					<FormField
 						control={form.control}
