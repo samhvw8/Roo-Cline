@@ -346,8 +346,12 @@ const runExercise = async ({ run, task, server }: { run: Run; task: Task; server
 			data: {
 				configuration: {
 					...rooCodeDefaults,
-					openRouterApiKey: process.env.OPENROUTER_API_KEY!,
-					...run.settings,
+					...run.settings, // Apply imported settings first
+					// Conditionally add API key based on provider in settings
+					...(run.settings?.apiProvider === "openrouter" && process.env.OPENROUTER_API_KEY
+						? { openRouterApiKey: process.env.OPENROUTER_API_KEY }
+						: {}),
+					// Add other provider-specific keys here if needed in the future
 				},
 				text: prompt,
 				newTab: true,
