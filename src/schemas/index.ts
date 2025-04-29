@@ -29,6 +29,8 @@ export const providerNames = [
 	"human-relay",
 	"fake-ai",
 	"xai",
+	"groq",
+	"chutes",
 ] as const
 
 export const providerNamesSchema = z.enum(providerNames)
@@ -392,6 +394,10 @@ export const providerSettingsSchema = z.object({
 	requestyModelId: z.string().optional(),
 	// X.AI (Grok)
 	xaiApiKey: z.string().optional(),
+	// Groq
+	groqApiKey: z.string().optional(),
+	// Chutes AI
+	chutesApiKey: z.string().optional(),
 	// Claude 3.7 Sonnet Thinking
 	modelMaxTokens: z.number().optional(),
 	modelMaxThinkingTokens: z.number().optional(),
@@ -496,6 +502,10 @@ const providerSettingsRecord: ProviderSettingsRecord = {
 	fakeAi: undefined,
 	// X.AI (Grok)
 	xaiApiKey: undefined,
+	// Groq
+	groqApiKey: undefined,
+	// Chutes AI
+	chutesApiKey: undefined,
 }
 
 export const PROVIDER_SETTINGS_KEYS = Object.keys(providerSettingsRecord) as Keys<ProviderSettings>[]
@@ -688,6 +698,8 @@ export type SecretState = Pick<
 	| "unboundApiKey"
 	| "requestyApiKey"
 	| "xaiApiKey"
+	| "groqApiKey"
+	| "chutesApiKey"
 >
 
 type SecretStateRecord = Record<Keys<SecretState>, undefined>
@@ -707,6 +719,8 @@ const secretStateRecord: SecretStateRecord = {
 	unboundApiKey: undefined,
 	requestyApiKey: undefined,
 	xaiApiKey: undefined,
+	groqApiKey: undefined,
+	chutesApiKey: undefined,
 }
 
 export const SECRET_STATE_KEYS = Object.keys(secretStateRecord) as Keys<SecretState>[]
