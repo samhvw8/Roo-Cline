@@ -93,7 +93,7 @@
 	"settings": {
 		"providers": {
 			"groqApiKey": "Clau API de Groq",
-			"getGroqApiKey": "Obtén la clau API de Groq"
+			"getGroqApiKey": "Obté la clau API de Groq"
 		}
 	}
 }
