@@ -140,6 +140,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 	readonly rootTask: Cline | undefined = undefined
 	readonly parentTask: Cline | undefined = undefined
 	readonly taskNumber: number
+	readonly workspacePath: string
 
 	isPaused: boolean = false
 	pausedModeSlug: string = defaultModeSlug
@@ -242,6 +243,10 @@ export class Cline extends EventEmitter<ClineEvents> {
 		}
 
 		this.taskId = historyItem ? historyItem.id : crypto.randomUUID()
+		// normal use-case is usually retry similar history task with new workspace
+		this.workspacePath = parentTask
+			? parentTask.workspacePath
+			: getWorkspacePath(path.join(os.homedir(), "Desktop"))
 		this.instanceId = crypto.randomUUID().slice(0, 8)
 		this.taskNumber = -1
 
@@ -314,7 +319,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 	}
 
 	get cwd() {
-		return getWorkspacePath(path.join(os.homedir(), "Desktop"))
+		return this.workspacePath
 	}
 
 	// Storing task to disk for history
@@ -2162,15 +2167,15 @@ export class Cline extends EventEmitter<ClineEvents> {
 			...TerminalRegistry.getBackgroundTerminals(false),
 		]
 
-		if (busyTerminals.length > 0 && this.didEditFile) {
-			await delay(300) // delay after saving file to let terminals catch up
-		}
-
 		if (busyTerminals.length > 0) {
+			if (this.didEditFile) {
+				await delay(300) // Delay after saving file to let terminals catch up.
+			}
+
 			// Wait for terminals to cool down.
 			await pWaitFor(() => busyTerminals.every((t) => !TerminalRegistry.isProcessHot(t.id)), {
 				interval: 100,
-				timeout: 15_000,
+				timeout: 5_000,
 			}).catch(() => {})
 		}
 
