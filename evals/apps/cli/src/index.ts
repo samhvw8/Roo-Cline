@@ -344,11 +344,93 @@ const runExercise = async ({ run, task, server }: { run: Run; task: Task; server
 		data: {
 			commandName: TaskCommandName.StartNewTask,
 			data: {
-				configuration: {
-					...rooCodeDefaults,
-					openRouterApiKey: process.env.OPENROUTER_API_KEY!,
-					...run.settings,
-				},
+				configuration: (() => {
+					// 1. Merge defaults and run-specific settings
+					const mergedSettings = { ...rooCodeDefaults, ...(run.settings || {}) }
+					const provider = mergedSettings.apiProvider
+
+					// 2. Identify common keys (adjust this list based on rooCodeDefaults/shared types)
+					const commonKeys = [
+						"modelTemperature", "reasoningEffort", "includeMaxTokens",
+						"terminalOutputLineLimit", "terminalShellIntegrationTimeout", "terminalCommandDelay",
+						"terminalPowershellCounter", "terminalZshClearEolMark", "terminalZshOhMy",
+						"terminalZshP10k", "terminalZdotdir", "terminalShellIntegrationDisabled",
+						"terminalCompressProgressBar", "allowedCommands", "maxReadFileLine",
+						"maxOpenTabsContext", "maxWorkspaceFiles", "rateLimitSeconds",
+						"requestDelaySeconds", "writeDelayMs", "fuzzyMatchThreshold",
+						"autoApprovalEnabled", "alwaysAllowReadOnly", "alwaysAllowReadOnlyOutsideWorkspace",
+						"alwaysAllowWrite", "alwaysAllowWriteOutsideWorkspace", "alwaysAllowBrowser",
+						"alwaysApproveResubmit", "alwaysAllowMcp", "alwaysAllowModeSwitch",
+						"alwaysAllowSubtasks", "alwaysAllowExecute", "diffEnabled",
+						"customModePrompts", // Assuming this structure is common
+						// Add any other common/global settings here
+					]
+
+					// 3. Build the final config object selectively
+					const finalConfig: Record<string, any> = {
+						apiProvider: provider, // Always include the provider
+					}
+
+					// Add common keys found in mergedSettings
+					for (const key of commonKeys) {
+						if (key in mergedSettings) {
+							// Use type assertion to satisfy TypeScript's index signature check
+							finalConfig[key] = (mergedSettings as any)[key]
+						}
+					}
+
+					// Add provider-specific keys
+					switch (provider) {
+						case "openrouter":
+							if (process.env.OPENROUTER_API_KEY) {
+								finalConfig.openRouterApiKey = process.env.OPENROUTER_API_KEY
+							}
+							if ("openRouterModelId" in mergedSettings) {
+								finalConfig.openRouterModelId = mergedSettings.openRouterModelId
+							}
+							if ("openRouterUseMiddleOutTransform" in mergedSettings) {
+								finalConfig.openRouterUseMiddleOutTransform = mergedSettings.openRouterUseMiddleOutTransform
+							}
+							break
+						case "vertex":
+							if ("vertexProjectId" in mergedSettings) {
+								finalConfig.vertexProjectId = mergedSettings.vertexProjectId
+							}
+							if ("vertexRegion" in mergedSettings) {
+								finalConfig.vertexRegion = mergedSettings.vertexRegion
+							}
+							// Vertex uses apiModelId
+							if ("apiModelId" in mergedSettings) {
+								finalConfig.apiModelId = mergedSettings.apiModelId
+							}
+							break
+						// Add cases for other providers (openai, ollama, mistral, etc.)
+						// Example for OpenAI:
+						// case "openai":
+						//   if (process.env.OPENAI_API_KEY) { // Assuming env var name
+						//     finalConfig.openAiApiKey = process.env.OPENAI_API_KEY;
+						//   }
+						//   if ("openAiModelId" in mergedSettings) {
+						//     finalConfig.openAiModelId = mergedSettings.openAiModelId;
+						//   }
+						//   break;
+						default:
+							// Handle providers that use the generic apiModelId
+							if ("apiModelId" in mergedSettings) {
+								finalConfig.apiModelId = mergedSettings.apiModelId
+							}
+							// Add API key logic if needed for default providers
+							break
+					}
+
+					// Add the top-level model field separately (used by web UI, might be redundant but safer to include)
+					if (run.model) {
+						finalConfig.model = run.model
+					}
+
+
+					return finalConfig
+				})(),
 				text: prompt,
 				newTab: true,
 			},
