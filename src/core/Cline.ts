@@ -952,7 +952,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 	async *attemptApiRequest(previousApiReqIndex: number, retryAttempt: number = 0): ApiStream {
 		let mcpHub: McpHub | undefined
 
-		const { apiConfiguration, mcpEnabled, alwaysApproveResubmit, requestDelaySeconds } =
+		const { apiConfiguration, mcpEnabled, autoApprovalEnabled, alwaysApproveResubmit, requestDelaySeconds } =
 			(await this.providerRef.deref()?.getState()) ?? {}
 
 		let rateLimitDelay = 0
@@ -1044,7 +1044,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 			const previousRequest = this.clineMessages[previousApiReqIndex]?.text
 
 			if (!previousRequest) {
-				return 
+				return
 			}
 
 			const {
@@ -1202,7 +1202,7 @@ export class Cline extends EventEmitter<ClineEvents> {
 			this.isWaitingForFirstChunk = false
 		} catch (error) {
 			// note that this api_req_failed ask is unique in that we only present this option if the api hasn't streamed any content yet (ie it fails on the first chunk due), as it would allow them to hit a retry button. However if the api failed mid-stream, it could be in any arbitrary state where some tools may have executed, so that error is handled differently and requires cancelling the task entirely.
-			if (alwaysApproveResubmit) {
+			if (autoApprovalEnabled && alwaysApproveResubmit) {
 				let errorMsg
 
 				if (error.error?.metadata?.raw) {
