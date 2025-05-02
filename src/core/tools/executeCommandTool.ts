@@ -79,7 +79,6 @@ export async function executeCommandTool(
 			} catch (error: unknown) {
 				const status: CommandExecutionStatus = { executionId, status: "fallback" }
 				clineProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
-				clineProvider?.setValue("terminalShellIntegrationDisabled", true)
 				await cline.say("shell_integration_warning")
 
 				if (error instanceof ShellIntegrationError) {
@@ -152,15 +151,15 @@ export async function executeCommand(
 
 	const callbacks: RooTerminalCallbacks = {
 		onLine: async (output: string, process: RooTerminalProcess) => {
-			const compressed = Terminal.compressTerminalOutput(output, terminalOutputLineLimit)
-			cline.say("command_output", compressed)
+			const status: CommandExecutionStatus = { executionId, status: "output", output }
+			clineProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
 
 			if (runInBackground) {
 				return
 			}
 
 			try {
-				const { response, text, images } = await cline.ask("command_output", compressed)
+				const { response, text, images } = await cline.ask("command_output", "")
 				runInBackground = true
 
 				if (response === "messageResponse") {
@@ -171,10 +170,11 @@ export async function executeCommand(
 		},
 		onCompleted: (output: string | undefined) => {
 			result = Terminal.compressTerminalOutput(output ?? "", terminalOutputLineLimit)
+			cline.say("command_output", result)
 			completed = true
 		},
 		onShellExecutionStarted: (pid: number | undefined) => {
-			const status: CommandExecutionStatus = { executionId, status: "running", pid }
+			const status: CommandExecutionStatus = { executionId, status: "started", pid, command }
 			clineProvider?.postMessageToWebview({ type: "commandExecutionStatus", text: JSON.stringify(status) })
 		},
 		onShellExecutionComplete: (details: ExitCodeDetails) => {
