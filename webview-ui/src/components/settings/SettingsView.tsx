@@ -30,6 +30,7 @@ import { TelemetrySetting } from "@roo/shared/TelemetrySetting"
 import { ProviderSettings } from "@roo/shared/api"
 
 import { vscode } from "@/utils/vscode"
+import { CodeIndexSettings } from "./CodeIndexSettings"
 import { ExtensionStateContextType, useExtensionState } from "@/context/ExtensionStateContext"
 import {
 	AlertDialog,
@@ -84,6 +85,7 @@ const sectionNames = [
 	"contextManagement",
 	"terminal",
 	"experimental",
+	"codeIndex",
 	"language",
 	"about",
 ] as const
@@ -161,6 +163,8 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		remoteBrowserEnabled,
 		maxReadFileLine,
 		terminalCompressProgressBar,
+		codebaseIndexConfig,
+		codebaseIndexModels,
 		condensingApiConfigId,
 		customCondensingPrompt,
 	} = cachedState
@@ -290,6 +294,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			vscode.postMessage({ type: "updateCondensingPrompt", text: customCondensingPrompt || "" })
 			vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
 			vscode.postMessage({ type: "telemetrySetting", text: telemetrySetting })
+			vscode.postMessage({ type: "codebaseIndexConfig", values: codebaseIndexConfig })
 			setChangeDetected(false)
 		}
 	}
@@ -367,6 +372,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			{ id: "contextManagement", icon: Database },
 			{ id: "terminal", icon: SquareTerminal },
 			{ id: "experimental", icon: FlaskConical },
+			{ id: "codeIndex", icon: Database },
 			{ id: "language", icon: Globe },
 			{ id: "about", icon: Info },
 		],
@@ -644,6 +650,19 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 							customCondensingPrompt={customCondensingPrompt}
 							setCustomCondensingPrompt={(value) => setCachedStateField("customCondensingPrompt", value)}
 							listApiConfigMeta={listApiConfigMeta ?? []}
+						/>
+					)}
+
+					{/* CodeIndex Section */}
+
+					{/* CodeIndex Section */}
+					{activeTab === "codeIndex" && (
+						<CodeIndexSettings
+							codebaseIndexModels={codebaseIndexModels}
+							codebaseIndexConfig={codebaseIndexConfig}
+							apiConfiguration={apiConfiguration}
+							setApiConfigurationField={setApiConfigurationField}
+							setCachedStateField={setCachedStateField}
 						/>
 					)}
 
