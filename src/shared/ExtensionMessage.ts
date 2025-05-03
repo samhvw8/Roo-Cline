@@ -70,13 +70,13 @@ export interface ExtensionMessage {
 		| "commandExecutionStatus"
 		| "vsCodeSetting"
 		| "condenseTaskContextResponse"
-    | "indexingStatusUpdate"
-    | "indexCleared"
+		| "indexingStatusUpdate"
+		| "indexCleared"
+		| "codebaseIndexConfig"
 	text?: string
 	action?:
 		| "chatButtonClicked"
 		| "mcpButtonClicked"
-		| "codebaseIndexConfig"
 		| "settingsButtonClicked"
 		| "historyButtonClicked"
 		| "promptsButtonClicked"
