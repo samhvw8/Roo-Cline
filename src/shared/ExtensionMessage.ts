@@ -223,7 +223,7 @@ export interface ClineSayTool {
 		| "editedExistingFile"
 		| "appliedDiff"
 		| "newFileCreated"
-		| "codebase_search"
+		| "codebaseSearch"
 		| "readFile"
 		| "fetchInstructions"
 		| "listFilesTopLevel"
