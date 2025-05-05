@@ -2705,12 +2705,6 @@ export class Cline extends EventEmitter<ClineEvents> {
 	 * @returns A promise that resolves when synthesization is complete.
 	 */
 	public async synthesizeConversationContext(_isManualTrigger: boolean = false): Promise<void> {
-		// Skip if synthesizing is disabled
-		if (!this.enableContextSummarization) {
-			this.providerRef.deref()?.log("[Synthesizing] Context synthesizing is disabled.")
-			return
-		}
-
 		const initialMessagesToKeep = this.contextSummarizationInitialStaticTurns
 		const recentMessagesToKeep = this.contextSummarizationRecentTurns
 
