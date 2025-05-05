@@ -1276,7 +1276,7 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 				codebaseIndexEmbedderModelId: "",
 			}
 			await updateGlobalState("codebaseIndexConfig", codebaseIndexConfig)
-			await provider.codeIndexManager.loadConfiguration()
+			await provider.codeIndexManager?.loadConfiguration()
 			await provider.postStateToWebview()
 			break
 		}
