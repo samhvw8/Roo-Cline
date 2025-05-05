@@ -69,6 +69,7 @@ export interface ExtensionMessage {
 		| "setHistoryPreviewCollapsed"
 		| "synthesizationStatus"
 		| "commandExecutionStatus"
+		| "vsCodeSetting"
 	text?: string
 	action?:
 		| "chatButtonClicked"
@@ -105,7 +106,9 @@ export interface ExtensionMessage {
 	promptText?: string
 	results?: { path: string; type: "file" | "folder"; label?: string }[]
 	error?: string
-	status?: "started" | "completed" | "failed"
+	status?: "started" | "completed" | "failed" // From HEAD
+	setting?: string // From origin/main
+	value?: any // From origin/main
 }
 
 export type ExtensionState = Pick<
