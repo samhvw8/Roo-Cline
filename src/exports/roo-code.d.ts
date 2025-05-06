@@ -127,7 +127,7 @@ type ProviderSettings = {
 	modelMaxThinkingTokens?: number | undefined
 	includeMaxTokens?: boolean | undefined
 	reasoningEffort?: ("low" | "medium" | "high") | undefined
-	promptCachingEnabled?: boolean | undefined
+	promptCachingDisabled?: boolean | undefined
 	diffEnabled?: boolean | undefined
 	fuzzyMatchThreshold?: number | undefined
 	modelTemperature?: (number | null) | undefined
@@ -251,6 +251,7 @@ type GlobalSettings = {
 				| "it"
 				| "ja"
 				| "ko"
+				| "nl"
 				| "pl"
 				| "pt-BR"
 				| "ru"

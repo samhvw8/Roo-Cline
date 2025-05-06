@@ -55,6 +55,7 @@ export const languages = [
 	"it",
 	"ja",
 	"ko",
+	"nl",
 	"pl",
 	"pt-BR",
 	"ru",
@@ -418,7 +419,7 @@ export const providerSettingsSchema = z.object({
 	// Generic
 	includeMaxTokens: z.boolean().optional(),
 	reasoningEffort: reasoningEffortsSchema.optional(),
-	promptCachingEnabled: z.boolean().optional(),
+	promptCachingDisabled: z.boolean().optional(),
 	diffEnabled: z.boolean().optional(),
 	fuzzyMatchThreshold: z.number().optional(),
 	modelTemperature: z.number().nullish(),
@@ -507,7 +508,7 @@ const providerSettingsRecord: ProviderSettingsRecord = {
 	// Generic
 	includeMaxTokens: undefined,
 	reasoningEffort: undefined,
-	promptCachingEnabled: undefined,
+	promptCachingDisabled: undefined,
 	diffEnabled: undefined,
 	fuzzyMatchThreshold: undefined,
 	modelTemperature: undefined,

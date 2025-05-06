@@ -75,7 +75,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 
 	public isViewLaunched = false
 	public settingsImportedAt?: number
-	public readonly latestAnnouncementId = "apr-30-2025-3-15" // Update for v3.15.0 announcement
+	public readonly latestAnnouncementId = "may-06-2025-3-16" // Update for v3.16.0 announcement
 	public readonly providerSettingsManager: ProviderSettingsManager
 	public readonly customModesManager: CustomModesManager
 
@@ -1511,10 +1511,12 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 		const appVersion = this.context.extension?.packageJSON?.version
 		const vscodeVersion = vscode.version
 		const platform = process.platform
+		const editorName = vscode.env.appName // Get the editor name (VS Code, Cursor, etc.)
 
 		const properties: Record<string, any> = {
 			vscodeVersion,
 			platform,
+			editorName,
 		}
 
 		// Add extension version

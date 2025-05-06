@@ -22,17 +22,15 @@
 	},
 	"sections": {
 		"providers": "Nhà cung cấp",
-		"autoApprove": "Tự động phê duyệt",
-		"browser": "Trình duyệt / Sử dụng máy tính",
+		"autoApprove": "Phê duyệt",
+		"browser": "Trình duyệt",
 		"checkpoints": "Điểm kiểm tra",
 		"notifications": "Thông báo",
-		"contextManagement": "Quản lý ngữ cảnh",
+		"contextManagement": "Ngữ cảnh",
 		"terminal": "Terminal",
-		"advanced": "Nâng cao",
-		"experimental": "Tính năng thử nghiệm",
+		"experimental": "Thử nghiệm",
 		"language": "Ngôn ngữ",
-		"about": "Về Roo Code",
-		"interface": "Giao diện"
+		"about": "Giới thiệu"
 	},
 	"autoApprove": {
 		"description": "Cho phép Roo tự động thực hiện các hoạt động mà không cần phê duyệt. Chỉ bật những cài đặt này nếu bạn hoàn toàn tin tưởng AI và hiểu rõ các rủi ro bảo mật liên quan.",
@@ -437,8 +435,8 @@
 		}
 	},
 	"promptCaching": {
-		"label": "Bật bộ nhớ đệm prompt",
-		"description": "Khi được bật, Roo sẽ sử dụng mô hình này với bộ nhớ đệm prompt được bật để giảm chi phí."
+		"label": "Tắt bộ nhớ đệm prompt",
+		"description": "Khi được chọn, Roo sẽ không sử dụng bộ nhớ đệm prompt cho mô hình này."
 	},
 	"temperature": {
 		"useCustom": "Sử dụng nhiệt độ tùy chỉnh",

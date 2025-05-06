@@ -3,16 +3,16 @@ import { Fzf } from "fzf"
 import { ModeConfig } from "@roo/shared/modes"
 import { escapeSpaces } from "./path-mentions"
 
-// Simple basename function to replace path.basename
-function basename(filepath: string): string {
-	return filepath.split("/").pop() || filepath
-}
-
 export interface SearchResult {
 	path: string
 	type: "file" | "folder"
 	label?: string
 }
+
+function getBasename(filepath: string): string {
+	return filepath.split("/").pop() || filepath
+}
+
 export function insertMention(
 	text: string,
 	position: number,
@@ -270,6 +270,8 @@ export function getContextMenuOptions(
 		let formattedPath = result.path.startsWith("/") ? result.path : `/${result.path}`
 
 		// For display purposes, we don't escape spaces in the label or description
+		const displayPath = formattedPath
+		const displayName = result.label || getBasename(result.path)
 
 		// We don't need to escape spaces here because the insertMention function
 		// will handle that when the user selects a suggestion
@@ -277,8 +279,8 @@ export function getContextMenuOptions(
 		return {
 			type: result.type === "folder" ? ContextMenuOptionType.Folder : ContextMenuOptionType.File,
 			value: formattedPath,
-			label: result.label || basename(result.path),
-			description: formattedPath,
+			label: displayName,
+			description: displayPath,
 		}
 	})
 
