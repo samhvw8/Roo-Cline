@@ -2,9 +2,6 @@ import { mentionRegex } from "@roo/shared/context-mentions"
 import { Fzf } from "fzf"
 import { ModeConfig } from "@roo/shared/modes"
 
-function getBasename(filepath: string): string {
-	return filepath.split("/").pop() || filepath
-}
 import { escapeSpaces } from "./path-mentions"
 
 export interface SearchResult {
@@ -12,6 +9,11 @@ export interface SearchResult {
 	type: "file" | "folder"
 	label?: string
 }
+
+function getBasename(filepath: string): string {
+	return filepath.split("/").pop() || filepath
+}
+
 export function insertMention(
 	text: string,
 	position: number,
