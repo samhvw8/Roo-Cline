@@ -27,6 +27,13 @@ type ProviderSettings = {
 				| "litellm"
 		  )
 		| undefined
+	warningThreshold?:
+		| {
+				context?: number | undefined
+				tokens?: number | undefined
+				cost?: number | undefined
+		  }
+		| undefined
 	apiModelId?: string | undefined
 	apiKey?: string | undefined
 	anthropicBaseUrl?: string | undefined

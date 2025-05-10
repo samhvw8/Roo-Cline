@@ -345,8 +345,17 @@ type _AssertExperiments = AssertEqual<Equals<ExperimentId, Keys<Experiments>>>
  * ProviderSettings
  */
 
+export const warningThresholdSchema = z.object({
+	context: z.number().optional(), // Context window warning threshold
+	tokens: z.number().optional(), // Total tokens warning threshold
+	cost: z.number().optional(), // Cost warning threshold
+})
+
+export type WarningThreshold = z.infer<typeof warningThresholdSchema>
+
 export const providerSettingsSchema = z.object({
 	apiProvider: providerNamesSchema.optional(),
+	warningThreshold: warningThresholdSchema.optional(),
 	// Anthropic
 	apiModelId: z.string().optional(),
 	apiKey: z.string().optional(),
@@ -535,6 +544,7 @@ const providerSettingsRecord: ProviderSettingsRecord = {
 	fuzzyMatchThreshold: undefined,
 	modelTemperature: undefined,
 	rateLimitSeconds: undefined,
+	warningThreshold: undefined,
 	// Fake AI
 	fakeAi: undefined,
 	// X.AI (Grok)
