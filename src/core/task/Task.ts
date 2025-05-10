@@ -1418,6 +1418,7 @@ export class Task extends EventEmitter<ClineEvents> {
 			enableMcpServerCreation,
 			browserToolEnabled,
 			language,
+			maxConcurrentFileReads,
 		} = (await this.providerRef.deref()?.getState()) ?? {}
 
 		const { customModes } = (await this.providerRef.deref()?.getState()) ?? {}
@@ -1445,6 +1446,9 @@ export class Task extends EventEmitter<ClineEvents> {
 				enableMcpServerCreation,
 				language,
 				rooIgnoreInstructions,
+				{
+					maxConcurrentFileReads,
+				},
 			)
 		})()
 
