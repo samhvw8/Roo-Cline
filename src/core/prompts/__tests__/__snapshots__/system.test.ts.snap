@@ -19,19 +19,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -514,19 +514,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -1009,19 +1009,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -1504,19 +1504,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -2043,19 +2043,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -2605,19 +2605,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -3144,19 +3144,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -3729,19 +3729,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -4266,19 +4266,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -4669,6 +4669,13 @@ Access server tools with \`use_mcp_tool\` and resources with \`access_mcp_resour
 
 (No MCP servers currently connected)
 
+## Creating an MCP Server
+
+If asked to "add a tool" for specific functionality, get detailed instructions using:
+<fetch_instructions>
+<task>create_mcp_server</task>
+</fetch_instructions>
+
 ====
 
 CAPABILITIES
@@ -4802,21 +4809,6 @@ Mock mode-specific rules
 Mock generic rules"
 `;
 
-exports[`addCustomInstructions should fall back to generic rules when mode-specific rules not found 1`] = `
-"
-====
-
-USER'S CUSTOM INSTRUCTIONS
-
-The following additional instructions are provided by the user, and should be followed to the best of your ability without interfering with the TOOL USE guidelines.
-
-Rules:
-# Rules from .clinerules-code:
-Mock mode-specific rules
-# Rules from .clinerules:
-Mock generic rules"
-`;
-
 exports[`addCustomInstructions should generate correct prompt for architect mode 1`] = `
 "You are Roo, an experienced technical leader who is inquisitive and an excellent planner. Your goal is to gather information and get context to create a detailed plan for accomplishing the user's task, which the user will review and approve before they switch into another mode to implement the solution.
 
@@ -4836,19 +4828,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -5289,19 +5281,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
@@ -5684,19 +5676,19 @@ You have access to a set of tools that are executed upon the user's approval. Yo
 
 Tool use is formatted using XML-style tags. Tool name and parameters are enclosed in their respective tags:
 
-<tool_name>
+<actual_tool_name>
 <parameter1_name>value1</parameter1_name>
 <parameter2_name>value2</parameter2_name>
 ...
-</tool_name>
+</actual_tool_name>
 
-For example:
+For example, to use the read_file tool:
 
 <read_file>
 <path>src/main.js</path>
 </read_file>
 
-Always adhere to this format for the tool use to ensure proper parsing and execution.
+Always use the actual tool name as the XML tag name for proper parsing and execution.
 
 # Tools
 
