@@ -29,7 +29,6 @@ import { McpHub } from "../../services/mcp/McpHub"
 import { McpServerManager } from "../../services/mcp/McpServerManager"
 import { ShadowCheckpointService } from "../../services/checkpoints/ShadowCheckpointService"
 import { fileExistsAtPath } from "../../utils/fs"
-import { setSoundEnabled } from "../../utils/sound"
 import { setTtsEnabled, setTtsSpeed } from "../../utils/tts"
 import { ContextProxy } from "../config/ContextProxy"
 import { ProviderSettingsManager } from "../config/ProviderSettingsManager"
@@ -327,7 +326,6 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 		// Initialize out-of-scope variables that need to recieve persistent global state values
 		this.getState().then(
 			({
-				soundEnabled = false,
 				terminalShellIntegrationTimeout = Terminal.defaultShellIntegrationTimeout,
 				terminalShellIntegrationDisabled = false,
 				terminalCommandDelay = 0,
@@ -337,7 +335,6 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 				terminalPowershellCounter = false,
 				terminalZdotdir = false,
 			}) => {
-				setSoundEnabled(soundEnabled)
 				Terminal.setShellIntegrationTimeout(terminalShellIntegrationTimeout)
 				Terminal.setShellIntegrationDisabled(terminalShellIntegrationDisabled)
 				Terminal.setCommandDelay(terminalCommandDelay)

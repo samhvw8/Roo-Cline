@@ -5,6 +5,7 @@ import { Virtuoso, type VirtuosoHandle } from "react-virtuoso"
 import removeMd from "remove-markdown"
 import { Trans } from "react-i18next"
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
+import useSound from "use-sound"
 
 import {
 	ClineAsk,
@@ -84,6 +85,8 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		telemetrySetting,
 		hasSystemPromptOverride,
 		historyPreviewCollapsed, // Added historyPreviewCollapsed
+		soundEnabled,
+		soundVolume,
 	} = useExtensionState()
 
 	const { tasks } = useTaskSearch()
@@ -136,8 +139,44 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	const lastMessage = useMemo(() => messages.at(-1), [messages])
 	const secondLastMessage = useMemo(() => messages.at(-2), [messages])
 
+	// Setup sound hooks with use-sound
+	const volume = typeof soundVolume === "number" ? soundVolume : 0.5
+	const soundConfig = {
+		volume,
+		// useSound expects 'disabled' property, not 'soundEnabled'
+		soundEnabled,
+	}
+
+	// Helper function to get audio URLs that works in both development and Jest environments
+	const getAudioUrl = (path: string) => {
+		if (typeof import.meta !== 'undefined') {
+			return new URL(`/audio/${path}`, import.meta.url).href;
+		}
+		// Fallback for Jest environment
+		return `/audio/${path}`;
+	}
+
+	// Use the getAudioUrl helper function
+	const [playNotification] = useSound(getAudioUrl('notification.wav'), soundConfig)
+	const [playCelebration] = useSound(getAudioUrl('celebration.wav'), soundConfig)
+	const [playProgressLoop] = useSound(getAudioUrl('progress_loop.wav'), soundConfig)
+
 	function playSound(audioType: AudioType) {
-		vscode.postMessage({ type: "playSound", audioType })
+		// Play the appropriate sound based on type
+		// The disabled state is handled by the useSound hook configuration
+		switch (audioType) {
+			case "notification":
+				playNotification()
+				break
+			case "celebration":
+				playCelebration()
+				break
+			case "progress_loop":
+				playProgressLoop()
+				break
+			default:
+				console.warn(`Unknown audio type: ${audioType}`)
+		}
 	}
 
 	function playTts(text: string) {

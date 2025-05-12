@@ -6,7 +6,6 @@ import axios from "axios"
 
 import { ClineProvider } from "../ClineProvider"
 import { ProviderSettingsEntry, ClineMessage, ExtensionMessage, ExtensionState } from "../../../shared/ExtensionMessage"
-import { setSoundEnabled } from "../../../utils/sound"
 import { setTtsEnabled } from "../../../utils/tts"
 import { defaultModeSlug } from "../../../shared/modes"
 import { experimentDefault } from "../../../shared/experiments"
@@ -173,9 +172,6 @@ jest.mock("vscode", () => ({
 	},
 }))
 
-jest.mock("../../../utils/sound", () => ({
-	setSoundEnabled: jest.fn(),
-}))
 
 jest.mock("../../../utils/tts", () => ({
 	setTtsEnabled: jest.fn(),
@@ -545,14 +541,12 @@ describe("ClineProvider", () => {
 
 		// Simulate setting sound to enabled
 		await messageHandler({ type: "soundEnabled", bool: true })
-		expect(setSoundEnabled).toHaveBeenCalledWith(true)
 		expect(updateGlobalStateSpy).toHaveBeenCalledWith("soundEnabled", true)
 		expect(mockContext.globalState.update).toHaveBeenCalledWith("soundEnabled", true)
 		expect(mockPostMessage).toHaveBeenCalled()
 
 		// Simulate setting sound to disabled
 		await messageHandler({ type: "soundEnabled", bool: false })
-		expect(setSoundEnabled).toHaveBeenCalledWith(false)
 		expect(mockContext.globalState.update).toHaveBeenCalledWith("soundEnabled", false)
 		expect(mockPostMessage).toHaveBeenCalled()
 

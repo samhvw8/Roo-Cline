@@ -84,5 +84,5 @@ export default defineConfig({
 	optimizeDeps: {
 		exclude: ["@vscode/codicons", "vscode-oniguruma", "shiki"],
 	},
-	assetsInclude: ["**/*.wasm"],
+	assetsInclude: ["**/*.wasm", "**/*.wav"],
 })
