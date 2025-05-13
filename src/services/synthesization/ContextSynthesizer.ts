@@ -105,7 +105,6 @@ This synthesis must enable seamless conversation continuity with no perceived co
 			const stream = this.apiHandler.createMessage(
 				systemPrompt,
 				[{ role: "user", content: userPrompt }],
-				undefined, // No specific cache key for synthesizing
 				// { promptCachingEnabled: false } // Removed incorrect 4th argument
 			)
 
