@@ -150,17 +150,15 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 
 	// Helper function to get audio URLs that works in both development and Jest environments
 	const getAudioUrl = (path: string) => {
-		if (typeof import.meta !== 'undefined') {
-			return new URL(`/audio/${path}`, import.meta.url).href;
-		}
-		// Fallback for Jest environment
-		return `/audio/${path}`;
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		return `${window.AUDIO_BASE_URI}/${path}`
 	}
 
 	// Use the getAudioUrl helper function
-	const [playNotification] = useSound(getAudioUrl('notification.wav'), soundConfig)
-	const [playCelebration] = useSound(getAudioUrl('celebration.wav'), soundConfig)
-	const [playProgressLoop] = useSound(getAudioUrl('progress_loop.wav'), soundConfig)
+	const [playNotification] = useSound(getAudioUrl("notification.wav"), soundConfig)
+	const [playCelebration] = useSound(getAudioUrl("celebration.wav"), soundConfig)
+	const [playProgressLoop] = useSound(getAudioUrl("progress_loop.wav"), soundConfig)
 
 	function playSound(audioType: AudioType) {
 		// Play the appropriate sound based on type

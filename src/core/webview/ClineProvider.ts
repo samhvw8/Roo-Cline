@@ -595,6 +595,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 		])
 
 		const imagesUri = getUri(webview, this.contextProxy.extensionUri, ["assets", "images"])
+		const audioUri = getUri(webview, this.contextProxy.extensionUri, ["webview-ui", "audio"])
 
 		const file = "src/index.tsx"
 		const scriptUri = `http://${localServerUrl}/${file}`
@@ -614,6 +615,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			`font-src ${webview.cspSource}`,
 			`style-src ${webview.cspSource} 'unsafe-inline' https://* http://${localServerUrl} http://0.0.0.0:${localPort}`,
 			`img-src ${webview.cspSource} data:`,
+			`media-src ${webview.cspSource}`,
 			`script-src 'unsafe-eval' ${webview.cspSource} https://* https://*.posthog.com http://${localServerUrl} http://0.0.0.0:${localPort} 'nonce-${nonce}'`,
 			`connect-src https://* https://*.posthog.com ws://${localServerUrl} ws://0.0.0.0:${localPort} http://${localServerUrl} http://0.0.0.0:${localPort}`,
 		]
@@ -629,6 +631,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 					<link href="${codiconsUri}" rel="stylesheet" />
 					<script nonce="${nonce}">
 						window.IMAGES_BASE_URI = "${imagesUri}"
+						window.AUDIO_BASE_URI = "${audioUri}"
 						window.MATERIAL_ICONS_BASE_URI = "${materialIconsUri}"
 					</script>
 					<title>Roo Code</title>
@@ -688,6 +691,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 		])
 
 		const imagesUri = getUri(webview, this.contextProxy.extensionUri, ["assets", "images"])
+		const audioUri = getUri(webview, this.contextProxy.extensionUri, ["webview-ui", "audio"])
 
 		// const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "assets", "main.js"))
 
@@ -718,11 +722,12 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
             <meta name="theme-color" content="#000000">
-            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; script-src ${webview.cspSource} 'wasm-unsafe-eval' 'nonce-${nonce}' https://us-assets.i.posthog.com 'strict-dynamic'; connect-src https://openrouter.ai https://api.requesty.ai https://us.i.posthog.com https://us-assets.i.posthog.com;">
+			<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; media-src ${webview.cspSource}; script-src ${webview.cspSource} 'wasm-unsafe-eval' 'nonce-${nonce}' https://us-assets.i.posthog.com 'strict-dynamic'; connect-src https://openrouter.ai https://api.requesty.ai https://us.i.posthog.com https://us-assets.i.posthog.com https://file+.vscode-resource.vscode-cdn.net;">
             <link rel="stylesheet" type="text/css" href="${stylesUri}">
 			<link href="${codiconsUri}" rel="stylesheet" />
 			<script nonce="${nonce}">
 				window.IMAGES_BASE_URI = "${imagesUri}"
+				window.AUDIO_BASE_URI = "${audioUri}"
 				window.MATERIAL_ICONS_BASE_URI = "${materialIconsUri}"
 			</script>
             <title>Roo Code</title>
