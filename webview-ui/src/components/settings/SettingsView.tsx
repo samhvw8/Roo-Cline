@@ -663,6 +663,7 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 							apiConfiguration={apiConfiguration}
 							setApiConfigurationField={setApiConfigurationField}
 							setCachedStateField={setCachedStateField}
+							areSettingsCommitted={!isChangeDetected}
 						/>
 					)}
 
