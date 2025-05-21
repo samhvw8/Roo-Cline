@@ -1270,7 +1270,7 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 		case "codebaseIndexConfig": {
 			const codebaseIndexConfig = message.values ?? {
 				codebaseIndexEnabled: false,
-				codebaseIndexQdrantUrl: "",
+				codebaseIndexQdrantUrl: "http://localhost:6333",
 				codebaseIndexEmbedderProvider: "openai",
 				codebaseIndexEmbedderBaseUrl: "",
 				codebaseIndexEmbedderModelId: "",
