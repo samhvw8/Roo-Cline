@@ -146,7 +146,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 	const everVisibleMessagesTsRef = useRef<LRUCache<number, boolean>>(
 		new LRUCache({
 			max: 250,
-			ttl: 1000 * 60 * 15, // 1 hour TTL for long-running tasks
+			ttl: 1000 * 60 * 15, // 15 minutes TTL for long-running tasks
 		}),
 	)
 
