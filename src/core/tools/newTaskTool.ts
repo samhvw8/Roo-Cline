@@ -71,7 +71,6 @@ export async function newTaskTool(
 
 			if (cline.enableCheckpoints) {
 				cline.checkpointSave(true)
-				await delay(350)
 			}
 
 			// Preserve the current mode so we can resume with it later.
