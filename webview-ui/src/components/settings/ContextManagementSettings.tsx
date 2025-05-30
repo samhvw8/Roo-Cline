@@ -60,6 +60,7 @@ type ContextManagementSettingsProps = HTMLAttributes<HTMLDivElement> & {
 	maxOpenTabsContext: number
 	maxWorkspaceFiles: number
 	showRooIgnoredFiles?: boolean
+	maxConcurrentFileReads?: number
 	maxReadFileLine?: number
 	setCachedStateField: SetCachedStateField<
 		| "autoCondenseContext"
@@ -70,6 +71,7 @@ type ContextManagementSettingsProps = HTMLAttributes<HTMLDivElement> & {
 		| "maxWorkspaceFiles"
 		| "showRooIgnoredFiles"
 		| "maxReadFileLine"
+		| "maxConcurrentFileReads"
 	>
 }
 
@@ -82,6 +84,7 @@ export const ContextManagementSettings = ({
 	maxOpenTabsContext,
 	maxWorkspaceFiles,
 	showRooIgnoredFiles,
+	maxConcurrentFileReads,
 	setCachedStateField,
 	maxReadFileLine,
 	className,
@@ -147,6 +150,26 @@ export const ContextManagementSettings = ({
 					</VSCodeCheckbox>
 					<div className="text-vscode-descriptionForeground text-sm mt-1">
 						{t("settings:contextManagement.rooignore.description")}
+					</div>
+				</div>
+
+				<div>
+					<span className="block font-medium mb-1">
+						{t("settings:contextManagement.maxConcurrentFileReads.label")}
+					</span>
+					<div className="flex items-center gap-2">
+						<Slider
+							min={1}
+							max={100}
+							step={1}
+							value={[maxConcurrentFileReads ?? 15]}
+							onValueChange={([value]) => setCachedStateField("maxConcurrentFileReads", value)}
+							data-testid="max-concurrent-file-reads-slider"
+						/>
+						<span className="w-10">{maxConcurrentFileReads ?? 15}</span>
+					</div>
+					<div className="text-vscode-descriptionForeground text-sm mt-1">
+						{t("settings:contextManagement.maxConcurrentFileReads.description")}
 					</div>
 				</div>
 
