@@ -411,14 +411,9 @@ export const ChatRowContent = ({
 							<div style={headerStyle}>
 								{toolIcon("files")}
 								<span style={{ fontWeight: "bold" }}>
-									{t("chat:fileOperations.wantsToReadMultiple", "Roo wants to read multiple files:")}
+									{t("chat:fileOperations.wantsToReadMultiple")}
 								</span>
 							</div>
-							{/* <div style={{ paddingTop: 10, paddingBottom: 15 }}>
-								<Markdown
-									markdown={tool.question || "Please approve or deny access to the following files:"}
-								/>
-							</div> */}
 							<BatchFilePermission
 								files={tool.batchFiles || []}
 								onPermissionResponse={(response) => {
