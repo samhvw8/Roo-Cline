@@ -1,5 +1,3 @@
-/* eslint-disable no-irregular-whitespace */
-
 import { distance } from "fastest-levenshtein"
 
 import { ToolProgressStatus } from "@roo-code/types"
@@ -75,7 +73,6 @@ function fuzzySearch(lines: string[], searchChunk: string, startIndex: number, e
 }
 
 // Define the structure of a diff item used by applyDiffTool.ts
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 export class MultiSearchReplaceDiffStrategy implements DiffStrategy {
 	private fuzzyThreshold: number
