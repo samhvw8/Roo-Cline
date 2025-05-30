@@ -55,11 +55,11 @@ export const ConcurrentFileReadsExperiment = ({
 								min={2}
 								max={100}
 								step={1}
-								value={[maxConcurrentFileReads]}
+								value={[Math.max(2, maxConcurrentFileReads)]}
 								onValueChange={([value]) => onMaxConcurrentFileReadsChange(value)}
 								data-testid="max-concurrent-file-reads-slider"
 							/>
-							<span className="w-10 text-sm">{maxConcurrentFileReads}</span>
+							<span className="w-10 text-sm">{Math.max(2, maxConcurrentFileReads)}</span>
 						</div>
 					</div>
 				</div>

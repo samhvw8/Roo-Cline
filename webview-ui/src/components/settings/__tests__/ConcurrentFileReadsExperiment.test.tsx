@@ -138,4 +138,35 @@ describe("ConcurrentFileReadsExperiment", () => {
 		// Verify new value is displayed
 		expect(screen.getByText("50")).toBeInTheDocument()
 	})
+
+	it("should display minimum value of 2 when maxConcurrentFileReads is less than 2", () => {
+		render(
+			<ConcurrentFileReadsExperiment
+				enabled={true}
+				onEnabledChange={mockOnEnabledChange}
+				maxConcurrentFileReads={1}
+				onMaxConcurrentFileReadsChange={mockOnMaxConcurrentFileReadsChange}
+			/>,
+		)
+
+		// Should display 2 (minimum value) instead of 1
+		expect(screen.getByText("2")).toBeInTheDocument()
+	})
+
+	it("should set maxConcurrentFileReads to 15 when enabling with value of 0", () => {
+		render(
+			<ConcurrentFileReadsExperiment
+				enabled={false}
+				onEnabledChange={mockOnEnabledChange}
+				maxConcurrentFileReads={0}
+				onMaxConcurrentFileReadsChange={mockOnMaxConcurrentFileReadsChange}
+			/>,
+		)
+
+		const checkbox = screen.getByTestId("concurrent-file-reads-checkbox")
+		fireEvent.click(checkbox)
+
+		expect(mockOnEnabledChange).toHaveBeenCalledWith(true)
+		expect(mockOnMaxConcurrentFileReadsChange).toHaveBeenCalledWith(15)
+	})
 })
