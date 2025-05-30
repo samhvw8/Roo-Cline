@@ -15,11 +15,13 @@ export type BundledLanguage = string
 export type Highlighter = any
 export type ShikiTransformer = any
 
-export const createHighlighter = jest.fn(() => Promise.resolve({
-	codeToHtml: jest.fn((code: string) => `<pre><code>${code}</code></pre>`),
-	getLoadedThemes: jest.fn(() => []),
-	loadTheme: jest.fn(),
-}))
+export const createHighlighter = jest.fn(() =>
+	Promise.resolve({
+		codeToHtml: jest.fn((code: string) => `<pre><code>${code}</code></pre>`),
+		getLoadedThemes: jest.fn(() => []),
+		loadTheme: jest.fn(),
+	}),
+)
 
 export const codeToHast = jest.fn()
 export const codeToHtml = jest.fn((code: string) => `<pre><code>${code}</code></pre>`)

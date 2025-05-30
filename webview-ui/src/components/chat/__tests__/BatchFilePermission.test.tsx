@@ -100,8 +100,8 @@ describe("BatchFilePermission", () => {
 		// Find the header that contains our file path and click it
 		const filePathElement = screen.getByText(/Button\.tsx.*export const Button/)
 		// The ToolUseBlockHeader is the parent div with the flex class
-		const headerElement = filePathElement.closest('.flex.items-center.select-none')
-		
+		const headerElement = filePathElement.closest(".flex.items-center.select-none")
+
 		if (headerElement) {
 			fireEvent.click(headerElement)
 		}
@@ -140,11 +140,7 @@ describe("BatchFilePermission", () => {
 	it("re-renders when timestamp changes", () => {
 		const { rerender } = render(
 			<TranslationProvider>
-				<BatchFilePermission
-					files={mockFiles}
-					onPermissionResponse={mockOnPermissionResponse}
-					ts={1000}
-				/>
+				<BatchFilePermission files={mockFiles} onPermissionResponse={mockOnPermissionResponse} ts={1000} />
 			</TranslationProvider>,
 		)
 
@@ -154,11 +150,7 @@ describe("BatchFilePermission", () => {
 		// Re-render with new timestamp
 		rerender(
 			<TranslationProvider>
-				<BatchFilePermission
-					files={mockFiles}
-					onPermissionResponse={mockOnPermissionResponse}
-					ts={2000}
-				/>
+				<BatchFilePermission files={mockFiles} onPermissionResponse={mockOnPermissionResponse} ts={2000} />
 			</TranslationProvider>,
 		)
 
@@ -178,8 +170,8 @@ describe("BatchFilePermission", () => {
 		)
 
 		// All files should have external link icons
-		const externalLinkIcons = screen.getAllByText((content, element) => {
-			return element?.classList?.contains('codicon-link-external') ?? false
+		const externalLinkIcons = screen.getAllByText((_content, element) => {
+			return element?.classList?.contains("codicon-link-external") ?? false
 		})
 		expect(externalLinkIcons).toHaveLength(mockFiles.length)
 	})
