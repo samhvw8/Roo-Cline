@@ -9,7 +9,7 @@ Description: Request to read the contents of ${isMultipleReadsEnabled ? "one or 
 
 ${isMultipleReadsEnabled ? `**IMPORTANT: You can read a maximum of ${maxConcurrentReads} files in a single request.** If you need to read more files, use multiple sequential read_file requests.` : "**IMPORTANT: Multiple file reads are currently disabled. You can only read one file at a time.**"}
 
-${args.partialReadsEnabled ? `By specifying line_range xml tag parameter, you can efficiently read specific portions of large files without loading the entire file into memory.` : ""}
+${args.partialReadsEnabled ? `By specifying line ranges, you can efficiently read specific portions of large files without loading the entire file into memory.` : ""}
 Parameters:
 - args: Contains one or more file elements, where each file contains:
   - path: (required) File path (relative to workspace directory ${args.cwd})
@@ -27,7 +27,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file${args.partialReadsEnabled ? " with one line range" : ""}:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -37,7 +37,7 @@ Examples:
 </args>
 </read_file>
 
-${isMultipleReadsEnabled ? `2. Reading multiple files${args.partialReadsEnabled ? " with different line ranges" : ""} (within the ${maxConcurrentReads}-file limit):` : ""}${
+${isMultipleReadsEnabled ? `2. Reading multiple files (within the ${maxConcurrentReads}-file limit):` : ""}${
 		isMultipleReadsEnabled
 			? `
 <read_file>
@@ -60,7 +60,7 @@ ${isMultipleReadsEnabled ? `2. Reading multiple files${args.partialReadsEnabled 
 			: ""
 	}
 
-${isMultipleReadsEnabled ? "3. " : "2. "}Reading an entire file (omitting line ranges):
+${isMultipleReadsEnabled ? "3. " : "2. "}Reading an entire file:
 <read_file>
 <args>
   <file>
