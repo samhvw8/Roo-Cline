@@ -338,16 +338,12 @@ export async function readFileTool(
 						if (approved) {
 							updateFileResult(fileResult.path, {
 								status: "approved",
-								feedbackText: text,
-								feedbackImages: images,
 							})
 						} else {
 							hasAnyDenial = true
 							updateFileResult(fileResult.path, {
 								status: "denied",
 								xmlContent: `<file><path>${fileResult.path}</path><status>Denied by user</status></file>`,
-								feedbackText: text,
-								feedbackImages: images,
 							})
 						}
 					})
@@ -363,8 +359,6 @@ export async function readFileTool(
 						updateFileResult(fileResult.path, {
 							status: "denied",
 							xmlContent: `<file><path>${fileResult.path}</path><status>Denied by user</status></file>`,
-							feedbackText: text,
-							feedbackImages: images,
 						})
 					})
 				}

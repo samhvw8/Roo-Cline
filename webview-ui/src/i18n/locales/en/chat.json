@@ -243,6 +243,7 @@
 		"deny": "Deny",
 		"outsideWorkspace": "Outside workspace",
 		"submitDecisions": "Submit Decisions",
+		"approveSelected": "Approve Selected",
 		"makeAllDecisions": "Make decisions for all files ({{remaining}} remaining)",
 		"reviewFiles": "Review {{count}} file{{count, plural, one {} other {s}}}",
 		"submitting": "Submitting..."

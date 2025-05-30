@@ -1164,6 +1164,11 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 		[handleSendMessage, setInputValue], // setInputValue is stable, handleSendMessage depends on clineAsk
 	)
 
+	const handleBatchFileResponse = useCallback((response: { [key: string]: boolean }) => {
+		// Handle batch file response, e.g., for file uploads
+		vscode.postMessage({ type: "askResponse", askResponse: "objectResponse", text: JSON.stringify(response) })
+	}, [])
+
 	const itemContent = useCallback(
 		(index: number, messageOrGroup: ClineMessage | ClineMessage[]) => {
 			// browser session group
@@ -1198,6 +1203,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 					onHeightChange={handleRowHeightChange}
 					isStreaming={isStreaming}
 					onSuggestionClick={handleSuggestionClickInRow} // This was already stabilized
+					onBatchFileResponse={handleBatchFileResponse}
 				/>
 			)
 		},

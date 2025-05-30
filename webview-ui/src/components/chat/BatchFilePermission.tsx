@@ -1,8 +1,10 @@
-import { memo } from "react"
-import { FileCode } from "lucide-react"
+import { memo, useState, useEffect, useCallback } from "react"
+import { CheckCircle } from "lucide-react"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { ToolUseBlock, ToolUseBlockHeader } from "../common/ToolUseBlock"
+import { Checkbox } from "../ui/checkbox"
+import { Button } from "../ui/button"
 import { vscode } from "@src/utils/vscode"
 import { removeLeadingNonAlphanumeric } from "@src/utils/removeLeadingNonAlphanumeric"
 
@@ -22,40 +24,59 @@ interface BatchFilePermissionProps {
 
 export const BatchFilePermission = memo(({ files = [], onPermissionResponse, ts }: BatchFilePermissionProps) => {
 	const { t } = useAppTranslation()
+	const [individualPermissions, setIndividualPermissions] = useState<{ [key: string]: boolean }>({})
+	const [isSubmitting, setIsSubmitting] = useState(false)
+
+	// Initialize permissions as true when files change
+	useEffect(() => {
+		const initialPermissions: { [key: string]: boolean } = {}
+		files.forEach((file) => {
+			initialPermissions[file.path] = true
+		})
+		setIndividualPermissions(initialPermissions)
+		setIsSubmitting(false)
+	}, [files, ts])
+
+	const handleIndividualPermission = useCallback((filePath: string, checked: boolean) => {
+		setIndividualPermissions((prev) => ({
+			...prev,
+			[filePath]: checked,
+		}))
+	}, [])
+
+	const handleSubmitIndividual = useCallback(() => {
+		setIsSubmitting(true)
+		const response: { [key: string]: boolean } = {}
+		files.forEach((file) => {
+			response[file.key] = individualPermissions[file.path] ?? true
+		})
+		onPermissionResponse?.(response)
+	}, [files, individualPermissions, onPermissionResponse])
 
 	// Don't render if there are no files or no response handler
 	if (!files?.length || !onPermissionResponse) {
 		return null
 	}
 
-	const headerStyle = {
-		display: "flex",
-		alignItems: "center",
-		fontSize: "13px",
-		marginBottom: 5,
-		gap: 8,
-		opacity: 0.8,
-	}
-
-	const toolIcon = (type: string) => {
-		const size = 15
-		const color = "var(--vscode-foreground)"
-		switch (type) {
-			case "file-code":
-				return <FileCode size={size} color={color} />
-			default:
-				return null
-		}
-	}
+	// Check if all files are checked or all are unchecked
+	const checkedCount = Object.values(individualPermissions).filter((v) => v === true).length
+	const allChecked = checkedCount === files.length
+	const allUnchecked = checkedCount === 0
+	const showSubmitButton = !allChecked && !allUnchecked
 
 	return (
 		<div style={{ paddingTop: 5 }}>
 			{/* Individual files */}
-			<div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-				{files.map((file, index) => {
+			<div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+				{files.map((file) => {
 					return (
-						<div key={`${file.path}-${ts}`}>
-							<ToolUseBlock>
+						<div key={`${file.path}-${ts}`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+							<Checkbox
+								checked={individualPermissions[file.path] !== false}
+								onCheckedChange={(checked) => handleIndividualPermission(file.path, checked as boolean)}
+								variant="description"
+							/>
+							<ToolUseBlock style={{ flex: 1 }}>
 								<ToolUseBlockHeader
 									onClick={() => vscode.postMessage({ type: "openFile", text: file.content })}>
 									{file.path?.startsWith(".") && <span>.</span>}
@@ -75,6 +96,20 @@ export const BatchFilePermission = memo(({ files = [], onPermissionResponse, ts 
 				})}
 			</div>
 
+			{/* Submit button - only show when there's a mix of checked/unchecked */}
+			{showSubmitButton && (
+				<div style={{ marginTop: 12 }}>
+					<Button
+						variant="default"
+						size="default"
+						style={{ width: "100%" }}
+						onClick={handleSubmitIndividual}
+						disabled={isSubmitting}>
+						<CheckCircle className="w-4 h-4" />
+						{t("chat:batchFilePermission.approveSelected")}
+					</Button>
+				</div>
+			)}
 		</div>
 	)
 })
