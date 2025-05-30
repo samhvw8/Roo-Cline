@@ -273,24 +273,9 @@
 	"read-batch": {
 		"approve": {
 			"title": "Chấp nhận tất cả"
-		}
-	},
-	"read-reject": {
-		"approve": {
+		},
+		"deny": {
 			"title": "Từ chối tất cả"
 		}
-	},
-	"batchFilePermission": {
-		"approveAll": "Chấp nhận tất cả",
-		"denyAll": "Từ chối tất cả",
-		"orChooseIndividually": "Hoặc chọn từng cái",
-		"approve": "Chấp nhận",
-		"deny": "Từ chối",
-		"outsideWorkspace": "Ngoài không gian làm việc",
-		"submitDecisions": "Gửi quyết định",
-		"approveSelected": "Chấp nhận mục đã chọn",
-		"makeAllDecisions": "Đưa ra quyết định cho tất cả tệp (còn {{remaining}})",
-		"reviewFiles": "Xem xét {{count}} tệp",
-		"submitting": "Đang gửi..."
 	}
 }

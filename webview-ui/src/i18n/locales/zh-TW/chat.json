@@ -273,24 +273,9 @@
 	"read-batch": {
 		"approve": {
 			"title": "全部核准"
-		}
-	},
-	"read-reject": {
-		"approve": {
+		},
+		"deny": {
 			"title": "全部拒絕"
 		}
-	},
-	"batchFilePermission": {
-		"approveAll": "全部接受",
-		"denyAll": "全部拒絕",
-		"orChooseIndividually": "或單獨選擇",
-		"approve": "核准",
-		"deny": "拒絕",
-		"outsideWorkspace": "工作區外部",
-		"submitDecisions": "提交決定",
-		"approveSelected": "核准所選",
-		"makeAllDecisions": "為所有檔案做出決定（剩餘 {{remaining}} 個）",
-		"reviewFiles": "審查 {{count}} 個檔案",
-		"submitting": "正在提交..."
 	}
 }

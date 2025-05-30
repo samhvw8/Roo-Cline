@@ -273,24 +273,9 @@
 	"read-batch": {
 		"approve": {
 			"title": "Aprovar tudo"
-		}
-	},
-	"read-reject": {
-		"approve": {
+		},
+		"deny": {
 			"title": "Negar tudo"
 		}
-	},
-	"batchFilePermission": {
-		"approveAll": "Aceitar tudo",
-		"denyAll": "Negar tudo",
-		"orChooseIndividually": "Ou escolher individualmente",
-		"approve": "Aprovar",
-		"deny": "Negar",
-		"outsideWorkspace": "Fora do espaço de trabalho",
-		"submitDecisions": "Enviar decisões",
-		"approveSelected": "Aprovar selecionados",
-		"makeAllDecisions": "Tomar decisões para todos os arquivos ({{remaining}} restantes)",
-		"reviewFiles": "Revisar {{count}} arquivo{{count, plural, one {} other {s}}}",
-		"submitting": "Enviando..."
 	}
 }

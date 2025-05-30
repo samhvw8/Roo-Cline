@@ -273,24 +273,9 @@
 	"read-batch": {
 		"approve": {
 			"title": "Aprovar tot"
-		}
-	},
-	"read-reject": {
-		"approve": {
+		},
+		"deny": {
 			"title": "Denegar tot"
 		}
-	},
-	"batchFilePermission": {
-		"approveAll": "Acceptar tot",
-		"denyAll": "Denegar tot",
-		"orChooseIndividually": "O triar individualment",
-		"approve": "Aprovar",
-		"deny": "Denegar",
-		"outsideWorkspace": "Fora de l'espai de treball",
-		"submitDecisions": "Enviar decisions",
-		"approveSelected": "Aprovar seleccionats",
-		"makeAllDecisions": "Prendre decisions per a tots els fitxers ({{remaining}} restants)",
-		"reviewFiles": "Revisar {{count}} fitxer{{count, plural, one {} other {s}}}",
-		"submitting": "Enviant..."
 	}
 }

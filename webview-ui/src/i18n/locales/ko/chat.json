@@ -273,24 +273,9 @@
 	"read-batch": {
 		"approve": {
 			"title": "모두 승인"
-		}
-	},
-	"read-reject": {
-		"approve": {
+		},
+		"deny": {
 			"title": "모두 거부"
 		}
-	},
-	"batchFilePermission": {
-		"approveAll": "모두 수락",
-		"denyAll": "모두 거부",
-		"orChooseIndividually": "또는 개별적으로 선택",
-		"approve": "승인",
-		"deny": "거부",
-		"outsideWorkspace": "작업 공간 외부",
-		"submitDecisions": "결정 제출",
-		"approveSelected": "선택항목 승인",
-		"makeAllDecisions": "모든 파일에 대한 결정 내리기 ({{remaining}}개 남음)",
-		"reviewFiles": "{{count}}개 파일 검토",
-		"submitting": "제출 중..."
 	}
 }

@@ -273,24 +273,9 @@
 	"read-batch": {
 		"approve": {
 			"title": "सभी स्वीकृत करें"
-		}
-	},
-	"read-reject": {
-		"approve": {
+		},
+		"deny": {
 			"title": "सभी अस्वीकार करें"
 		}
-	},
-	"batchFilePermission": {
-		"approveAll": "सभी स्वीकार करें",
-		"denyAll": "सभी अस्वीकार करें",
-		"orChooseIndividually": "या व्यक्तिगत रूप से चुनें",
-		"approve": "स्वीकृत करें",
-		"deny": "अस्वीकार करें",
-		"outsideWorkspace": "कार्यस्थल के बाहर",
-		"submitDecisions": "निर्णय सबमिट करें",
-		"approveSelected": "चयनित स्वीकृत करें",
-		"makeAllDecisions": "सभी फ़ाइलों के लिए निर्णय लें ({{remaining}} शेष)",
-		"reviewFiles": "{{count}} फ़ाइल की समीक्षा करें",
-		"submitting": "सबमिट हो रहा है..."
 	}
 }

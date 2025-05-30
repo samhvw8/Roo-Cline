@@ -1,14 +1,12 @@
 {
-  "readFile": {
-    "linesRange": " (línies {{start}}-{{end}})",
-    "linesFromToEnd": " (línies {{start}}-final)",
-    "linesFromStartTo": " (línies 1-{{end}})",
-    "definitionsOnly": " (només definicions)",
-    "maxLines": " (màxim {{max}} línies)",
-    "batchPermissionQuestion": "Roo vol llegir {{count}} fitxers. Si us plau, utilitzeu l'aprovació/denegació per lots per a tots els fitxers alhora."
-  },
-  "toolRepetitionLimitReached": "Roo sembla estar atrapat en un bucle, intentant la mateixa acció ({{toolName}}) repetidament. Això podria indicar un problema amb la seva estratègia actual. Considera reformular la tasca, proporcionar instruccions més específiques o guiar-lo cap a un enfocament diferent.",
-  "codebaseSearch": {
-    "approval": "Cercant '{{query}}' a la base de codi..."
-  }
+	"readFile": {
+		"linesRange": " (línies {{start}}-{{end}})",
+		"definitionsOnly": " (només definicions)",
+		"maxLines": " (màxim {{max}} línies)",
+		"batchPermissionQuestion": "Roo vol llegir {{count}} fitxers. Si us plau, utilitzeu l'aprovació/denegació per lots per a tots els fitxers alhora."
+	},
+	"toolRepetitionLimitReached": "Roo sembla estar atrapat en un bucle, intentant la mateixa acció ({{toolName}}) repetidament. Això podria indicar un problema amb la seva estratègia actual. Considera reformular la tasca, proporcionar instruccions més específiques o guiar-lo cap a un enfocament diferent.",
+	"codebaseSearch": {
+		"approval": "Cercant '{{query}}' a la base de codi..."
+	}
 }

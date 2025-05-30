@@ -273,24 +273,9 @@
 	"read-batch": {
 		"approve": {
 			"title": "Tümünü Onayla"
-		}
-	},
-	"read-reject": {
-		"approve": {
+		},
+		"deny": {
 			"title": "Tümünü Reddet"
 		}
-	},
-	"batchFilePermission": {
-		"approveAll": "Tümünü Kabul Et",
-		"denyAll": "Tümünü Reddet",
-		"orChooseIndividually": "Veya tek tek seçin",
-		"approve": "Onayla",
-		"deny": "Reddet",
-		"outsideWorkspace": "Çalışma alanı dışında",
-		"submitDecisions": "Kararları Gönder",
-		"approveSelected": "Seçilenleri Onayla",
-		"makeAllDecisions": "Tüm dosyalar için karar verin ({{remaining}} kaldı)",
-		"reviewFiles": "{{count}} dosyayı incele",
-		"submitting": "Gönderiliyor..."
 	}
 }

@@ -273,24 +273,9 @@
 	"read-batch": {
 		"approve": {
 			"title": "Одобрить все"
-		}
-	},
-	"read-reject": {
-		"approve": {
+		},
+		"deny": {
 			"title": "Отклонить все"
 		}
-	},
-	"batchFilePermission": {
-		"approveAll": "Принять все",
-		"denyAll": "Отклонить все",
-		"orChooseIndividually": "Или выбрать индивидуально",
-		"approve": "Одобрить",
-		"deny": "Отклонить",
-		"outsideWorkspace": "Вне рабочей области",
-		"submitDecisions": "Отправить решения",
-		"approveSelected": "Одобрить выбранные",
-		"makeAllDecisions": "Принять решения для всех файлов (осталось {{remaining}})",
-		"reviewFiles": "Просмотреть {{count}} файл{{count, plural, one {} other {ов}}}",
-		"submitting": "Отправка..."
 	}
 }

@@ -1,14 +1,12 @@
 {
-  "readFile": {
-    "linesRange": " (lignes {{start}}-{{end}})",
-    "linesFromToEnd": " (lignes {{start}}-fin)",
-    "linesFromStartTo": " (lignes 1-{{end}})",
-    "definitionsOnly": " (définitions uniquement)",
-    "maxLines": " (max {{max}} lignes)",
-    "batchPermissionQuestion": "Roo souhaite lire {{count}} fichiers. Veuillez utiliser l'approbation/refus par lot pour tous les fichiers à la fois."
-  },
-  "toolRepetitionLimitReached": "Roo semble être bloqué dans une boucle, tentant la même action ({{toolName}}) de façon répétée. Cela pourrait indiquer un problème avec sa stratégie actuelle. Envisage de reformuler la tâche, de fournir des instructions plus spécifiques ou de le guider vers une approche différente.",
-  "codebaseSearch": {
-    "approval": "Recherche de '{{query}}' dans la base de code..."
-  }
+	"readFile": {
+		"linesRange": " (lignes {{start}}-{{end}})",
+		"definitionsOnly": " (définitions uniquement)",
+		"maxLines": " (max {{max}} lignes)",
+		"batchPermissionQuestion": "Roo souhaite lire {{count}} fichiers. Veuillez utiliser l'approbation/refus par lot pour tous les fichiers à la fois."
+	},
+	"toolRepetitionLimitReached": "Roo semble être bloqué dans une boucle, tentant la même action ({{toolName}}) de façon répétée. Cela pourrait indiquer un problème avec sa stratégie actuelle. Envisage de reformuler la tâche, de fournir des instructions plus spécifiques ou de le guider vers une approche différente.",
+	"codebaseSearch": {
+		"approval": "Recherche de '{{query}}' dans la base de code..."
+	}
 }

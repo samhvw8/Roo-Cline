@@ -269,7 +269,7 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 								case "readFile":
 									if (tool.batchFiles && Array.isArray(tool.batchFiles)) {
 										setPrimaryButtonText(t("chat:read-batch.approve.title"))
-										setSecondaryButtonText(t("chat:read-reject.approve.title"))
+										setSecondaryButtonText(t("chat:read-batch.deny.title"))
 									} else {
 										setPrimaryButtonText(t("chat:approve.title"))
 										setSecondaryButtonText(t("chat:reject.title"))
@@ -1207,7 +1207,16 @@ const ChatViewComponent: React.ForwardRefRenderFunction<ChatViewRef, ChatViewPro
 				/>
 			)
 		},
-		[expandedRows, toggleRowExpansion, modifiedMessages, groupedMessages.length, handleRowHeightChange, isStreaming, handleSuggestionClickInRow, handleBatchFileResponse],
+		[
+			expandedRows,
+			toggleRowExpansion,
+			modifiedMessages,
+			groupedMessages.length,
+			handleRowHeightChange,
+			isStreaming,
+			handleSuggestionClickInRow,
+			handleBatchFileResponse,
+		],
 	)
 
 	useEffect(() => {

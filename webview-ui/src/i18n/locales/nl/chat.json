@@ -273,24 +273,9 @@
 	"read-batch": {
 		"approve": {
 			"title": "Alles goedkeuren"
-		}
-	},
-	"read-reject": {
-		"approve": {
+		},
+		"deny": {
 			"title": "Alles weigeren"
 		}
-	},
-	"batchFilePermission": {
-		"approveAll": "Alles accepteren",
-		"denyAll": "Alles weigeren",
-		"orChooseIndividually": "Of kies individueel",
-		"approve": "Goedkeuren",
-		"deny": "Weigeren",
-		"outsideWorkspace": "Buiten werkruimte",
-		"submitDecisions": "Beslissingen indienen",
-		"approveSelected": "Geselecteerde goedkeuren",
-		"makeAllDecisions": "Neem beslissingen voor alle bestanden ({{remaining}} resterend)",
-		"reviewFiles": "Beoordeel {{count}} bestand{{count, plural, one {} other {en}}}",
-		"submitting": "Bezig met indienen..."
 	}
 }

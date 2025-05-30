@@ -48,10 +48,8 @@
 	"read-batch": {
 		"approve": {
 			"title": "Approve All"
-		}
-	},
-	"read-reject": {
-		"approve": {
+		},
+		"deny": {
 			"title": "Deny All"
 		}
 	},
@@ -234,19 +232,6 @@
 	},
 	"followUpSuggest": {
 		"copyToInput": "Copy to input (same as shift + click)"
-	},
-	"batchFilePermission": {
-		"approveAll": "Accept All",
-		"denyAll": "Deny All",
-		"orChooseIndividually": "Or choose individually",
-		"approve": "Approve",
-		"deny": "Deny",
-		"outsideWorkspace": "Outside workspace",
-		"submitDecisions": "Submit Decisions",
-		"approveSelected": "Approve Selected",
-		"makeAllDecisions": "Make decisions for all files ({{remaining}} remaining)",
-		"reviewFiles": "Review {{count}} file{{count, plural, one {} other {s}}}",
-		"submitting": "Submitting..."
 	},
 	"browser": {
 		"rooWantsToUse": "Roo wants to use the browser:",
