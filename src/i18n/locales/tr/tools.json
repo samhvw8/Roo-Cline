@@ -1,13 +1,14 @@
 {
-	"readFile": {
-		"linesRange": " (satır {{start}}-{{end}})",
-		"linesFromToEnd": " (satır {{start}}-son)",
-		"linesFromStartTo": " (satır 1-{{end}})",
-		"definitionsOnly": " (sadece tanımlar)",
-		"maxLines": " (maks. {{max}} satır)"
-	},
-	"toolRepetitionLimitReached": "Roo bir döngüye takılmış gibi görünüyor, aynı eylemi ({{toolName}}) tekrar tekrar deniyor. Bu, mevcut stratejisinde bir sorun olduğunu gösterebilir. Görevi yeniden ifade etmeyi, daha spesifik talimatlar vermeyi veya onu farklı bir yaklaşıma yönlendirmeyi düşünün.",
-	"codebaseSearch": {
-		"approval": "Kod tabanında '{{query}}' aranıyor..."
-	}
+  "readFile": {
+    "linesRange": " (satır {{start}}-{{end}})",
+    "linesFromToEnd": " (satır {{start}}-son)",
+    "linesFromStartTo": " (satır 1-{{end}})",
+    "definitionsOnly": " (sadece tanımlar)",
+    "maxLines": " (maks. {{max}} satır)",
+    "batchPermissionQuestion": "Roo {{count}} dosya okumak istiyor. Lütfen tüm dosyalar için toplu onaylama/reddetme özelliğini kullanın."
+  },
+  "toolRepetitionLimitReached": "Roo bir döngüye takılmış gibi görünüyor, aynı eylemi ({{toolName}}) tekrar tekrar deniyor. Bu, mevcut stratejisinde bir sorun olduğunu gösterebilir. Görevi yeniden ifade etmeyi, daha spesifik talimatlar vermeyi veya onu farklı bir yaklaşıma yönlendirmeyi düşünün.",
+  "codebaseSearch": {
+    "approval": "Kod tabanında '{{query}}' aranıyor..."
+  }
 }
