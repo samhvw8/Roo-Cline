@@ -289,7 +289,6 @@ export async function readFileTool(
 			const completeMessage = JSON.stringify({
 				tool: "readFile",
 				batchFiles,
-				question: t("tools:readFile.batchPermissionQuestion", { count: filesToApprove.length }),
 			} satisfies ClineSayTool)
 
 			const { response, text, images } = await cline.ask("tool", completeMessage, false)
