@@ -6342,6 +6342,26 @@ Description: Request to read the contents of one or more files. The tool outputs
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
 By specifying line_range xml tag parameter, you can efficiently read specific portions of large files without loading the entire file into memory.
+
+IMPORTANT: Leverage line information from other tools:
+- codebase_search returns results with "Lines: startLine-endLine" for each match
+- search_files shows matches with line numbers (e.g., "42 | matched text")
+- list_code_definition_names shows file headers and definitions with line ranges (e.g., "# filename.ts" followed by "3--24 | export function getName")
+
+When these tools identify relevant code sections, use their line numbers with read_file's line_range parameter to:
+1. Read only the specific code sections you need to understand or modify
+2. Include sufficient context around the identified lines (typically 5-10 lines before/after)
+3. Avoid reading entire large files when only specific sections are relevant
+
+Example workflow:
+1. Use search tools to find relevant code locations:
+   - codebase_search: Note "Lines: 100-150" from results
+   - search_files: Note line numbers like "42" from "42 | matched text"
+   - list_code_definition_names: Note ranges like "3--24" from definition listings
+2. Convert to line_range format for read_file:
+   - For single lines, expand with context: line 42 → line_range "35-50"
+   - For ranges, optionally expand: "3--24" → line_range "1-30"
+3. Use read_file with calculated line_range to read specific sections
 Parameters:
 - args: Contains one or more file elements, where each file contains:
   - path: (required) File path (relative to workspace directory /test/path)
