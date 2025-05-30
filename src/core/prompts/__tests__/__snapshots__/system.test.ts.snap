@@ -37,7 +37,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -59,7 +59,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -69,7 +69,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -83,7 +83,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -531,7 +531,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -553,7 +553,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -563,7 +563,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -577,7 +577,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -1025,7 +1025,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -1047,7 +1047,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -1057,7 +1057,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -1071,7 +1071,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -1519,7 +1519,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -1541,7 +1541,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -1551,7 +1551,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -1565,7 +1565,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -2069,7 +2069,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -2091,7 +2091,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -2101,7 +2101,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -2115,7 +2115,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -2631,7 +2631,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -2653,7 +2653,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -2663,7 +2663,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -2677,7 +2677,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -3181,7 +3181,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -3203,7 +3203,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -3213,7 +3213,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -3227,7 +3227,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -3763,7 +3763,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -3785,7 +3785,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -3795,7 +3795,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -3809,7 +3809,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -4299,7 +4299,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -4321,7 +4321,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -4331,7 +4331,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -4345,7 +4345,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -4870,7 +4870,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -4892,7 +4892,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -4902,7 +4902,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -4916,7 +4916,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -5355,7 +5355,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -5377,7 +5377,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -5387,7 +5387,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -5401,7 +5401,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -5757,7 +5757,7 @@ Always use the actual tool name as the XML tag name for proper parsing and execu
 # Tools
 
 ## read_file
-Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Use line ranges to efficiently read specific portions of large files. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
+Description: Request to read the contents of one or more files. The tool outputs line-numbered content (e.g. "1 | const x = 1") for easy reference when creating diffs or discussing code. Supports text extraction from PDF and DOCX files, but may not handle other binary files properly.
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
@@ -5779,7 +5779,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -5789,7 +5789,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -5803,7 +5803,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
@@ -6341,7 +6341,7 @@ Description: Request to read the contents of one or more files. The tool outputs
 
 **IMPORTANT: You can read a maximum of 15 files in a single request.** If you need to read more files, use multiple sequential read_file requests.
 
-By specifying line_range xml tag parameter, you can efficiently read specific portions of large files without loading the entire file into memory.
+By specifying line ranges, you can efficiently read specific portions of large files without loading the entire file into memory.
 Parameters:
 - args: Contains one or more file elements, where each file contains:
   - path: (required) File path (relative to workspace directory /test/path)
@@ -6359,7 +6359,7 @@ Usage:
 
 Examples:
 
-1. Reading a single file with one line range:
+1. Reading a single file:
 <read_file>
 <args>
   <file>
@@ -6369,7 +6369,7 @@ Examples:
 </args>
 </read_file>
 
-2. Reading multiple files with different line ranges (within the 15-file limit):
+2. Reading multiple files (within the 15-file limit):
 <read_file>
 <args>
   <file>
@@ -6384,7 +6384,7 @@ Examples:
 </args>
 </read_file>
 
-3. Reading an entire file (omitting line ranges):
+3. Reading an entire file:
 <read_file>
 <args>
   <file>
