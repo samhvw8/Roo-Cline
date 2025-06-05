@@ -26,60 +26,54 @@ export const COMMAND_OUTPUT_STRING = "Output:"
  * // Result: [{ type: 'ask', ask: 'command', text: 'ls\nfile1.txt\nfile2.txt', ts: 1625097600000 }]
  */
 export function combineCommandSequences(messages: ClineMessage[]): ClineMessage[] {
-	const combinedCommands: ClineMessage[] = []
-	const combinedMcpResponses: ClineMessage[] = []
+	const combinedMessages = new Map<number, ClineMessage>()
+	const processedIndices = new Set<number>()
 
-	// Create a map of MCP server responses by timestamp
-	const mcpResponseMap = new Map<number, string>()
-
-	// First, collect all MCP server responses
+	// Single pass through all messages
 	for (let i = 0; i < messages.length; i++) {
 		const msg = messages[i]
-		if (msg.say === "mcp_server_response") {
-			// Find the closest preceding use_mcp_server message
-			let j = i - 1
-			while (j >= 0) {
-				if (messages[j].type === "ask" && messages[j].ask === "use_mcp_server") {
-					const ts = messages[j].ts
-					const currentResponse = mcpResponseMap.get(ts) || ""
-					const newResponse = currentResponse ? currentResponse + "\n" + (msg.text || "") : msg.text || ""
-					mcpResponseMap.set(ts, newResponse)
+
+		// Handle MCP server requests
+		if (msg.type === "ask" && msg.ask === "use_mcp_server") {
+			// Look ahead for MCP responses
+			let responses: string[] = []
+			let j = i + 1
+
+			while (j < messages.length) {
+				if (messages[j].say === "mcp_server_response") {
+					responses.push(messages[j].text || "")
+					processedIndices.add(j)
+					j++
+				} else if (messages[j].type === "ask" && messages[j].ask === "use_mcp_server") {
+					// Stop if we encounter another MCP request
 					break
+				} else {
+					j++
 				}
-				j--
 			}
-		}
-	}
 
-	// Process all MCP server requests first
-	for (let i = 0; i < messages.length; i++) {
-		if (messages[i].type === "ask" && messages[i].ask === "use_mcp_server") {
-			const mcpResponse = mcpResponseMap.get(messages[i].ts)
-
-			if (mcpResponse) {
+			if (responses.length > 0) {
 				// Parse the JSON from the message text
-				const jsonObj = safeJsonParse<any>(messages[i].text || "{}", {})
+				const jsonObj = safeJsonParse<any>(msg.text || "{}", {})
 
 				// Add the response to the JSON object
-				jsonObj.response = mcpResponse
+				jsonObj.response = responses.join("\n")
 
 				// Stringify the updated JSON object
 				const combinedText = JSON.stringify(jsonObj)
 
-				combinedMcpResponses.push({ ...messages[i], text: combinedText })
+				combinedMessages.set(msg.ts, { ...msg, text: combinedText })
 			} else {
 				// If there's no response, just keep the original message
-				combinedMcpResponses.push({ ...messages[i] })
+				combinedMessages.set(msg.ts, { ...msg })
 			}
 		}
-	}
-
-	// Then process command sequences
-	for (let i = 0; i < messages.length; i++) {
-		if (messages[i].type === "ask" && messages[i].ask === "command") {
-			let combinedText = messages[i].text || ""
+		// Handle command sequences
+		else if (msg.type === "ask" && msg.ask === "command") {
+			let combinedText = msg.text || ""
 			let j = i + 1
 			let previous: { type: "ask" | "say"; text: string } | undefined
+			let lastProcessedIndex = i
 
 			while (j < messages.length) {
 				const { type, ask, say, text = "" } = messages[j]
@@ -108,35 +102,44 @@ export function combineCommandSequences(messages: ClineMessage[]): ClineMessage[
 					}
 
 					previous = { type, text }
+					processedIndices.add(j)
+					lastProcessedIndex = j
 				}
 
 				j++
 			}
 
-			combinedCommands.push({ ...messages[i], text: combinedText })
+			combinedMessages.set(msg.ts, { ...msg, text: combinedText })
 
-			// Move to the index just before the next command or end of array.
-			i = j - 1
+			// Only skip ahead if we actually processed command outputs
+			if (lastProcessedIndex > i) {
+				i = lastProcessedIndex
+			}
 		}
 	}
 
-	// Second pass: remove command_outputs and mcp_server_responses, and replace original commands and MCP requests with
-	// combined ones.
-	const result = messages
-		.filter(
-			(msg) =>
-				!(msg.ask === "command_output" || msg.say === "command_output" || msg.say === "mcp_server_response"),
-		)
-		.map((msg) => {
-			if (msg.type === "ask" && msg.ask === "command") {
-				return combinedCommands.find((cmd) => cmd.ts === msg.ts) || msg
-			}
-			if (msg.type === "ask" && msg.ask === "use_mcp_server") {
-				return combinedMcpResponses.find((mcp) => mcp.ts === msg.ts) || msg
-			}
+	// Build final result: filter out processed messages and use combined versions
+	const result: ClineMessage[] = []
+	for (let i = 0; i < messages.length; i++) {
+		const msg = messages[i]
 
-			return msg
-		})
+		// Skip messages that were processed as outputs/responses
+		if (processedIndices.has(i)) {
+			continue
+		}
+
+		// Skip command_output and mcp_server_response messages
+		if (msg.ask === "command_output" || msg.say === "command_output" || msg.say === "mcp_server_response") {
+			continue
+		}
+
+		// Use combined version if available
+		if (combinedMessages.has(msg.ts)) {
+			result.push(combinedMessages.get(msg.ts)!)
+		} else {
+			result.push(msg)
+		}
+	}
 
 	return result
 }
