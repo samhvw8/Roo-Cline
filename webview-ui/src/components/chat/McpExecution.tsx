@@ -9,6 +9,7 @@ import { cn } from "@src/lib/utils"
 import { Button } from "@src/components/ui"
 import CodeBlock from "../common/CodeBlock"
 import McpToolRow from "../mcp/McpToolRow"
+import { Markdown } from "../ui/markdown"
 
 interface McpExecutionProps {
 	executionId: string
@@ -48,25 +49,30 @@ export const McpExecution = ({
 	// Only need expanded state for response section (like command output)
 	const [isResponseExpanded, setIsResponseExpanded] = useState(false)
 
-	// Try to parse the text as JSON for proper formatting
-	const formatJsonText = (inputText: string) => {
-		if (!inputText) return ""
+	// Try to parse JSON and return both the result and formatted text
+	const tryParseJson = (text: string): { isJson: boolean; formatted: string } => {
+		if (!text) return { isJson: false, formatted: "" }
 
 		try {
-			// If it's already valid JSON, pretty-print it
-			const parsed = safeJsonParse(inputText, null)
-			if (parsed !== null) {
-				return JSON.stringify(parsed, null, 2)
+			const parsed = JSON.parse(text)
+			return {
+				isJson: true,
+				formatted: JSON.stringify(parsed, null, 2),
 			}
-			return inputText
-		} catch (_e) {
-			// If parsing fails, return the original text
-			return inputText
+		} catch {
+			return {
+				isJson: false,
+				formatted: text,
+			}
 		}
 	}
 
-	const formattedResponseText = useMemo(() => formatJsonText(responseText), [responseText])
-	const formattedArgumentsText = useMemo(() => formatJsonText(argumentsText), [argumentsText])
+	const responseData = useMemo(() => tryParseJson(responseText), [responseText])
+	const argumentsData = useMemo(() => tryParseJson(argumentsText), [argumentsText])
+
+	const formattedResponseText = responseData.formatted
+	const formattedArgumentsText = argumentsData.formatted
+	const responseIsJson = responseData.isJson
 
 	const onToggleResponseExpand = useCallback(() => {
 		setIsResponseExpanded(!isResponseExpanded)
@@ -249,6 +255,7 @@ export const McpExecution = ({
 				<ResponseContainer
 					isExpanded={isResponseExpanded}
 					response={formattedResponseText}
+					isJson={responseIsJson}
 					hasArguments={!!(isArguments || useMcpServer?.arguments || argumentsText)}
 				/>
 			</div>
@@ -261,10 +268,12 @@ McpExecution.displayName = "McpExecution"
 const ResponseContainerInternal = ({
 	isExpanded,
 	response,
+	isJson,
 	hasArguments,
 }: {
 	isExpanded: boolean
 	response: string
+	isJson: boolean
 	hasArguments?: boolean
 }) => (
 	<div
@@ -273,7 +282,8 @@ const ResponseContainerInternal = ({
 			"max-h-[100%] mt-1 pt-1 border-t border-border/25": isExpanded && hasArguments,
 			"max-h-[100%] mt-1 pt-1": isExpanded && !hasArguments,
 		})}>
-		{response.length > 0 && <CodeBlock source={response} language="json" />}
+		{response.length > 0 &&
+			(isJson ? <CodeBlock source={response} language="json" /> : <Markdown content={response} />)}
 	</div>
 )
 
