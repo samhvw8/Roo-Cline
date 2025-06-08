@@ -17,9 +17,10 @@ type CopyButtonProps = {
  * @returns Text with highlight spans removed but content preserved
  */
 const stripHistoryHighlightSpans = (text: string): string => {
-	// Use regex to specifically target history-item-highlight spans
-	// This preserves other HTML/XML that might be intentional
-	return text.replace(/<span\s+class="history-item-highlight">([^<]*)<\/span>/g, "$1")
+	// Match opening tag, capture content until closing tag
+	// The [\s\S]*? pattern matches any character (including newlines) non-greedily,
+	// which properly handles content with < characters
+	return text.replace(/<span\s+class="history-item-highlight">([\s\S]*?)<\/span>/g, "$1")
 }
 
 export const CopyButton = ({ itemTask, className }: CopyButtonProps) => {
