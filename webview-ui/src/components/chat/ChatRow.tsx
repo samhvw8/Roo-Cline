@@ -965,7 +965,6 @@ export const ChatRowContent = ({
 					)
 				case "shell_integration_warning":
 					return <CommandExecutionError />
-					return null
 				case "checkpoint_saved":
 					return (
 						<CheckpointSaved
