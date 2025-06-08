@@ -10,6 +10,18 @@ type CopyButtonProps = {
 	className?: string
 }
 
+/**
+ * Strips only history highlight spans from text while preserving other HTML
+ * Targets: <span class="history-item-highlight">content</span>
+ * @param text - Text that may contain highlight spans
+ * @returns Text with highlight spans removed but content preserved
+ */
+const stripHistoryHighlightSpans = (text: string): string => {
+	// Use regex to specifically target history-item-highlight spans
+	// This preserves other HTML/XML that might be intentional
+	return text.replace(/<span\s+class="history-item-highlight">([^<]*)<\/span>/g, "$1")
+}
+
 export const CopyButton = ({ itemTask, className }: CopyButtonProps) => {
 	const { isCopied, copy } = useClipboard()
 	const { t } = useAppTranslation()
@@ -17,12 +29,10 @@ export const CopyButton = ({ itemTask, className }: CopyButtonProps) => {
 	const onCopy = useCallback(
 		(e: React.MouseEvent) => {
 			e.stopPropagation()
-			const tempDiv = document.createElement("div")
-			tempDiv.innerHTML = itemTask
-			const text = tempDiv.textContent || tempDiv.innerText || ""
-
 			if (!isCopied) {
-				copy(text)
+				// Strip only history highlight spans before copying to clipboard
+				const cleanText = stripHistoryHighlightSpans(itemTask)
+				copy(cleanText)
 			}
 		},
 		[isCopied, copy, itemTask],
