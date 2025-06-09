@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, memo } from "react"
 import { Server, ChevronDown } from "lucide-react"
 import { useEvent } from "react-use"
+import { useTranslation } from "react-i18next"
 
 import { McpExecutionStatus, mcpExecutionStatusSchema } from "@roo-code/types"
 import { ExtensionMessage, ClineAskUseMcpServer } from "../../../../src/shared/ExtensionMessage"
@@ -39,6 +40,8 @@ export const McpExecution = ({
 	useMcpServer,
 	alwaysAllowMcp = false,
 }: McpExecutionProps) => {
+	const { t } = useTranslation("mcp")
+
 	// State for tracking MCP response status
 	const [status, setStatus] = useState<McpExecutionStatus | null>(null)
 	const [responseText, setResponseText] = useState(text || "")
@@ -182,10 +185,10 @@ export const McpExecution = ({
 										"text-vscode-errorForeground": status.status === "error",
 									})}>
 									{status.status === "started"
-										? "Running"
+										? t("execution.running")
 										: status.status === "completed"
-											? "Completed"
-											: "Error"}
+											? t("execution.completed")
+											: t("execution.error")}
 								</div>
 								{status.status === "error" && "error" in status && status.error && (
 									<div className="whitespace-nowrap">({status.error})</div>

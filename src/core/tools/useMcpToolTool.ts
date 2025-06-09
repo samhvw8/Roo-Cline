@@ -3,6 +3,7 @@ import { ToolUse, AskApproval, HandleError, PushToolResult, RemoveClosingTag } f
 import { formatResponse } from "../prompts/responses"
 import { ClineAskUseMcpServer } from "../../shared/ExtensionMessage"
 import { McpExecutionStatus } from "@roo-code/types"
+import { t } from "../../i18n"
 
 interface McpToolParams {
 	server_name?: string
@@ -61,7 +62,7 @@ async function validateParams(
 		} catch (error) {
 			cline.consecutiveMistakeCount++
 			cline.recordToolError("use_mcp_tool")
-			await cline.say("error", `Roo tried to use ${params.tool_name} with an invalid JSON argument. Retrying...`)
+			await cline.say("error", t("mcp:errors.invalidJsonArgument", { toolName: params.tool_name }))
 
 			pushToolResult(
 				formatResponse.toolError(
