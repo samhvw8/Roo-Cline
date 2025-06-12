@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { applyDiffTool } from "../applyDiffTool"
-import { applyDiffToolLegacy } from "../applyDiffToolLegacy"
+import { applyDiffTool } from "../multiApplyDiffTool"
+import { applyDiffToolLegacy } from "../applyDiffTool"
 import { Task } from "../../task/Task"
 import { EXPERIMENT_IDS, experiments } from "../../../shared/experiments"
 
