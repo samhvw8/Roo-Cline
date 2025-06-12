@@ -162,7 +162,6 @@ Original error: ${errorMessage}`
 			throw new Error(detailedError)
 		}
 
-		// Remove this duplicate check - we already checked at the beginning
 	} else if (legacyPath && typeof legacyDiffContent === "string") {
 		// Handle legacy parameters (old way)
 		usingLegacyParams = true
