@@ -89,7 +89,11 @@ export async function applyDiffToolLegacy(
 			let originalContent: string | null = await fs.readFile(absolutePath, "utf-8")
 
 			// Apply the diff to the original content
-			const diffResult = (await cline.diffStrategy?.applyDiff(originalContent, diffContent)) ?? {
+			const diffResult = (await cline.diffStrategy?.applyDiff(
+				originalContent,
+				diffContent,
+				parseInt(block.params.start_line ?? ""),
+			)) ?? {
 				success: false,
 				error: "No diff strategy available",
 			}
