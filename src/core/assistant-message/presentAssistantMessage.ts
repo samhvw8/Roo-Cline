@@ -31,7 +31,7 @@ import { formatResponse } from "../prompts/responses"
 import { validateToolUse } from "../tools/validateToolUse"
 import { Task } from "../task/Task"
 import { codebaseSearchTool } from "../tools/codebaseSearchTool"
-import { experiments } from "../../shared/experiments"
+import { experiments, EXPERIMENT_IDS } from "../../shared/experiments"
 import { applyDiffToolLegacy } from "../tools/applyDiffTool"
 
 /**
@@ -386,8 +386,20 @@ export async function presentAssistantMessage(cline: Task) {
 				case "write_to_file":
 					await writeToFileTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
-				case "apply_diff":
-					if (experiments.get("MULTI_FILE_APPLY_DIFF")?.enabled) {
+				case "apply_diff": {
+					// Get the provider and state to check experiment settings
+					const provider = cline.providerRef.deref()
+					let isMultiFileApplyDiffEnabled = false
+
+					if (provider) {
+						const state = await provider.getState()
+						isMultiFileApplyDiffEnabled = experiments.isEnabled(
+							state.experiments ?? {},
+							EXPERIMENT_IDS.MULTI_FILE_APPLY_DIFF,
+						)
+					}
+
+					if (isMultiFileApplyDiffEnabled) {
 						await applyDiffTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					} else {
 						await applyDiffToolLegacy(
@@ -400,6 +412,7 @@ export async function presentAssistantMessage(cline: Task) {
 						)
 					}
 					break
+				}
 				case "insert_content":
 					await insertContentTool(cline, block, askApproval, handleError, pushToolResult, removeClosingTag)
 					break
