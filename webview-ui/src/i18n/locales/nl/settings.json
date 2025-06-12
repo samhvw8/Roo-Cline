@@ -500,6 +500,10 @@
 		"DISABLE_COMPLETION_COMMAND": {
 			"name": "Commando-uitvoering in attempt_completion uitschakelen",
 			"description": "Indien ingeschakeld, zal de attempt_completion tool geen commando's uitvoeren. Dit is een experimentele functie ter voorbereiding op het afschaffen van commando-uitvoering bij taakvoltooiing."
+		},
+		"MULTI_FILE_APPLY_DIFF": {
+			"name": "Multi-range diff bewerkingen inschakelen",
+			"description": "Laat Roo toe om wijzigingen toe te passen op meerdere bestanden en meerdere bereiken binnen bestanden in één verzoek. Deze geavanceerde functie kan minder capabele modellen overweldigen en moet met voorzichtigheid worden gebruikt."
 		}
 	},
 	"promptCaching": {

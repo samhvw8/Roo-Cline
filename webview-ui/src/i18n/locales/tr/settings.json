@@ -500,6 +500,10 @@
 		"DISABLE_COMPLETION_COMMAND": {
 			"name": "attempt_completion'da komut yürütmeyi devre dışı bırak",
 			"description": "Etkinleştirildiğinde, attempt_completion aracı komutları yürütmez. Bu, görev tamamlandığında komut yürütmenin kullanımdan kaldırılmasına hazırlanmak için deneysel bir özelliktir."
+		},
+		"MULTI_FILE_APPLY_DIFF": {
+			"name": "Çok aralıklı diff işlemlerini etkinleştir",
+			"description": "Roo'nun tek bir istekte birden fazla dosya ve dosyalar içindeki birden fazla aralığa değişiklik uygulamasına izin verir. Bu gelişmiş özellik daha az yetenekli modelleri bunaltabilir ve dikkatli kullanılmalıdır."
 		}
 	},
 	"promptCaching": {

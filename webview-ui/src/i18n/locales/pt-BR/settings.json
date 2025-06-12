@@ -500,6 +500,10 @@
 		"MARKETPLACE": {
 			"name": "Ativar Marketplace",
 			"description": "Quando ativado, você pode instalar MCPs e modos personalizados do Marketplace."
+		},
+		"MULTI_FILE_APPLY_DIFF": {
+			"name": "Habilitar operações de diff multi-range",
+			"description": "Permite que o Roo aplique alterações em múltiplos arquivos e múltiplas faixas dentro de arquivos em uma única solicitação. Este recurso avançado pode sobrecarregar modelos menos capazes e deve ser usado com cautela."
 		}
 	},
 	"promptCaching": {

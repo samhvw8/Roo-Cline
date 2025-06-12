@@ -500,6 +500,10 @@
 		"DISABLE_COMPLETION_COMMAND": {
 			"name": "Desactivar l'execució de comandes a attempt_completion",
 			"description": "Quan està activat, l'eina attempt_completion no executarà comandes. Aquesta és una característica experimental per preparar la futura eliminació de l'execució de comandes en la finalització de tasques."
+		},
+		"MULTI_FILE_APPLY_DIFF": {
+			"name": "Habilita operacions de diff multi-rang",
+			"description": "Permet a Roo aplicar canvis a múltiples fitxers i múltiples rangs dins dels fitxers en una sola petició. Aquesta funció avançada pot aclaparar models menys capaços i s'ha d'usar amb precaució."
 		}
 	},
 	"promptCaching": {

@@ -500,6 +500,10 @@
 		"DISABLE_COMPLETION_COMMAND": {
 			"name": "Disable command execution in attempt_completion",
 			"description": "When enabled, the attempt_completion tool will not execute commands. This is an experimental feature to prepare for deprecating command execution in task completion."
+		},
+		"MULTI_FILE_APPLY_DIFF": {
+			"name": "Enable multi-range diff operations",
+			"description": "Allow Roo to apply changes to multiple files and multiple ranges within files in a single request. This advanced feature may overwhelm less capable models and should be used with caution."
 		}
 	},
 	"promptCaching": {

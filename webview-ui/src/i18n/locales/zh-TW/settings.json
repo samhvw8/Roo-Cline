@@ -500,6 +500,10 @@
 		"DISABLE_COMPLETION_COMMAND": {
 			"name": "停用 attempt_completion 中的指令執行",
 			"description": "啟用後，attempt_completion 工具將不會執行指令。這是一項實驗性功能，旨在為未來停用工作完成時的指令執行做準備。"
+		},
+		"MULTI_FILE_APPLY_DIFF": {
+			"name": "啟用多範圍diff操作",
+			"description": "允許Roo在單個請求中對多個檔案和檔案內的多個範圍應用變更。這個進階功能可能會讓能力較弱的模型不堪重負，應謹慎使用。"
 		}
 	},
 	"promptCaching": {

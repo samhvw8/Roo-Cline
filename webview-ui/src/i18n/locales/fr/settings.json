@@ -500,6 +500,10 @@
 		"DISABLE_COMPLETION_COMMAND": {
 			"name": "Désactiver l'exécution des commandes dans attempt_completion",
 			"description": "Lorsque cette option est activée, l'outil attempt_completion n'exécutera pas de commandes. Il s'agit d'une fonctionnalité expérimentale visant à préparer la dépréciation de l'exécution des commandes lors de la finalisation des tâches."
+		},
+		"MULTI_FILE_APPLY_DIFF": {
+			"name": "Activer les opérations de diff multi-plages",
+			"description": "Permet à Roo d'appliquer des modifications à plusieurs fichiers et à plusieurs plages dans les fichiers en une seule requête. Cette fonctionnalité avancée peut submerger les modèles moins capables et doit être utilisée avec prudence."
 		}
 	},
 	"promptCaching": {

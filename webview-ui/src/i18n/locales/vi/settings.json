@@ -500,6 +500,10 @@
 		"DISABLE_COMPLETION_COMMAND": {
 			"name": "Tắt thực thi lệnh trong attempt_completion",
 			"description": "Khi được bật, công cụ attempt_completion sẽ không thực thi lệnh. Đây là một tính năng thử nghiệm để chuẩn bị cho việc ngừng hỗ trợ thực thi lệnh khi hoàn thành tác vụ trong tương lai."
+		},
+		"MULTI_FILE_APPLY_DIFF": {
+			"name": "Bật các thao tác diff đa phạm vi",
+			"description": "Cho phép Roo áp dụng thay đổi cho nhiều tệp và nhiều phạm vi trong các tệp trong một yêu cầu duy nhất. Tính năng nâng cao này có thể làm choáng ngợp các mô hình kém khả năng hơn và nên được sử dụng một cách thận trọng."
 		}
 	},
 	"promptCaching": {

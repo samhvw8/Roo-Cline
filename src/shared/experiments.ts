@@ -5,6 +5,7 @@ export const EXPERIMENT_IDS = {
 	CONCURRENT_FILE_READS: "concurrentFileReads",
 	DISABLE_COMPLETION_COMMAND: "disableCompletionCommand",
 	POWER_STEERING: "powerSteering",
+	MULTI_FILE_APPLY_DIFF: "multiFileApplyDiff",
 } as const satisfies Record<string, ExperimentId>
 
 type _AssertExperimentIds = AssertEqual<Equals<ExperimentId, Values<typeof EXPERIMENT_IDS>>>
@@ -20,6 +21,7 @@ export const experimentConfigsMap: Record<ExperimentKey, ExperimentConfig> = {
 	CONCURRENT_FILE_READS: { enabled: false },
 	DISABLE_COMPLETION_COMMAND: { enabled: false },
 	POWER_STEERING: { enabled: false },
+	MULTI_FILE_APPLY_DIFF: { enabled: false },
 }
 
 export const experimentDefault = Object.fromEntries(
