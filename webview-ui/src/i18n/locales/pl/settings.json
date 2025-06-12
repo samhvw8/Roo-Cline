@@ -502,8 +502,8 @@
 			"description": "Gdy włączone, możesz instalować MCP i niestandardowe tryby z Marketplace."
 		},
 		"MULTI_FILE_APPLY_DIFF": {
-			"name": "Włącz operacje diff wielozakresowe",
-			"description": "Pozwala Roo na zastosowanie zmian w wielu plikach i wielu zakresach w plikach w jednym żądaniu. Ta zaawansowana funkcja może przytłoczyć mniej zdolne modele i powinna być używana z ostrożnością."
+			"name": "Włącz równoczesne edycje plików",
+			"description": "Gdy włączone, Roo może edytować wiele plików w jednym żądaniu. Gdy wyłączone, Roo musi edytować pliki jeden po drugim. Wyłączenie tego może pomóc podczas pracy z mniej zdolnymi modelami lub gdy chcesz mieć większą kontrolę nad modyfikacjami plików."
 		}
 	},
 	"promptCaching": {

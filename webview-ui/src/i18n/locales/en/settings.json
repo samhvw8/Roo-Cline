@@ -502,8 +502,8 @@
 			"description": "When enabled, the attempt_completion tool will not execute commands. This is an experimental feature to prepare for deprecating command execution in task completion."
 		},
 		"MULTI_FILE_APPLY_DIFF": {
-			"name": "Enable multi-range diff operations",
-			"description": "Allow Roo to apply changes to multiple files and multiple ranges within files in a single request. This advanced feature may overwhelm less capable models and should be used with caution."
+			"name": "Enable concurrent file edits",
+			"description": "When enabled, Roo can edit multiple files in a single request. When disabled, Roo must edit files one at a time. Disabling this can help when working with less capable models or when you want more control over file modifications."
 		}
 	},
 	"promptCaching": {

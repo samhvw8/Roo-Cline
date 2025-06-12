@@ -502,8 +502,8 @@
 			"description": "Etkinleştirildiğinde, attempt_completion aracı komutları yürütmez. Bu, görev tamamlandığında komut yürütmenin kullanımdan kaldırılmasına hazırlanmak için deneysel bir özelliktir."
 		},
 		"MULTI_FILE_APPLY_DIFF": {
-			"name": "Çok aralıklı diff işlemlerini etkinleştir",
-			"description": "Roo'nun tek bir istekte birden fazla dosya ve dosyalar içindeki birden fazla aralığa değişiklik uygulamasına izin verir. Bu gelişmiş özellik daha az yetenekli modelleri bunaltabilir ve dikkatli kullanılmalıdır."
+			"name": "Eşzamanlı dosya düzenlemelerini etkinleştir",
+			"description": "Etkinleştirildiğinde, Roo tek bir istekte birden fazla dosyayı düzenleyebilir. Devre dışı bırakıldığında, Roo dosyaları tek tek düzenlemek zorundadır. Bunu devre dışı bırakmak, daha az yetenekli modellerle çalışırken veya dosya değişiklikleri üzerinde daha fazla kontrol istediğinde yardımcı olabilir."
 		}
 	},
 	"promptCaching": {

@@ -502,8 +502,8 @@
 			"description": "Quan està activat, l'eina attempt_completion no executarà comandes. Aquesta és una característica experimental per preparar la futura eliminació de l'execució de comandes en la finalització de tasques."
 		},
 		"MULTI_FILE_APPLY_DIFF": {
-			"name": "Habilita operacions de diff multi-rang",
-			"description": "Permet a Roo aplicar canvis a múltiples fitxers i múltiples rangs dins dels fitxers en una sola petició. Aquesta funció avançada pot aclaparar models menys capaços i s'ha d'usar amb precaució."
+			"name": "Habilita edicions de fitxers concurrents",
+			"description": "Quan està activat, Roo pot editar múltiples fitxers en una sola petició. Quan està desactivat, Roo ha d'editar fitxers d'un en un. Desactivar això pot ajudar quan es treballa amb models menys capaços o quan vols més control sobre les modificacions de fitxers."
 		}
 	},
 	"promptCaching": {

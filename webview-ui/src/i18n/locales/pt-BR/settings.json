@@ -502,8 +502,8 @@
 			"description": "Quando ativado, você pode instalar MCPs e modos personalizados do Marketplace."
 		},
 		"MULTI_FILE_APPLY_DIFF": {
-			"name": "Habilitar operações de diff multi-range",
-			"description": "Permite que o Roo aplique alterações em múltiplos arquivos e múltiplas faixas dentro de arquivos em uma única solicitação. Este recurso avançado pode sobrecarregar modelos menos capazes e deve ser usado com cautela."
+			"name": "Habilitar edições de arquivos concorrentes",
+			"description": "Quando habilitado, o Roo pode editar múltiplos arquivos em uma única solicitação. Quando desabilitado, o Roo deve editar arquivos um de cada vez. Desabilitar isso pode ajudar ao trabalhar com modelos menos capazes ou quando você quer mais controle sobre modificações de arquivos."
 		}
 	},
 	"promptCaching": {

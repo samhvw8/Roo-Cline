@@ -502,8 +502,8 @@
 			"description": "Se abilitato, lo strumento attempt_completion non eseguirà comandi. Questa è una funzionalità sperimentale per preparare la futura deprecazione dell'esecuzione dei comandi al completamento dell'attività."
 		},
 		"MULTI_FILE_APPLY_DIFF": {
-			"name": "Abilita operazioni diff multi-range",
-			"description": "Consente a Roo di applicare modifiche a più file e più range all'interno dei file in una singola richiesta. Questa funzionalità avanzata può sopraffare modelli meno capaci e dovrebbe essere usata con cautela."
+			"name": "Abilita modifiche di file concorrenti",
+			"description": "Quando abilitato, Roo può modificare più file in una singola richiesta. Quando disabilitato, Roo deve modificare i file uno alla volta. Disabilitare questa opzione può aiutare quando lavori con modelli meno capaci o quando vuoi più controllo sulle modifiche dei file."
 		}
 	},
 	"promptCaching": {
