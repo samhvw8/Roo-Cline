@@ -35,7 +35,7 @@ describe("getCapabilitiesSection", () => {
 	const mockDiffStrategy: DiffStrategy = {
 		getName: () => "MockStrategy",
 		getToolDescription: () => "apply_diff tool description",
-		async applyDiff(_originalContent: string, _diffContents: DiffItem[]): Promise<DiffResult> {
+		async applyDiff(_originalContent: string, _diffContents: string | DiffItem[]): Promise<DiffResult> {
 			return { success: true, content: "mock result" }
 		},
 	}
