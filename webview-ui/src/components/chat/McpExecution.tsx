@@ -10,7 +10,7 @@ import { cn } from "@src/lib/utils"
 import { Button } from "@src/components/ui"
 import CodeBlock from "../common/CodeBlock"
 import McpToolRow from "../mcp/McpToolRow"
-import { Markdown } from "../ui/markdown"
+import { Markdown } from "./Markdown"
 
 interface McpExecutionProps {
 	executionId: string
@@ -286,7 +286,7 @@ const ResponseContainerInternal = ({
 			"max-h-[100%] mt-1 pt-1": isExpanded && !hasArguments,
 		})}>
 		{response.length > 0 &&
-			(isJson ? <CodeBlock source={response} language="json" /> : <Markdown content={response} />)}
+			(isJson ? <CodeBlock source={response} language="json" /> : <Markdown markdown={response} partial={false} />)}
 	</div>
 )
 
