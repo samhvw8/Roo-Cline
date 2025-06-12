@@ -1,10 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { applyDiffTool } from "../multiApplyDiffTool"
-import { applyDiffToolLegacy } from "../applyDiffTool"
-import { Task } from "../../task/Task"
 import { EXPERIMENT_IDS, experiments } from "../../../shared/experiments"
 
-vi.mock("../applyDiffToolLegacy")
+// Mock the applyDiffTool module
+vi.mock("../applyDiffTool", () => ({
+	applyDiffToolLegacy: vi.fn(),
+}))
+
+// Import after mocking to get the mocked version
+import { applyDiffToolLegacy } from "../applyDiffTool"
 
 describe("applyDiffTool experiment routing", () => {
 	let mockCline: any
@@ -34,6 +38,9 @@ describe("applyDiffTool experiment routing", () => {
 			diffViewProvider: {
 				reset: vi.fn(),
 			},
+			api: {
+				getModel: vi.fn().mockReturnValue({ id: "test-model" }),
+			},
 		} as any
 
 		mockBlock = {
@@ -57,6 +64,9 @@ describe("applyDiffTool experiment routing", () => {
 			},
 		})
 
+		// Mock the legacy tool to resolve successfully
+		;(applyDiffToolLegacy as any).mockResolvedValue(undefined)
+
 		await applyDiffTool(
 			mockCline,
 			mockBlock,
@@ -78,6 +88,9 @@ describe("applyDiffTool experiment routing", () => {
 
 	it("should use legacy tool when experiments are not defined", async () => {
 		mockProvider.getState.mockResolvedValue({})
+
+		// Mock the legacy tool to resolve successfully
+		;(applyDiffToolLegacy as any).mockResolvedValue(undefined)
 
 		await applyDiffTool(
 			mockCline,
