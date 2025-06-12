@@ -19,8 +19,6 @@ import { ClineProvider } from "../ClineProvider"
 // Mock setup must come before imports
 jest.mock("../../prompts/sections/custom-instructions")
 
-// Don't mock generateSystemPrompt - let it call through to test the actual implementation
-
 jest.mock("vscode")
 
 jest.mock("delay")
