@@ -171,4 +171,89 @@ describe("XML Sanitization Security Fix", () => {
 			expect(result).toEqual([])
 		})
 	})
+
+	describe("Enhanced HTML Injection Prevention", () => {
+		it("should sanitize potential HTML injection attempts", () => {
+			const injectionAttempts = [
+				'<script>alert("xss")</script>',
+				'<img src="x" onerror="alert(1)">',
+				'<div onclick="malicious()">content</div>',
+				'<iframe src="javascript:alert(1)"></iframe>',
+				'<svg onload="alert(1)">',
+				'<object data="javascript:alert(1)">',
+				'<embed src="javascript:alert(1)">',
+				'<link rel="stylesheet" href="javascript:alert(1)">',
+				'<style>body{background:url("javascript:alert(1)")}</style>',
+				'<meta http-equiv="refresh" content="0;url=javascript:alert(1)">',
+			]
+
+			for (const injection of injectionAttempts) {
+				// Should not throw an error
+				expect(() => parseXml(injection)).not.toThrow()
+
+				const result = parseXml(injection)
+				expect(result).toBeDefined()
+				// The enhanced sanitization should handle these gracefully
+				expect(Array.isArray(result)).toBe(true)
+			}
+		})
+
+		it("should handle CDATA injection attempts", () => {
+			const cdataInjections = [
+				'<script>alert("xss")</script>',
+				"<script>alert(1)</script>",
+				'<img src="x" onerror="alert(1)">',
+				'<root><div onclick="evil()"></root>',
+			]
+
+			for (const injection of cdataInjections) {
+				// Should not throw an error
+				expect(() => parseXml(injection)).not.toThrow()
+
+				const result = parseXml(injection)
+				expect(result).toBeDefined()
+				expect(Array.isArray(result)).toBe(true)
+			}
+		})
+
+		it("should handle mixed malformed content with potential injections", () => {
+			const mixedMalformed = [
+				'<?xml version="1.0"?><script>alert(1)</script><!--comment-->',
+				'<!DOCTYPE html><img src="x" onerror="alert(1)">',
+				'<!--<script>alert(1)</script>--><div onclick="evil()">',
+				"<script><script>alert(1)</script>",
+				'<?xml<script>alert(1)</script>?><!DOCTYPE<div onclick="evil()">',
+			]
+
+			for (const malformed of mixedMalformed) {
+				// Should not throw an error
+				expect(() => parseXml(malformed)).not.toThrow()
+
+				const result = parseXml(malformed)
+				expect(result).toBeDefined()
+				expect(Array.isArray(result)).toBe(true)
+			}
+		})
+
+		it("should handle incomplete tags and malformed structures", () => {
+			const incompleteStructures = [
+				"<incomplete",
+				'<tag attr="value',
+				"<tag>content</wrong>",
+				"</orphan>",
+				"<tag><nested></tag>",
+				"<tag attr=>content</tag>",
+				'<tag attr="val"ue">content</tag>',
+			]
+
+			for (const incomplete of incompleteStructures) {
+				// Should not throw an error
+				expect(() => parseXml(incomplete)).not.toThrow()
+
+				const result = parseXml(incomplete)
+				expect(result).toBeDefined()
+				expect(Array.isArray(result)).toBe(true)
+			}
+		})
+	})
 })

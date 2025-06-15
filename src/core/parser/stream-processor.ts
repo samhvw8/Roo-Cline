@@ -445,18 +445,21 @@ export function finalizeStreamResult(
 				parserContext.streamingBufferBeforeClear ||
 				parserContext.streamingBuffer ||
 				parserContext._rootDeterminationBuffer
+			// Enhanced sanitization for malformed declarations and potential HTML injection
+			// Remove any remaining XML/HTML-like constructs that could bypass initial regex
 			let tempBufferForNullCheck = effectiveBufferContent
-				.replace(/<\?xml(?:[^?]|\?(?!>))*\?>/g, "")
-				.replace(/<!--(?:[^-]|-(?!->))*-->/g, "")
-				.replace(/<!DOCTYPE[^>]*>/gi, "")
-				.replace(/<!DOCTYPE[^<]*(?:<[^>]*>[^<]*)*>/gi, "")
-				.replace(/<!DOCTYPE[^>]*$/gi, "")
+				.replace(/<!DOCTYPE[^>]*>/gi, "") // Remove DOCTYPE declarations
+				.replace(/<!DOCTYPE[^<]*(?:<[^>]*>[^<]*)*>/gi, "") // Remove complex DOCTYPE
+				.replace(/<!DOCTYPE[^>]*$/gi, "") // Remove incomplete DOCTYPE
+				.replace(/<!DOCTYPE[^>]*(?:<[^>]*>[^<]*)*[^>]*>/gi, "") // Additional DOCTYPE cleanup
+				.replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "") // Remove CDATA sections
+				.replace(/<\?[^>]*\?>/g, "") // Remove any remaining processing instructions
+				.replace(/<!--[\s\S]*?-->/g, "") // Remove any remaining comments
+				.replace(/<![^>]*>/g, "") // Remove any other declaration-like constructs
+				.replace(/<\s*\/?\s*[a-zA-Z][^>]*>/g, "") // Remove any remaining HTML/XML tags
+				.replace(/<[^>]*$/g, "") // Remove incomplete tags at end
+				.replace(/^[^<]*>/g, "") // Remove incomplete closing tags at start
 				.trim()
-
-			// Additional sanitization for malformed declarations that might bypass initial regex
-			if (tempBufferForNullCheck.includes("<!DOCTYPE")) {
-				tempBufferForNullCheck = tempBufferForNullCheck.replace(/<!DOCTYPE[^>]*(?:<[^>]*>[^<]*)*[^>]*>/gi, "")
-			}
 
 			if (isSpecialOnlyAtEOF) {
 				finalXmlContent = []
