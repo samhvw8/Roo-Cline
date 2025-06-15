@@ -374,9 +374,9 @@ export function handleOpeningTag(parserContext: ParserContext, tagString: string
 			for (const pathStopNode of parserContext.pathStopNodes) {
 				// Check for wildcard patterns (e.g., "a.*", "*.suggest", "a.*.c")
 				if (pathStopNode.includes("*")) {
-					// Convert glob pattern to regex
+					// Convert glob pattern to regex - escape all regex special characters except *
 					const regexPattern = pathStopNode
-						.replace(/\./g, "\\.") // Escape dots
+						.replace(/[\\^$+?.()|[\]{}]/g, "\\$&") // Escape all regex special characters
 						.replace(/\*/g, "[^.]*") // Replace * with non-dot characters
 
 					// Check both exact match and suffix match for wildcard patterns
