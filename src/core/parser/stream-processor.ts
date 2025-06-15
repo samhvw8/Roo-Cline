@@ -445,11 +445,18 @@ export function finalizeStreamResult(
 				parserContext.streamingBufferBeforeClear ||
 				parserContext.streamingBuffer ||
 				parserContext._rootDeterminationBuffer
-			const tempBufferForNullCheck = effectiveBufferContent
-				.replace(/<\?xml[^?]*\?>/g, "")
-				.replace(/<!--[\s\S]*?-->/g, "")
-				.replace(/<!DOCTYPE[^>]*>/g, "")
+			let tempBufferForNullCheck = effectiveBufferContent
+				.replace(/<\?xml(?:[^?]|\?(?!>))*\?>/g, "")
+				.replace(/<!--(?:[^-]|-(?!->))*-->/g, "")
+				.replace(/<!DOCTYPE[^>]*>/gi, "")
+				.replace(/<!DOCTYPE[^<]*(?:<[^>]*>[^<]*)*>/gi, "")
+				.replace(/<!DOCTYPE[^>]*$/gi, "")
 				.trim()
+
+			// Additional sanitization for malformed declarations that might bypass initial regex
+			if (tempBufferForNullCheck.includes("<!DOCTYPE")) {
+				tempBufferForNullCheck = tempBufferForNullCheck.replace(/<!DOCTYPE[^>]*(?:<[^>]*>[^<]*)*[^>]*>/gi, "")
+			}
 
 			if (isSpecialOnlyAtEOF) {
 				finalXmlContent = []
