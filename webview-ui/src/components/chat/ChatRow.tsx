@@ -983,6 +983,17 @@ export const ChatRowContent = ({
 										${Number(cost || 0)?.toFixed(4)}
 									</VSCodeBadge>
 								</div>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="shrink-0"
+									disabled={isStreaming}
+									onClick={(e) => {
+										e.stopPropagation()
+										vscode.postMessage({ type: "deleteMessage", value: message.ts })
+									}}>
+									<span className="codicon codicon-trash" />
+								</Button>
 								<span className={`codicon codicon-chevron-${isExpanded ? "up" : "down"}`}></span>
 							</div>
 							{(((cost === null || cost === undefined) && apiRequestFailedMessage) ||
@@ -1023,8 +1034,23 @@ export const ChatRowContent = ({
 					return null // we should never see this message type
 				case "text":
 					return (
-						<div>
+						<div className="group">
 							<Markdown markdown={message.text} partial={message.partial} />
+							{message.type === "say" && !message.partial && (
+								<div className="flex gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+									<Button
+										variant="ghost"
+										size="icon"
+										className="shrink-0"
+										disabled={isStreaming}
+										onClick={(e) => {
+											e.stopPropagation()
+											vscode.postMessage({ type: "deleteMessage", value: message.ts })
+										}}>
+										<span className="codicon codicon-trash" />
+									</Button>
+								</div>
+							)}
 						</div>
 					)
 				case "user_feedback":
